@@ -5,12 +5,13 @@ body
 {
     font-family: 'Manjari';
     background: #fff; 
+    background-image: linear-gradient(to right top, #444444, #6f6f6f, #9c9c9c, #cccccc, #ffffff);
 }
 
 #website-brand, #dropdown-brand
 {
     font-family: 'Righteous';
-    color: rgba(34, 34, 34, 0.747);
+    color: #5e5e5e;
     text-align: center;
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -20,6 +21,7 @@ body
     justify-content: center;
     align-items: center;
 }
+
 
 #animation-logo
 {
@@ -165,8 +167,6 @@ body
     margin-right: 50px;
     padding-top: 0;
     padding-bottom: 0;
-    border: 1px solid;
-    border-color: #e0e0e0!important;
     border-radius: 5px;
     animation-name: diamsContainer;
     animation-duration: 1s; 
@@ -181,7 +181,8 @@ body
     justify-content: center;
     text-align: justify;
     padding: 1rem;
-    background: #fff;
+    background: transparent;
+    color: #000;
     border-left: none !important;
     animation-duration: 1s;
     animation-name: slidein;
@@ -194,7 +195,7 @@ body
 #diams-port h1
 {
     font-family: 'Righteous';
-    color: #696969;
+    color: #5e5e5e;
     text-align: center;
 }
 
@@ -211,7 +212,7 @@ body
 {
     padding: 4rem;
     clip-path: polygon(0 0, 97.5% 0, 100% 100%, 0% 100%);
-    background-color: rgb(173, 173, 173);
+    /* background-image: linear-gradient(to right top, #ffffff, #eeedfa, #dadcf5, #c5cbf1, #acbced, #9bb0ea, #89a4e7, #7698e4, #6c8ce1, #647fdd, #5e72d8, #5a65d3); */
     margin-top: 1%;
     flex-wrap: wrap;
 }
@@ -219,6 +220,7 @@ body
 #cards-container .card{
     min-width: 438px;
     margin: 2rem;
+    background: #585555;
 }
 
 .card-title
@@ -226,11 +228,13 @@ body
     font-size: 200%;
     text-align: center;
     font-weight: bolder;
+    color: #fff;
 }
 
 .card-text
 {
     font-size: 150% !important;
+    color: #fff !important;
 }
 
 .card:hover
@@ -245,13 +249,13 @@ body
 
 .logo-footer a i
 {
-    color: rgba(34, 34, 34, 0.747) !important;
+    color: #fff !important;
 }
 
-.footer-copyright
+.footer-copyright, footer .container, footer
 {
-    background-color: #fff !important; 
-    color: #2189eb !important;
+    background: #363636 !important; 
+    color: #fff !important;
 }
 
 /* MAP ROUTE */
@@ -500,5 +504,11 @@ body
     #marinetraffic, #pollution-paca
     {
         min-width: 90%;
+    }
+
+    #diams-port-container
+    {
+        border: 1px solid;
+        border-color: #e0e0e0!important;
     }
 }

@@ -21,8 +21,8 @@ $(document).ready(function () {
     });
 });
 
-// Scroll Cards Animations 
 
+// Scroll Cards Animations 
 window.addEventListener('scroll', () => scrollCardsAnimation());
  
 
@@ -43,10 +43,17 @@ let $navLeaver = document.getElementById('nav-dropdown-leaver');
 let $dropdown = document.getElementById('nav-dropdown');
 let $hamburger = document.getElementById('nav-icon3');
 let $dropdownContent = document.getElementById('dropdown-content');
+let $websiteContent = document.getElementById('main');
+let $websiteBrand = document.getElementById('website-brand');
+let $footer = document.getElementsByTagName('footer')[0];
+console.log($footer);
 
 $navLeaver.addEventListener('click', () => {
     $dropdown.setAttribute('class', 'dropdown-not-loaded');
     $dropdownContent.style.visibility = "hidden";
+    $websiteContent.removeAttribute('style');
+    $websiteBrand.removeAttribute('style');
+    $footer.removeAttribute('style');
 
     setTimeout(() =>{
         $dropdown.setAttribute('class', 'not-loaded');
@@ -56,6 +63,9 @@ $navLeaver.addEventListener('click', () => {
 $hamburger.addEventListener('click', () => {
     $dropdown.setAttribute('class', 'dropdown-loaded');
     $dropdownContent.style.visibility = "visible";
+    $websiteContent.style.setProperty('filter', 'blur(2px)');
+    $websiteBrand.style.setProperty('filter', 'blur(2px)');
+    $footer.style.setProperty('filter', 'blur(2px)');
 });
 
 
