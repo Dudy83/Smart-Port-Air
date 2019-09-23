@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+
+    <div id="maps-container" class="d-flex flex-wrap justify-content-center align-items-center p-3">
+    
+            <script type="text/javascript">
+                width='46%';  
+                height='820'; 
+                shownames='false';  
+                latitude='43.321309';  
+                longitude='5.353301'; 
+                zoom='14'; 
+                maptype='2'; 
+                trackvessel='0'; 
+                fleet=''; 
+            </script> 
+            
+            <script type="text/javascript" src="//www.marinetraffic.com/js/embed.js"></script> 
+            
+
+            <iframe id="pollution-paca" src="http://172.16.13.140/azur/azur-jour.html" width="46%" height="820px"></iframe>
+    </div> 
+
+
+
+
+{% endblock %}

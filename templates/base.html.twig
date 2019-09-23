@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        
+        {% block stylesheets %}
+
+            <!-- Font Awesome icons <i> -->
+            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+            <!-- Bootstrap core CSS -->
+            <link href="cdn/css/bootstrap.min.css" rel="stylesheet">
+            <!-- Material Design Bootstrap -->
+            <link href="cdn/css/mdb.min.css" rel="stylesheet">
+
+            {{ encore_entry_link_tags('app') }}
+
+        {% endblock %}
+
+    </head>
+
+    <body>
+
+    <h1 id="website-brand"><img src="images/boat.png" width="64px"> SMART PORT AIR </h1>
+
+    <nav id="navbar" class="d-flex flex-column justify-content-start align-items-center">
+
+      <div id="nav-icon3">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      
+
+       
+      <div id="list-container" class="d-flex flex-column justify-content-center align-items-center">
+
+                  <a href="{{ path('smart_port') }}"><i class="fas fa-home"></i></a>
+            
+        
+            
+                  <a href="{{ path('map') }}"><i class="fas fa-anchor"></i></a>
+        
+        
+          
+                  <a href="{{ path('map') }}"><i class="fas fa-layer-group"></i></a>
+        
+        
+                  <a href="{{ path('map') }}"><i class="fas fa-user"></i></a>
+      </div>
+
+
+
+    </nav>
+
+    <div id="nav-dropdown" class="not-loaded">
+    
+      <i id="nav-dropdown-leaver" class="fas fa-chevron-left d-flex justify-content-center align-items-center"></i>
+
+      <div class="d-flex flex-column justify-content-center align-items-center border-bottom">
+        <img src="images/boat.png" width="64px">
+        <h1 id="dropdown-brand"> SMART PORT AIR </h1>
+      </div>
+
+      <div id="dropdown-content" class="d-flex flex-column justify-content-center align-items-start border-bottom mt-3">
+        <a class="dropdown-items ml-1"><i class="fas fa-cog mr-3"></i> Paramètres</a>
+        <a class="dropdown-items ml-1"><i class="fas fa-user mr-3 mt-4"></i> Mon compte</a>
+        <a class="dropdown-items"><i class="fas fa-anchor mr-3 mt-4"></i> Les cartes</a>
+      </div>
+    </div>
+
+    {# <nav class="navbar navbar-expand-lg navbar-dark primary-color">
+
+      <!-- Navbar brand -->
+      <a class="navbar-brand d-flex justify-content-center align-items-center" href="{{ path('smart_port') }}"><img
+          src="images/cruise.png" width="64px"> SMART PORT AIR </a>
+
+      <!-- Collapse button -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
+        aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Collapsible content -->
+      <div class="collapse navbar-collapse" id="basicExampleNav">
+
+        <!-- Links -->
+        <ul class="navbar-nav ml-auto">
+
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link waves-effect waves-light" href="{{ path('map') }}">
+              <i class="fas fa-anchor"></i> Map </a>
+          </li>
+
+          <!-- Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false"><i class="fas fa-user"></i> Profil </a>
+            <div class="dropdown-menu dropdown-primary" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="#">Mon compte</a>
+              <a class="dropdown-item" href="#">Deconnexion</a>
+            </div>
+          </li>
+
+        </ul>
+        <!-- Links -->
+      </div>
+      <!-- Collapsible content -->
+
+    </nav> #}
+
+
+
+
+   
+        {% block body %}{% endblock %}
+       
+    <footer class="page-footer font-small darken-3 shadow-lg" style="background-color:#fff">
+
+        <!-- Footer Elements -->
+        <div class="container d-flex justify-content-center align-items-center">
+
+            <!-- Grid row-->
+            <div class="row">
+
+                <!-- Grid column -->
+                <div>
+                    <div class="logo-footer mb-5 flex-center">
+
+                        <!-- Facebook -->
+                        <a class="fb-ic">
+                            <i class="fab fa-facebook-f fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
+                        </a>
+                        <!-- Twitter -->
+                        <a class="tw-ic">
+                            <i class="fab fa-twitter fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
+                        </a>
+                        <!-- Google +-->
+                        <a class="gplus-ic">
+                            <i class="fab fa-google-plus-g fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
+                        </a>
+                        <!--Linkedin -->
+                        <a class="li-ic">
+                            <i class="fab fa-linkedin-in fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
+                        </a>
+                        <!--Instagram-->
+                        <a class="ins-ic">
+                            <i class="fab fa-instagram fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
+                        </a>
+                        <!--Pinterest-->
+                        <a class="pin-ic">
+                            <i class="fab fa-pinterest fa-lg white-text fa-2x"> </i>
+                        </a>
+                    </div>
+                </div>
+                <!-- Grid column -->
+
+            </div>
+            <!-- Grid row-->
+
+        </div>
+        <!-- Footer Elements -->
+
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3 border-top">
+           <img src="images/atmosud.png" width="256px">
+        </div>
+        <!-- Copyright -->
+
+    </footer>
+
+        {% block javascripts %}
+
+            <script type="text/javascript" src="cdn/js/jquery-3.4.1.min.js"></script>
+            <!-- Bootstrap tooltips -->
+            <script type="text/javascript" src="cdn/js/popper.min.js"></script>
+            <!-- Bootstrap core JavaScript -->
+            <script type="text/javascript" src="cdn/js/bootstrap.min.js"></script>
+            <!-- MDB core JavaScript -->
+            <script type="text/javascript" src="cdn/js/mdb.min.js"></script>
+
+            {{ encore_entry_script_tags('app') }}
+
+        {% endblock %}
+    </body>
+
+</html>
