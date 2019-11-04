@@ -12,6 +12,10 @@
             <!-- Material Design Bootstrap -->
             <link href="cdn/css/mdb.min.css" rel="stylesheet">
 
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>         
+  
+            <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
+            
             {{ encore_entry_link_tags('app') }}
 
         {% endblock %}
@@ -19,8 +23,6 @@
     </head>
 
     <body>
-
-    <h1 id="website-brand" class="p-3"><img src="images/cruiseWhite.png" width="64px" class="mr-2">SMART PORT AIR</h1>
 
     <nav id="navbar" class="d-flex flex-column justify-content-start align-items-center">
 
@@ -30,9 +32,6 @@
         <span></span>
         <span></span>
       </div>
-
-      
-
        
       <div id="list-container" class="d-flex flex-column justify-content-center align-items-center">
 
@@ -59,73 +58,21 @@
       <i id="nav-dropdown-leaver" class="fas fa-chevron-left d-flex justify-content-center align-items-center"></i>
 
       <div class="d-flex flex-column justify-content-center align-items-center border-bottom">
-        <img src="images/cruiseGrey.png" width="64px">
-        <h1 id="dropdown-brand"> SMART PORT AIR </h1>
+        <img src="images/factory.png" width="256px">
+        <h1>Smart Port Air</h1>
       </div>
 
       <div id="dropdown-content" class="d-flex flex-column justify-content-center align-items-start border-bottom mt-3">
         <a class="dropdown-items ml-1"><i class="fas fa-cog mr-3"></i> Paramètres</a>
         <a class="dropdown-items ml-1"><i class="fas fa-user mr-3 mt-4"></i> Mon compte</a>
-        <a class="dropdown-items"><i class="fas fa-anchor mr-3 mt-4"></i> Les cartes</a>
+        <a class="dropdown-items" href="{{ path('map') }}"><i class="fas fa-anchor mr-3 mt-4"></i> Les cartes</a>
       </div>
     </div>
 
-      <main id="main">{% block body %}{% endblock %}</main>
+      <main id="main">
+      {% block body %}{% endblock %}
+      </main>
        
-    <footer class="page-footer font-small darken-3 shadow-lg" style="background: #363636">
-
-        <!-- Footer Elements -->
-        <div class="container d-flex justify-content-center align-items-center">
-
-            <!-- Grid row-->
-            <div class="row">
-
-                <!-- Grid column -->
-                <div>
-                    <div class="logo-footer mb-5 flex-center">
-
-                        <!-- Facebook -->
-                        <a class="fb-ic">
-                            <i class="fab fa-facebook-f fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
-                        </a>
-                        <!-- Twitter -->
-                        <a class="tw-ic">
-                            <i class="fab fa-twitter fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
-                        </a>
-                        <!-- Google +-->
-                        <a class="gplus-ic">
-                            <i class="fab fa-google-plus-g fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
-                        </a>
-                        <!--Linkedin -->
-                        <a class="li-ic">
-                            <i class="fab fa-linkedin-in fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
-                        </a>
-                        <!--Instagram-->
-                        <a class="ins-ic">
-                            <i class="fab fa-instagram fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
-                        </a>
-                        <!--Pinterest-->
-                        <a class="pin-ic">
-                            <i class="fab fa-pinterest fa-lg white-text fa-2x"> </i>
-                        </a>
-                    </div>
-                </div>
-                <!-- Grid column -->
-
-            </div>
-            <!-- Grid row-->
-
-        </div>
-        <!-- Footer Elements -->
-
-        <!-- Copyright -->
-        <div class="footer-copyright text-center py-3 border-warning border-top">
-           <img src="images/atmosud.png" width="256px">
-        </div>
-        <!-- Copyright -->
-
-    </footer>
-
         {% block javascripts %}
 
             <script type="text/javascript" src="cdn/js/jquery-3.4.1.min.js"></script>
@@ -135,6 +82,12 @@
             <script type="text/javascript" src="cdn/js/bootstrap.min.js"></script>
             <!-- MDB core JavaScript -->
             <script type="text/javascript" src="cdn/js/mdb.min.js"></script>
+
+            <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+            
+            <script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"></script>
+
+            <script type="text/javascript" src="cdn/js/leaflet-velocity.js"></script>
 
             {{ encore_entry_script_tags('app') }}
 

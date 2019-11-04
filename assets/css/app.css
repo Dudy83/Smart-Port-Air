@@ -5,7 +5,10 @@ body
 {
     font-family: 'Manjari';
     background: #fff; 
-    background-image: linear-gradient(to right top, #444444, #6f6f6f, #9c9c9c, #cccccc, #ffffff);
+    background-color: #47555E;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #363636;
 }
 
 #website-brand, #dropdown-brand
@@ -44,7 +47,7 @@ body
 {
     position: fixed;
     top: 0;
-    z-index: 15;
+    z-index: 4000;
     background: #363636;
     padding: 1rem;
     height: 100vh;
@@ -125,8 +128,8 @@ body
     top: 0;
     background: #fff;
     height: 100vh;
-    z-index: 150;
     padding: 1rem;
+    z-index: 15000;
     box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
 }
 
@@ -170,196 +173,45 @@ body
     animation-name: slideoutDropdown;
 }
 
-#diams-port-container
-{
-    margin-left: 100px;
-    margin-right: 50px;
-    margin-top: 4rem;
-    padding-top: 0;
-    padding-bottom: 0;
-    border-radius: 5px;
-    animation-name: diamsContainer;
-    animation-duration: 1s; 
-    max-height: 802px;
-}
-
-#diams-port
-{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: justify;
-    padding: 1rem;
-    background: transparent;
-    color: #000;
-    border-left: none !important;
-    animation-duration: 1s;
-    animation-name: slidein;
-    display: table-cell;
-    vertical-align: middle;
-    width: 40%;
-    min-width: 300px;
-}
-
-#diams-port h1
-{
-    font-family: 'Righteous';
-    color: #5e5e5e;
-    text-align: center;
-}
-
-#diams-port-img
-{   
-    max-height: 802px;
-    animation-duration: 1s;
-    animation-name: slideinImg;
-    clip-path: polygon(0 0, 100% 0%, 75% 100%, 0% 100%);
-    width: 60%;
-}
-
-#cards-container
-{
-    padding: 4rem;
-    clip-path: polygon(0 0, 97.5% 0, 100% 100%, 0% 100%);
-    /* background-image: linear-gradient(to right top, #ffffff, #eeedfa, #dadcf5, #c5cbf1, #acbced, #9bb0ea, #89a4e7, #7698e4, #6c8ce1, #647fdd, #5e72d8, #5a65d3); */
-    margin-top: 1%;
-    flex-wrap: wrap;
-}
-
-#cards-container .card{
-    min-width: 438px;
-    margin: 2rem;
-    background: #585555;
-}
-
-.card-title
-{
-    font-size: 200%;
-    text-align: center;
-    font-weight: bolder;
-    color: #fff;
-}
-
-.card-text
-{
-    font-size: 150% !important;
-    color: #fff !important;
-}
-
-.card:hover
-{
-    transform: scale(1.01);
-}
-
-.page-footer
-{
-    z-index: 160 !important;
-}
-
-.logo-footer a i
-{
-    color: #fff !important;
-}
-
-.footer-copyright, footer .container, footer
-{
-    background: #363636 !important; 
-    color: #fff !important;
-}
-
-/* MAP ROUTE */
-#pollution-paca
-{
-    border: none;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
-    animation-duration: 1s;
-    animation-name: slidein;
-    margin-right: 1rem;
-    min-width: 850px;
-    margin-left: 64px;
-}
-
-#marinetraffic
-{
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
-    animation-duration: 1s;
-    animation-name: slideinImg;
-    margin-left: 4rem;
-    min-width: 850px;
-}
-
-.loaded
-{
-    animation-duration: 1s;
-    animation-name: slideinCards;
-}
-
 .not-loaded
 {
     visibility: hidden;
 }
 
-@keyframes logo {
-    
-    0% {
-        z-index: 100;
-        opacity: 1;
-    }
-    
-    50% {
-        
-        transform: rotate(360deg);
-        opacity: 0.5;
-        z-index: 100;
-    }
-    
-    100% {
-        z-index: 100;
-        transform: translateY(-1000px);
-        opacity: 0;
-    }
+#diams-port-container{
+    height: 60vh;
 }
 
-@keyframes slideout {
-    
-    0% {
-        transform: translateX(-100px);
-        background-color: transparent;
-    }
-    
-    100% {
-        transform: translateX(0px);
-    }
+#cards-container
+{
+    height: 40vh;
+    width: 100%;
+    background-image: linear-gradient(to right top, #e0e0e0, #e8e8e8, #efefef, #f7f7f7, #ffffff);
+    clip-path: polygon(20% 0%, 80% 0%, 100% 15%, 100% 100%, 80% 100%, 20% 100%, 0 100%, 0 15%);
 }
 
-@keyframes slidein {
-    
-    0% {
-        transform: translateX(200px);       
-    }
-    
-    
-    100% {
-        transform: translateX(0px);
-    }
+.cards-background{
+    z-index: 700 !important;
+    background-color: #363636;
+    padding: 1rem;
+    border-radius: 50%;
 }
 
-@keyframes slideinImg {
-    
-    0% {
-        transform: translateX(-200px);
-        opacity: 0;
-        
-    }
-    
-    
-    100% {
-        transform: translateX(0px);
-        opacity: 1;
-    }
+#cards-absolute{
+    position: absolute;
+    top: 45vh;
+    z-index: 10;
+    width: 100%;
+    color: #FFF;
+}
+
+#map 
+{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 97.5%;
 }
 
 @keyframes slideinDropdown {
@@ -386,135 +238,24 @@ body
 
 }
 
-@keyframes slideinCards {
-
-    0% {
-        transform: translateY(-180px);
-        opacity: 0;
-        background-color: transparent;
-    }
-
-    50%{
-        background-color: transparent;     
-    }
-    
-    
-    100% {
-        transform: translateY(0px);
-        opacity: 1;
-    }
-
+#cards-container h1 {
+    text-align: center;
+    margin: 150px 50px 50px 50px;
 }
 
-@keyframes diamsContainer {
-
-    0% {
-        border: none;
-    }  
-    
-    100% {
-        border: none;
-    }
-
+#welcome-buttons button{
+    border-radius: 5rem;
+    border: 2px solid #363636;
 }
 
-@media (max-width: 1875px) {
+@media (max-width: 1080px){
 
-    #pollution-paca
+    #map 
     {
-        margin-right: 0;
-        margin-left: 50px;
-        margin-bottom: 2rem;
-    }
-
-    #marinetraffic
-    {
-        margin-left: 50px;
-        margin-bottom: 2rem;
-    }
-
-    #maps-container 
-    {
-        justify-content: space-around !important;
-    }
-}
-
-@media (max-width: 1380px) {
-    
-    #diams-port-container
-    {
-        max-height: 490px;
-    }
-
-    #diams-port
-    {
-        overflow-y: scroll;
-    }
-
-}
-
-@media(max-width: 1140px) {
-
-    #diams-port-container
-    {
-        max-height: 330px;
-    }
-
-    #diams-port
-    {
-        margin-bottom: 2rem !important;
-        margin-top: 2rem !important;
-    }
-
-    #cards-container
-    {
-        clip-path: polygon(0 0, 100% 0%, 100% 100%, 0% 100%);
-    }
-
-    #cards-container .card 
-    {
-        min-width: 90% !important;
-        margin-left: 80px;
-    }
-
-    footer
-    {
-        margin-left: 50px;
-    }
-
-}
-
-@media(max-width: 920px){
-    
-    #diams-port
-    {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
-    #diams-port-img
-    {
-        display: none;
-    }
-
-    #cards-container .card {
-        min-width: 90% !important;
-        margin-left: 80px;
-    }
-
-    #website-brand{
-        margin-left: 50px;
-    }
-
-    #marinetraffic, #pollution-paca
-    {
-        min-width: 90%;
-    }
-
-    #diams-port-container
-    {
-        border: 1px solid;
-        border-color: #e0e0e0!important;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width:90%;
     }
 }

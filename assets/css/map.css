@@ -1,0 +1,72 @@
+footer{
+    display: none;
+}
+
+body{
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100%;
+}
+
+.leaflet-control-layers-toggle
+{
+    background-image: none;
+}
+
+div[aria-haspopup="true"]{
+    background: rgba(255, 255, 255, 0.8);
+    width: 50px;
+    border-radius: 2rem;
+    background-image: url('https://www.stickpng.com/assets/images/588a64f5d06f6719692a2d13.png');
+    background-size: 90%;
+    background-repeat: no-repeat;
+    background-position-x: 2px;
+    background-position-y: 2px;
+}
+
+.leaflet-control-layers-expanded{
+    width: 130px !important;
+    border-radius: 5px !important;
+    background-image: none !important;
+    font-family: 'Manjari';
+    font-weight: bolder;
+}
+
+.base-layers-choices{
+    font-size: 150%;
+    color: #363636;
+}
+
+.base-layers-choices i {
+    background: #363636;
+    color: #fff;
+    padding: 6px;
+    border-radius: 100rem;
+}
+
+.leaflet-control-layers-base label:hover, .leaflet-control-layers-overlays label:hover{
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.leaflet-control-layers-selector{
+    visibility: hidden;
+}
+
+.leaflet-control-velocity{
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.leaflet-control-layers-separator{
+    border-color: #363636;
+}
+
+.leaflet-left{
+    z-index: 1050;
+}
+

@@ -1,25 +1,29 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('map') }}
+{% endblock %}
+
 {% block body %}
 
-    <div id="maps-container" class="d-flex flex-wrap justify-content-center align-items-center p-3">
+    {# <div id="maps-container" class="d-flex flex-wrap justify-content-center align-items-center p-3">
+        <div id="map"></div>
+    </div> 
     
-            <script type="text/javascript">
-                width='46%';  
-                height='820'; 
-                shownames='false';  
-                latitude='43.321309';  
-                longitude='5.353301'; 
-                zoom='14'; 
-                maptype='2'; 
-                trackvessel='0'; 
-                fleet=''; 
-            </script> 
-            
-            <script type="text/javascript" src="//www.marinetraffic.com/js/embed.js"></script> 
-            
-
-            <iframe id="pollution-paca" src="http://172.16.13.140/azur/azur-jour.html" width="46%" height="820px"></iframe>
+    <div id="modals-container">
+    </div> #}
+    <smartport-map id="map"></smartport-map>
+    
+    <div id="modals-container">
     </div> 
 
+
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    {{ encore_entry_script_tags('map') }}
+ {% endblock %}

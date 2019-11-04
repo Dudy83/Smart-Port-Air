@@ -6134,6 +6134,11 @@ wide-align@^1.1.0:
   dependencies:
     string-width "^1.0.2 || 2"
 
+wind-js-leaflet@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/wind-js-leaflet/-/wind-js-leaflet-2.0.5.tgz#0c1f90a822ae4ec595eefb92a307c86df1510d31"
+  integrity sha1-DB+QqCKuTsWV7vuSowfIbfFRDTE=
+
 worker-farm@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/worker-farm/-/worker-farm-1.7.0.tgz#26a94c5391bbca926152002f69b84a4bf772e5a8"
