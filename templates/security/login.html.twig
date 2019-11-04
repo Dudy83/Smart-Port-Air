@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+   <div class="form-container w-100 d-flex justify-content-center align-items-center" style="height:100vh;">
+
+        <form class="form w-50 d-flex-column justify-content-center align-items-center" style="color:#fff;" method="post" action="{{ path('security_login') }}">
+            
+            <h1>Connexion</h1>
+
+            <div class="form-group"> 
+
+            <label for="login-input-email" class="required active">Email</label>
+                <input tabindex="1" id="login-input-email" type="text" class="form-control w-100" placeholder="Adresse Email" required name="_username">
+            </div>
+
+            <div class="form-group">
+
+            <label for="login-input-password" class="required active">Mot de passe</label>
+                <input tabindex="2" id="login-input-password" type="password" class="form-control w-100" placeholder="Mot de passe" required name="_password">
+            </div>
+
+                <button tabindex="3" type="submit" class="btn btn-success rounded w-100 m-0">Connexion</button>
+        </form>
+
+   </div>
+
+{% endblock %}

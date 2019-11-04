@@ -1,5 +1,6 @@
 require('../css/map.css');
-
+// Création du code de la carte leaflet de SmartPort en POO (Programmation Orientée Objet)
+//class SmartPort qui présente plusieurs fonctions
 class SmartPortMap extends HTMLElement 
 {
     constructor()
@@ -100,7 +101,7 @@ class SmartPortMap extends HTMLElement
                             </div>
                         
                             <div class="modal-body">
-                                <canvas id=canvas-`+data.stationId+` width="400" height="400"></canvas>
+                                <canvas class="chartjs-render-monitor" id=canvas-`+data.stationId+` width="400" height="400"></canvas>
                             </div>
 
                             <div class="modal-footer justify-content-center">
@@ -163,13 +164,9 @@ class SmartPortMap extends HTMLElement
                             borderWidth: 1
                         }]
                     }, 
-
                 })
-    
             }))
         })
-
-
     }
        
     generate_wind() 
