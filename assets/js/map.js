@@ -23,7 +23,7 @@ class SmartPortMap extends HTMLElement
             "<span class='base-layers-choices'><i class='fas fa-map-marked-alt'></i> Noir</span>": this.DarkGreyCanvas
         };
         this.map = L.map('map', {
-            layers: [ this.DarkGreyCanvas, this.WorldImagery ],
+            layers: [ this.WorldImagery ],
             zoomControl: false
         });
         this.map.setView([this.iniLat, this.iniLon], this.iniZoom);
@@ -74,20 +74,12 @@ class SmartPortMap extends HTMLElement
 
     create_stations_points()
     {
-        var Icon = L.icon({
-            iconUrl: 'images/mapIcons/icon.png',
-            iconSize:     [35, 35], 
-            iconAnchor:   [17.5, 35], 
-            popupAnchor:  [0, -37],
-            tooltipAnchor: [10, -17.5]
-        });
-
         this.get_stations_points(data => data.forEach((data) => 
         {
-            new L.marker([data.properties.lat, data.properties.lon], {icon: Icon}).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">Station n° : ' + data.stationId + '</h5><button type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#363636;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" class="w-100" data-toggle="modal" data-target=#mod-' + data.stationId + '>Graphique des polluants</button></div>').addTo(this.map);
+            new L.marker([data.properties.lat, data.properties.lon]).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#3498db">Station n° : ' + data.stationId + '</h5><button type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#3498db;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" class="w-100" data-toggle="modal" data-target=#mod-' + data.stationId + '>Graphique des polluants</button></div>').addTo(this.map);
             
             document.getElementById('modals-container').innerHTML += `
-                <div class="modal fade right" id=mod-`+data.stationId+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                <div style="z-index: 7000;" class="modal fade right" id=mod-`+data.stationId+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
                     
                     <div class="modal-dialog modal-full-height modal-right w-100" role="document">
                     
@@ -105,7 +97,7 @@ class SmartPortMap extends HTMLElement
                             </div>
 
                             <div class="modal-footer justify-content-center">
-                                <button style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:red;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" data-dismiss="modal">Fermer</button>
+                                <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
                             </div>
                             
                         </div>

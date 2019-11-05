@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css?family=Manjari&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Righteous&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Chivo&display=swap');
 
 body 
 {
-    font-family: 'Manjari';
+    font-family: 'Chivo';
     background: #fff; 
-    background-color: #47555E;
+    background-color: #3498db;
     background-repeat: no-repeat;
     background-attachment: fixed;
     color: #363636;
@@ -13,7 +12,6 @@ body
 
 #website-brand, #dropdown-brand
 {
-    font-family: 'Righteous';
     color: #5e5e5e;
     text-align: center;
     margin-top: 1rem;
@@ -48,48 +46,34 @@ body
     position: fixed;
     top: 0;
     z-index: 4000;
-    background: #363636;
+    background: #3498db;
     padding: 1rem;
-    height: 100vh;
-    width: 50px; 
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
-    animation-duration: 1s;
-    animation-name: slideout;
+    height: 50px;
+    width: 100vw; 
 }
 
 #navbar div a
 {
-    margin-top: 2rem;
-    width: 30px;
+    color: #fff;
+    font-size: 110%;
     height: 30px;
     border-radius: 100%;
     padding: 0.3rem;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
 }
 
 #navbar div a:hover
 {
-    background-color: #5e5e5e;
+    color: #363636;
     opacity: 0.7;
-}
-
-#navbar div a:active
-{
-    background-color: #696969;
-    opacity: 0.2;
-}
-
-#navbar div a i 
-{
-    color: #fff;
-    font-size: 110%
+    text-decoration: none;
 }
 
 #nav-icon3
 {
-    width: 100%;
+    width: 20px;
     height: 20px;
     position: relative;
     cursor: pointer;
@@ -122,6 +106,17 @@ body
     top: 12px;
 }
 
+#list-container
+{
+    width: 30%;
+    height: 50px;
+    margin-right: 0 !important;
+}
+
+#list-container a{
+    content: "";
+}
+
 #nav-dropdown
 {
     position: fixed;
@@ -131,18 +126,6 @@ body
     padding: 1rem;
     z-index: 15000;
     box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
-}
-
-#dropdown-content a
-{
-    color: rgb(34, 34, 34);
-    font-size: 130%;
-}
-
-.dropdown-items:hover
-{
-    color: #535353;
-    opacity: 0.5; 
 }
 
 #nav-dropdown-leaver
@@ -159,6 +142,13 @@ body
     background: #a8a8a8;
     opacity: 0.8;
     color: #fff;
+}
+
+#dropdown-content a:hover
+{
+    opacity: 0.7;
+    cursor: pointer;
+    border-color: #277eb8;
 }
 
 .dropdown-loaded
@@ -179,27 +169,40 @@ body
 }
 
 #diams-port-container{
-    height: 60vh;
+    height: 70vh;
+    background-color: #3498db;
+    padding: 5rem;
+    color:#fff;
+}
+
+#preambule a
+{
+    color: #fff;
 }
 
 #cards-container
 {
     height: 40vh;
     width: 100%;
-    background-image: linear-gradient(to right top, #e0e0e0, #e8e8e8, #efefef, #f7f7f7, #ffffff);
+    background-color: #f2f2f2;
     clip-path: polygon(20% 0%, 80% 0%, 100% 15%, 100% 100%, 80% 100%, 20% 100%, 0 100%, 0 15%);
 }
 
 .cards-background{
-    z-index: 700 !important;
-    background-color: #363636;
     padding: 1rem;
     border-radius: 50%;
+    background: #3498db;
+}
+
+.cards-background:hover
+{
+    transform: scale(1.01);
+    cursor: pointer;
 }
 
 #cards-absolute{
     position: absolute;
-    top: 45vh;
+    top: 55vh;
     z-index: 10;
     width: 100%;
     color: #FFF;
@@ -208,10 +211,11 @@ body
 #map 
 {
     position: absolute;
-    top: 0;
     bottom: 0;
     right: 0;
-    width: 97.5%;
+    width: 100%;
+    height: 95vh;
+
 }
 
 @keyframes slideinDropdown {
@@ -243,10 +247,6 @@ body
     margin: 150px 50px 50px 50px;
 }
 
-#welcome-buttons button{
-    border-radius: 5rem;
-    border: 2px solid #363636;
-}
 
 @media (max-width: 1080px){
 

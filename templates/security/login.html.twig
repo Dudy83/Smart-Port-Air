@@ -2,27 +2,32 @@
 
 {% block body %}
 
-   <div class="form-container w-100 d-flex justify-content-center align-items-center" style="height:100vh;">
+    <div class="form-container w-100 d-flex justify-content-center align-items-center" style="height:100vh;">
 
-        <form class="form w-50 d-flex-column justify-content-center align-items-center" style="color:#fff;" method="post" action="{{ path('security_login') }}">
-            
-            <h1>Connexion</h1>
+        <form class="form w-25 d-flex flex-column justify-content-center align-items-center" style="color:#fff;" method="post" action="{{ path('security_login') }}">
+            <img src="images/logo/logo_smartport.png" class="mb-5">
 
-            <div class="form-group"> 
+            <div class="form-group w-100"> 
 
-            <label for="login-input-email" class="required active">Email</label>
+            <label for="login-input-email" class="required active"><i class="fas fa-envelope mr-2"></i> Email</label>
                 <input tabindex="1" id="login-input-email" type="text" class="form-control w-100" placeholder="Adresse Email" required name="_username">
             </div>
 
-            <div class="form-group">
+            <div class="form-group w-100">
 
-            <label for="login-input-password" class="required active">Mot de passe</label>
+            <label for="login-input-password" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Mot de passe</label>
                 <input tabindex="2" id="login-input-password" type="password" class="form-control w-100" placeholder="Mot de passe" required name="_password">
             </div>
 
-                <button tabindex="3" type="submit" class="btn btn-success rounded w-100 m-0">Connexion</button>
+                <button tabindex="3" type="submit" class="btn btn-success w-100 m-0"><i class="fas fa-sign-in-alt mr-2"></i> Connexion</button>
+
+                <a tabindex="4" href="{{ path('security_registration') }}" class="btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-user-edit mr-2"></i> Créer un compte</a>
         </form>
 
-   </div>
+    </div>
+
+    {% if error %}
+        <div class="alert alert-danger w-100" style="position:absolute;top:50px;"><i class="fas fa-exclamation-triangle mr-2"></i>Email ou mot de passe invalide</div>
+    {% endif %}
 
 {% endblock %}

@@ -8,10 +8,8 @@
             <!-- Font Awesome icons <i> -->
             <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
             <!-- Bootstrap core CSS -->
-            <link href="cdn/css/bootstrap.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
             <!-- Material Design Bootstrap -->
-            <link href="cdn/css/mdb.min.css" rel="stylesheet">
-
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>         
   
             <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
@@ -24,7 +22,7 @@
 
     <body>
 
-    <nav id="navbar" class="d-flex flex-column justify-content-start align-items-center">
+    <nav id="navbar" class="d-flex justify-content-start align-items-center">
 
       <div id="nav-icon3">
         <span></span>
@@ -33,20 +31,20 @@
         <span></span>
       </div>
        
-      <div id="list-container" class="d-flex flex-column justify-content-center align-items-center">
+      <div id="list-container" class="d-flex justify-content-around align-items-center mx-auto float-right">
 
-                  <a href="{{ path('smart_port') }}"><i class="fas fa-home"></i></a>
+                  <a href="{{ path('smart_port') }}"><i class="fas fa-home mr-2"></i> Home</a>
             
         
             
-                  <a href="{{ path('map') }}"><i class="fas fa-anchor"></i></a>
+                  <a href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i> Map</a>
         
         
           
-                  <a href="{{ path('map') }}"><i class="fas fa-layer-group"></i></a>
+                  <a href="{{ path('map') }}"><i class="fas fa-layer-group mr-2"></i> Paramètres</a>
         
         
-                  <a href="{{ path('map') }}"><i class="fas fa-user"></i></a>
+                  <a href="{{ path('map') }}"><i class="fas fa-user mr-2"></i> Profil</a>
       </div>
 
 
@@ -57,15 +55,19 @@
     
       <i id="nav-dropdown-leaver" class="fas fa-chevron-left d-flex justify-content-center align-items-center"></i>
 
-      <div class="d-flex flex-column justify-content-center align-items-center border-bottom">
-        <img src="images/factory.png" width="256px">
-        <h1>Smart Port Air</h1>
+      <div class="d-flex justify-content-center align-items-center border-bottom">
+        <img src="images/logo/logo_smartport_black.png" width="256px" style="margin:70px 0 50px 0">
       </div>
 
-      <div id="dropdown-content" class="d-flex flex-column justify-content-center align-items-start border-bottom mt-3">
-        <a class="dropdown-items ml-1"><i class="fas fa-cog mr-3"></i> Paramètres</a>
-        <a class="dropdown-items ml-1"><i class="fas fa-user mr-3 mt-4"></i> Mon compte</a>
-        <a class="dropdown-items" href="{{ path('map') }}"><i class="fas fa-anchor mr-3 mt-4"></i> Les cartes</a>
+    <div>
+      <a tabindex="4" href="/connexion" class="btn btn-success w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
+      <a tabindex="4" href="/inscription" class="btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-user-edit mr-2"></i> Créer un compte</a>
+    </div>
+
+      <div id="dropdown-content" class="d-flex flex-column justify-content-start align-items-center border-bottom border-top mt-3 pb-3">
+        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db"><i class="fas fa-cog mr-2"></i> Paramètres</a>
+        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db"><i class="fas fa-user mr-2"></i> Mon compte</a>
+        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i> Map</a>
       </div>
     </div>
 
@@ -75,13 +77,11 @@
        
         {% block javascripts %}
 
-            <script type="text/javascript" src="cdn/js/jquery-3.4.1.min.js"></script>
-            <!-- Bootstrap tooltips -->
-            <script type="text/javascript" src="cdn/js/popper.min.js"></script>
-            <!-- Bootstrap core JavaScript -->
-            <script type="text/javascript" src="cdn/js/bootstrap.min.js"></script>
-            <!-- MDB core JavaScript -->
-            <script type="text/javascript" src="cdn/js/mdb.min.js"></script>
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
             <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
             

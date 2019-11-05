@@ -14,13 +14,6 @@ class SmartPortController extends AbstractController
     */
     public function index()
     {
-        $cnx = $this->getDoctrine()->getConnection();
-        if ($cnx->isConnected()){
-            echo "<script>alert('Connected')</script>";
-        }
-        else {
-            echo "<script>alert('NOT Connected')</script>";
-        }
 
         return $this->render('smart_port/index.html.twig');
     }
