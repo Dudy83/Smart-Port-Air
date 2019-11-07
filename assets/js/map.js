@@ -23,170 +23,151 @@ class SmartPortMap extends HTMLElement
             "<span class='base-layers-choices'><i class='fas fa-map-marked-alt'></i> Noir</span>": this.DarkGreyCanvas
         };
         this.map = L.map('map', {
-            layers: [ this.DarkGreyCanvas, this.WorldImagery ],
+            layers: [  this.WorldImagery ],
             zoomControl: false
         });
         this.map.setView([this.iniLat, this.iniLon], this.iniZoom);
-        this.map.scrollWheelZoom.disable();
-        this.map.dragging.disable();
+        
+     
     }
 
     connectedCallback()
     {
-        this.create_stations_points();
+        this.get_station_coordinates();
         this.generate_wind();
         this.draw_graph();
-        document.getElementById('navbar').style.setProperty('background', '#363636')
     }
-
-    get_stations_points(callback)
+    
+    get_station_coordinates()
     {
-        const url = "/api/map";
+        const url ="https://geoservices.atmosud.org/geoserver/cigale/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=cigale:site&maxFeatures=100&srsName=EPSG:4326&outputFormat=application%2Fjson";
 
-        var jsonFeatures = new Array();
+        let jsonFeatures = new Array();
 
-        axios.get(url).then(function(response) {
-
-            const object = JSON.parse(response.data.message);       
-    
-            object.forEach(function(point)
-            {
-                var lat = point.lat;
-                var lon = point.lon;
-                var id = point.id;
-    
-                var feature = {
-                    lat: lat,
-                    lon: lon,
-                    stationId: id
-                };
-    
-                jsonFeatures.push(feature);
-            });
-
-            callback(jsonFeatures);
-        })
-    }
-
-    create_stations_points()
-    {
-        this.get_stations_points(data => data.forEach((data) => 
+        axios.get(url)
+        
+        .then((response) =>
         {
-            new L.marker([data.lat, data.lon]).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#3498db">Station n° : ' + data.stationId + '</h5><button type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#3498db;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" class="w-100" data-toggle="modal" data-target=#mod-' + data.stationId + '>Graphique des polluants</button></div>').addTo(this.map);
-            
-            document.getElementById('modals-container').innerHTML += `
-                <div style="z-index: 7000;" class="modal fade right" id=mod-`+data.stationId+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+            response.data.features.forEach((station) =>
+            {
+                    var str = station.properties.nom_site;
+                    str = str.replace(/\s/g,'');
                     
-                    <div class="modal-dialog modal-full-height modal-right w-100" role="document">
-                    
-                        <div class="modal-content">
-                            
-                            <div class="modal-header">
-                                <h4 class="modal-title w-100" id="myModalLabel">Station n°: `+data.stationId+`</h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
+                    var feature = {
+                        type: 'Feature',
+                        properties: station,
+                        geometry: {
+                            type: 'Point',
+                            coordinates: station.geometry.coordinates,
+                        },
+                        stationId: station.properties.nom_site,
+                        modal: str,
+                    }
+
+                    jsonFeatures.push(feature);
+                
+            })
+
+            var geoJson = { type: 'FeatureCollection', features: jsonFeatures };
+
+            L.geoJSON(geoJson, {
                         
-                            <div class="modal-body">
-                                <canvas class="chartjs-render-monitor" id=canvas-`+data.stationId+` width="400" height="400"></canvas>
-                            </div>
+                pointToLayer: (feature, latlng) => 
+                {
+                    return new L.CircleMarker(latlng);
+                },
 
-                            <div class="modal-footer justify-content-center">
-                                <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
-                            </div>
+                onEachFeature: (feature, layer) =>
+                {
+                    layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.stationId + '</h5><button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target=#mod-'+feature.modal+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
+                    
+                    document.getElementById('modals-container').innerHTML += `
+                    <div style="z-index: 7000;" class="modal fade right" id=mod-`+feature.modal+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                        
+                        <div class="modal-dialog modal-full-height modal-right w-100" role="document">
+                        
+                            <div class="modal-content">
+                                
+                                <div class="modal-header">
+                                    <h4 class="modal-title w-100" id="myModalLabel">Station n°: `+feature.stationId+`</h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
                             
+                                <div class="modal-body">
+                                    <canvas class="chartjs-render-monitor" id="canvas-`+feature.modal+`" width="400" height="400"></canvas>
+                                </div>
+    
+                                <div class="modal-footer justify-content-center">
+                                    <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
+                                </div>
+                                
+                            </div>
+    
                         </div>
+    
+                    </div>`;
 
-                    </div>
+                //     const pollurl = 'https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire_3j&maxFeatures=50&outputFormat=application%2Fjson';
 
-                </div>`;
-        }));
+                //     axios.get(pollurl).then((response) =>
+                //     {
+                //         console.log(response.data.features);
+                //     })
+
+                //     var days = new Array();
+
+                //     var monthId = [
+                //         "01", "02", "03",
+                //         "04", "05", "06", 
+                //         "07", "08", "09", 
+                //         "10", "11", "12"
+                //     ];
+        
+                //     for(let i = 0; i < 7; i++)
+                //     {      
+                //         var day = new Date().getDate();
+                //         var monthName = new Date().getMonth();
+                //         var year = new Date().getFullYear();
+                        
+                //         days.push((day+i) + '/' + monthId[monthName] + '/' + year)
+                //     }
+        
+                //     var NO2 = {
+                //         labels: days,
+                //           datasets: [
+                //             {
+                //                 label: "N02",
+                //                 fill: false,
+                //                 backgroundColor: "#3498db",
+                //                 borderColor: "#3498db",
+                //                 data: polluant,
+                //             }
+                //         ]
+                //     };
+                //     var NO2Chart = new Chart(document.getElementById('canvas-'+data.stationId), {
+                //         type: 'line',
+                //         data: NO2,
+                //         options: {
+                //             title: {
+                //                 fontSize: 20,
+                //                 display: true,
+                //                 text: 'Evolution des max horaires journaliers en NO2'
+                //             }
+                //         }
+                //     })
+                }
+            }).addTo(this.map);
+        })
+        
     }
+
 
     draw_graph()
     {
-        // const url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&maxFeatures=50&outputFormat=application%2Fjson";
 
-        // var polluant = new Array();
 
-        // axios.get(url).then((value) =>
-        // {
-        //     value.data.features.forEach((pollution) =>
-        //     {
-        //         if(pollution.properties.valeur != null)
-        //         {
-        //             let poll = pollution.properties.valeur;
-        //             polluant.push(poll);
-        //         }
-        //     })
-        // }).finally(() =>
-        // {
-            var days = new Array();
-
-            var monthId = [
-                "01", "02", "03",
-                "04", "05", "06", 
-                "07", "08", "09", 
-                "10", "11", "12"
-            ];
-
-            for(let i = 0; i < 7; i++)
-            {      
-                var day = new Date().getDate();
-                var monthName = new Date().getMonth();
-                var year = new Date().getFullYear();
-                
-                days.push((day+i) + '/' + monthId[monthName] + '/' + year)
-            }
-            
-            this.get_stations_points(data => data.forEach((data) => 
-            {
-                var url = "http://apigeoloc.atmosud.org/getpollution?pol=NO2&lon="+data.lon+"&lat="+data.lat+"&ech=p0";
-
-                let header = new Headers();
-                header.append('Accept', 'application/json');
-
-                let request = new Request(url, {
-                    method: 'GET',
-                    headers: header,
-                    mode: 'cors'
-                });
-
-                fetch(request)
-                    .then((response) =>
-                    {
-                        console.log(response);
-                    })
-                    .catch((err) =>
-                    {
-                        console.log(err);
-                    });
-
-                var NO2 = {
-                    labels: days,
-                      datasets: [
-                        {
-                            label: "N02",
-                            fill: false,
-                            backgroundColor: "#3498db",
-                            borderColor: "#3498db",
-                            data: polluant,
-                        }
-                    ]
-                };
-                var NO2Chart = new Chart(document.getElementById('canvas-'+data.stationId), {
-                    type: 'line',
-                    data: NO2,
-                    options: {
-                        title: {
-                            fontSize: 20,
-                            display: true,
-                            text: 'Evolution des max horaires journaliers en NO2'
-                        }
-                    }
-                })
-            }))
     }
        
     generate_wind() 
@@ -231,7 +212,7 @@ class SmartPortMap extends HTMLElement
             {
                 if(new Date().getMinutes() == "00")
                 {
-                    generate_wind();
+                    this.generate_wind();
                     console.log("wind has been correctly generated");
                 }
 
@@ -325,55 +306,55 @@ SmartPortMap.Register();
 
 //         var geoJson = { type: 'FeatureCollection', features: jsonFeatures };
 
-//         L.geoJSON(geoJson, {
+        // L.geoJSON(geoJson, {
 
-//             pointToLayer: function(feature, latlng) 
-//             {
-//                 var Icon = L.icon({
-//                     iconUrl: 'images/mapIcons/icon.png',
-//                     iconSize:     [35, 35], 
-//                     iconAnchor:   [17.5, 35], 
-//                     popupAnchor:  [0, -37],
-//                     tooltipAnchor: [10, -17.5]
-//                 });
-//                 return L.marker(latlng, {icon: Icon});
-//             },
+        //     pointToLayer: function(feature, latlng) 
+        //     {
+        //         var Icon = L.icon({
+        //             iconUrl: 'images/mapIcons/icon.png',
+        //             iconSize:     [35, 35], 
+        //             iconAnchor:   [17.5, 35], 
+        //             popupAnchor:  [0, -37],
+        //             tooltipAnchor: [10, -17.5]
+        //         });
+        //         return L.marker(latlng, {icon: Icon});
+        //     },
 
-//             onEachFeature: function (feature, layer)
-//             {
-//                 layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">Station n° : ' + feature.stationId + '</h5><button type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#363636;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" class="w-100" data-toggle="modal" data-target=#mod-' + feature.stationId + '>Graphique des polluants</button></div>');
-//                 layer.bindTooltip('<p style="text-align:center;"> Station n° : <br>' + feature.stationId + '</p>');
+        //     onEachFeature: function (feature, layer)
+        //     {
+        //         layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">Station n° : ' + feature.stationId + '</h5><button type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#363636;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" class="w-100" data-toggle="modal" data-target=#mod-' + feature.stationId + '>Graphique des polluants</button></div>');
+        //         layer.bindTooltip('<p style="text-align:center;"> Station n° : <br>' + feature.stationId + '</p>');
 
-//                 document.getElementById('modals-container').innerHTML += `
-//                 <div class="modal fade right" id=mod-`+feature.stationId+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+        //         document.getElementById('modals-container').innerHTML += `
+        //         <div class="modal fade right" id=mod-`+feature.stationId+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
                     
-//                     <div class="modal-dialog modal-full-height modal-right" role="document">
+        //             <div class="modal-dialog modal-full-height modal-right" role="document">
                     
-//                         <div class="modal-content">
+        //                 <div class="modal-content">
                             
-//                             <div class="modal-header">
-//                                 <h4 class="modal-title w-100" id="myModalLabel">Station n°: `+feature.stationId+`</h4>
-//                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-//                                     <span aria-hidden="true">&times;</span>
-//                                 </button>
-//                             </div>
+        //                     <div class="modal-header">
+        //                         <h4 class="modal-title w-100" id="myModalLabel">Station n°: `+feature.stationId+`</h4>
+        //                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        //                             <span aria-hidden="true">&times;</span>
+        //                         </button>
+        //                     </div>
                         
-//                             <div class="modal-body">
-//                                 <canvas id=canvas-`+feature.stationId+` width="400" height="400"></canvas
-//                             </div>
+        //                     <div class="modal-body">
+        //                         <canvas id=canvas-`+feature.stationId+` width="400" height="400"></canvas
+        //                     </div>
 
-//                             <div class="modal-footer justify-content-center">
-//                                 <a type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#363636;color:#fff;border:none!important;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);">Get it now
-//                                     <i class="far fa-gem ml-1"></i>
-//                                 </a>
-//                                 <a type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:red;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" data-dismiss="modal">Fermer</a>
-//                             </div>
+        //                     <div class="modal-footer justify-content-center">
+        //                         <a type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#363636;color:#fff;border:none!important;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);">Get it now
+        //                             <i class="far fa-gem ml-1"></i>
+        //                         </a>
+        //                         <a type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:red;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" data-dismiss="modal">Fermer</a>
+        //                     </div>
                             
-//                         </div>
-//                     </div>
-//                 </div>`;
-//             }
-//         }).addTo(map);
+        //                 </div>
+        //             </div>
+        //         </div>`;
+        //     }
+        // }).addTo(map);
 //     });
 // }
 
