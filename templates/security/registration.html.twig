@@ -5,7 +5,7 @@
    <div class="form-container w-100 d-flex justify-content-center align-items-center" style="height:100vh;">
 
         <div class="form w-25 d-flex flex-column justify-content-center align-items-center" style="color:#fff;">
-            <img src="images/logo/logo_smartport.png" class="mb-5">
+            <img src="images/logo/logo_smartport.png" class="mb-4">
     
             {{form_start(form, {'attr': {'class': 'w-100'}})}}
             {{form_row(form.username, {'label': 'Nom d\'utilisateur', 'attr': {'placeholder': 'Entrez un nom d\'utilisateur'}})}}
@@ -49,10 +49,8 @@
         iPassword.setAttribute('class', 'fas fa-unlock-alt mr-2');
         iConfirm.setAttribute('class', 'fas fa-unlock-alt mr-2');
 
-    
-
         divConfirmPassword.insertBefore(iConfirm, labelConfirmPassword);
-
+        
         divPassword.insertBefore(iPassword, labelPassword);
     </script>
 {% endblock %}

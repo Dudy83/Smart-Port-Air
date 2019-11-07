@@ -23,7 +23,7 @@ class SmartPortMap extends HTMLElement
             "<span class='base-layers-choices'><i class='fas fa-map-marked-alt'></i> Noir</span>": this.DarkGreyCanvas
         };
         this.map = L.map('map', {
-            layers: [ this.WorldImagery ],
+            layers: [ this.DarkGreyCanvas, this.WorldImagery ],
             zoomControl: false
         });
         this.map.setView([this.iniLat, this.iniLon], this.iniZoom);
@@ -36,6 +36,7 @@ class SmartPortMap extends HTMLElement
         this.create_stations_points();
         this.generate_wind();
         this.draw_graph();
+        document.getElementById('navbar').style.setProperty('background', '#363636')
     }
 
     get_stations_points(callback)
@@ -55,14 +56,9 @@ class SmartPortMap extends HTMLElement
                 var id = point.id;
     
                 var feature = {
-                    type: 'Feature',
-                    properties: point,
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [lon,lat]
-                    },
+                    lat: lat,
+                    lon: lon,
                     stationId: id
-                    
                 };
     
                 jsonFeatures.push(feature);
@@ -76,7 +72,7 @@ class SmartPortMap extends HTMLElement
     {
         this.get_stations_points(data => data.forEach((data) => 
         {
-            new L.marker([data.properties.lat, data.properties.lon]).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#3498db">Station n° : ' + data.stationId + '</h5><button type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#3498db;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" class="w-100" data-toggle="modal" data-target=#mod-' + data.stationId + '>Graphique des polluants</button></div>').addTo(this.map);
+            new L.marker([data.lat, data.lon]).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#3498db">Station n° : ' + data.stationId + '</h5><button type="button" style="outline:none;border-radius:5rem;font-size:120%;padding:1rem;background-color:#3498db;color:#fff;border:none;box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);" class="w-100" data-toggle="modal" data-target=#mod-' + data.stationId + '>Graphique des polluants</button></div>').addTo(this.map);
             
             document.getElementById('modals-container').innerHTML += `
                 <div style="z-index: 7000;" class="modal fade right" id=mod-`+data.stationId+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
@@ -110,55 +106,87 @@ class SmartPortMap extends HTMLElement
 
     draw_graph()
     {
-        const url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&maxFeatures=50&outputFormat=application%2Fjson";
+        // const url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&maxFeatures=50&outputFormat=application%2Fjson";
 
-        var polluant = new Array();
+        // var polluant = new Array();
 
-        axios.get(url).then((value) =>
-        {
-            value.data.features.forEach((pollution) =>
-            {
-                if(pollution.properties.valeur != null)
-                {
-                    let poll = pollution.properties.valeur;
-                    polluant.push(poll);
-                }
-            })
-        }).finally(() =>
-        {
+        // axios.get(url).then((value) =>
+        // {
+        //     value.data.features.forEach((pollution) =>
+        //     {
+        //         if(pollution.properties.valeur != null)
+        //         {
+        //             let poll = pollution.properties.valeur;
+        //             polluant.push(poll);
+        //         }
+        //     })
+        // }).finally(() =>
+        // {
+            var days = new Array();
+
+            var monthId = [
+                "01", "02", "03",
+                "04", "05", "06", 
+                "07", "08", "09", 
+                "10", "11", "12"
+            ];
+
+            for(let i = 0; i < 7; i++)
+            {      
+                var day = new Date().getDate();
+                var monthName = new Date().getMonth();
+                var year = new Date().getFullYear();
+                
+                days.push((day+i) + '/' + monthId[monthName] + '/' + year)
+            }
+            
             this.get_stations_points(data => data.forEach((data) => 
             {
-                console.log(data)
-                new Chart(document.getElementById('canvas-'+data.stationId), {
-                    type: 'line',
-                    data: {
-                        labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
-                                 '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00'], 
-                        datasets: [{
-                            label: data.stationId,
+                var url = "http://apigeoloc.atmosud.org/getpollution?pol=NO2&lon="+data.lon+"&lat="+data.lat+"&ech=p0";
+
+                let header = new Headers();
+                header.append('Accept', 'application/json');
+
+                let request = new Request(url, {
+                    method: 'GET',
+                    headers: header,
+                    mode: 'cors'
+                });
+
+                fetch(request)
+                    .then((response) =>
+                    {
+                        console.log(response);
+                    })
+                    .catch((err) =>
+                    {
+                        console.log(err);
+                    });
+
+                var NO2 = {
+                    labels: days,
+                      datasets: [
+                        {
+                            label: "N02",
+                            fill: false,
+                            backgroundColor: "#3498db",
+                            borderColor: "#3498db",
                             data: polluant,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)',
-                                'rgba(255, 159, 64, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    }, 
+                        }
+                    ]
+                };
+                var NO2Chart = new Chart(document.getElementById('canvas-'+data.stationId), {
+                    type: 'line',
+                    data: NO2,
+                    options: {
+                        title: {
+                            fontSize: 20,
+                            display: true,
+                            text: 'Evolution des max horaires journaliers en NO2'
+                        }
+                    }
                 })
             }))
-        })
     }
        
     generate_wind() 

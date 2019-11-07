@@ -1,50 +1,85 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-      
-    <header id="diams-port-container" class="d-flex justify-content-center align-items-stretch">
-      
-<div class="row w-75">
-        <div class="col-md-6 d-flex flex-column align-items-start justify-content-center">
-                          
-          <img src="images/logo/logo_smartport.png" class="mt-4" alt="SmartPort Logo"><br>
-                          
-            <a href="{{ path('map') }}" class="btn btn-warning ml-2 mb-3" style="color:#fff;">C'est parti!</a>
-  
-              <div id="preambule" class="ml-2">
-                L'application SMART PORT est réalisée par <a href="http://www.airpaca.org/">AtmoSud</a>, 
-                dans le cadre de ses missions au sein de <a href="http://oreca.regionpaca.fr/">l’Observatoire Régional de l’Energie, du Climat et de l’Air</a>. 
-                Elle fournit, de la région à la commune, des données annuelles de consommations et de productions d’énergie, 
-                d’émissions de polluants atmosphériques et de gaz à effet de serre.                   
-              </div>
-                          
+
+<header id="diams-port-container" class="d-flex justify-content-center align-items-stretch">
+
+    <div class="row w-75">
+        <div class="col-md-6 col-xl-6 col-lg-6 col-sm-12 d-flex flex-column align-items-start justify-content-center">
+
+            <img src="images/logo/logo_smartport.png" class="mt-4" alt="SmartPort Logo">
+
+            <a href="{{ path('map') }}" class="btn btn-warning ml-2 mt-3 mb-3" style="color:#fff;">C'est parti !</a>
+
+            <div id="preambule" class="ml-2">
+                L'application SMART PORT est réalisée par <a href="http://www.airpaca.org/">AtmoSud</a>,
+                dans le cadre de ses missions au sein de <a href="http://oreca.regionpaca.fr/">l’Observatoire Régional
+                    de l’Energie, du Climat et de l’Air</a>.
+                Elle fournit, de la région à la commune, des données annuelles de consommations et de productions
+                d’énergie,
+                d’émissions de polluants atmosphériques et de gaz à effet de serre.
+            </div>
+
         </div>
-  
-          <div class="col-md-6 d-flex flex-column align-items-end justify-content-center">
-            <img src="images/logo/atmosud.png" width="356px" class="mt-3"> 
-          </div> 
-</div>
 
-    </header>
-
-
-    <div id="cards-absolute" class="d-flex justify-content-around align-items-center">
-          <div class="cards-background"><img src="images/cardBoat.png" alt="Card image cap" width="256px" height="256px"></div>
-          <div class="cards-background"><img src="images/factory.png" alt="Card image cap" width="256px" height="256px"></div>
-          <div class="cards-background"><img src="images/map.png" alt="Card image cap" width="256px" height="256px"></div>
+        <div id="atmosudLogo"
+            class="col-md-6 col-xl-6 col-lg-6 col-sm-12 d-flex flex-column align-items-end justify-content-center">
+            <img src="images/logo/atmosud.png" width="356px" class="mt-3">
+        </div>
     </div>
+
+</header>
+
+
+<section>
 
     <div id="cards-container" class="w-100 d-flex flex-column align-items-center justify-content-center">
-      <h1 style="color:#95a5a6;"> Bienvenue sur Smart Port Air <br>Connectez-vous ou inscrivez-vous pour accéder à la map</h1>
-      
-      <div id="welcome-buttons" class="w-100 d-flex align-items-center justify-content-center">
-        <a href="{{ path('security_registration') }}" class="btn btn-warning mr-1" style="color:#fff;"><i class="fas fa-user-edit mr-2"></i>Inscription</a>
-        <a href="{{ path('security_login') }}" class="btn btn-success ml-1" style="color:#fff;"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
- 
-      </div>
+
+        <div id="cards-absolute" class="d-flex flex-wrap justify-content-around align-items-center">
+            <div class="m-2">
+                <div class="cards-background m-2 d-flex justify-content-center align-items-center"><img
+                        src="images/cardBoat.png" alt="Card image cap" width="256px" height="256px"></div><button
+                    type="button" class="btn w-100 legendBtn"><i class="fas fa-ship mr-2"></i>Tracking des
+                    bateaux</button>
+            </div>
+            <div class="m-2">
+                <div class="cards-background m-2 d-flex justify-content-center align-items-center"><img
+                        src="images/factory.png" alt="Card image cap" width="256px" height="256px"></div><button
+                    type="button" class="btn w-100 legendBtn"><i class="fas fa-anchor mr-2"></i>Pollution du
+                    port</button>
+            </div>
+            <div class="m-2">
+                <div class="cards-background m-2 d-flex justify-content-center align-items-center"><img
+                        src="images/map.png" alt="Card image cap" width="256px" height="256px"></div><button
+                    type="button" class="btn w-100 legendBtn"><i class="fas fa-map-marked-alt mr-2"></i>Carte
+                    interactive</button>
+            </div>
+        </div>
+
+        <h1 style="color:#95a5a6;"> Bienvenue sur Smart Port &copy; <br>{% if not app.user %}Connectez-vous ou inscrivez-vous pour accéder à la map{% endif %}</h1>
+
+        <div id="welcome-buttons" class="w-100 d-flex align-items-center justify-content-center">
+            {% if not app.user %}
+            <a href="{{ path('security_registration') }}" class="btn btn-warning mr-1" style="color:#fff;"><i
+                    class="fas fa-user-edit mr-2"></i>Inscription</a>
+            <a href="{{ path('security_login') }}" class="btn btn-success ml-1" style="color:#fff;"><i
+                    class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
+            {% else %}
+            <a tabindex="4" href="{{ path('security_logout') }}" class="btn btn-danger m-0 mt-3" style="color: #fff"><i
+                    class="fas fa-sign-out-alt mr-2"></i> Déconnexion</a>
+            {% endif %}
+
+        </div>
     </div>
-  
-  
-{% endblock %}
+</section>
 
 
+<footer class="d-flex flex-wrap justify-content-around align-items-center">
+    <div class="w-100 pb-2 d-flex flex-wrap justify-content-around align-items-center" style="border-bottom:1px solid #f2f2f2">
+        <a href="http://www.airpaca.org/" class="m-2"><img src="images/logo/atmosud.png"></a>
+        <img src="images/logo/logo_smartport.png">
+    </div>
+    <p style="color:#fff;" class="m-2">2019 &copy; SmartPort | Tous droits réservés.</p>
+</footer>
+
+        {% endblock %}

@@ -73,8 +73,8 @@ body
 
 #nav-icon3
 {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 100%;
     position: relative;
     cursor: pointer;
 }
@@ -82,7 +82,6 @@ body
 #nav-icon3 span
 {
     display: block;
-    position: absolute;
     height: 2px;
     width: 100%;
     background: #fff;
@@ -91,26 +90,10 @@ body
     left: 0;
 }
   
-#nav-icon3 span:nth-child(1) 
-{
-    top: 0px;
-}
-  
-#nav-icon3 span:nth-child(2),#nav-icon3 span:nth-child(3) 
-{
-    top: 6px;
-}
-  
-#nav-icon3 span:nth-child(4) 
-{
-    top: 12px;
-}
-
 #list-container
 {
-    width: 30%;
     height: 50px;
-    margin-right: 0 !important;
+    margin-right: 1rem !important;
 }
 
 #list-container a{
@@ -120,6 +103,7 @@ body
 #nav-dropdown
 {
     position: fixed;
+    width: 18vw;
     top: 0;
     background: #fff;
     height: 100vh;
@@ -169,7 +153,6 @@ body
 }
 
 #diams-port-container{
-    height: 70vh;
     background-color: #3498db;
     padding: 5rem;
     color:#fff;
@@ -182,10 +165,9 @@ body
 
 #cards-container
 {
-    height: 40vh;
     width: 100%;
     background-color: #f2f2f2;
-    clip-path: polygon(20% 0%, 80% 0%, 100% 15%, 100% 100%, 80% 100%, 20% 100%, 0 100%, 0 15%);
+    /* clip-path: polygon(20% 0%, 80% 0%, 100% 15%, 100% 100%, 80% 100%, 20% 100%, 0 100%, 0 15%); */
 }
 
 .cards-background{
@@ -201,11 +183,38 @@ body
 }
 
 #cards-absolute{
-    position: absolute;
-    top: 55vh;
-    z-index: 10;
+    margin-top: 2rem;
     width: 100%;
     color: #FFF;
+}
+
+.legendBtn
+{
+    background: transparent;
+    border-color: #95a5a6;
+    color: #95a5a6;
+    font-size: 150%;
+    margin-bottom: 1rem;
+}
+
+.legendBtn:hover
+{
+    color: #95a5a6;
+}
+
+#welcome-buttons
+{
+    margin-bottom: 2rem;
+}
+
+#cards-container
+{
+    position: relative;
+}
+
+#cards-container h1 {
+    text-align: center;
+    margin: 2rem;
 }
 
 #map 
@@ -215,7 +224,11 @@ body
     right: 0;
     width: 100%;
     height: 95vh;
+}
 
+footer{
+    height: 20vh;
+    background: #3498db;
 }
 
 @keyframes slideinDropdown {
@@ -242,20 +255,85 @@ body
 
 }
 
-#cards-container h1 {
-    text-align: center;
-    margin: 150px 50px 50px 50px;
+@media (max-width: 1500px){
+    
+    #nav-dropdown
+    {
+        width: 30%;
+    }
+
+    form, .form
+    {
+        width: 50% !important;
+    }
+
+    #personnal-infos-container
+    {
+        width: 100% !important;
+    }
 }
 
+@media (max-width: 1300px){
+    
+    .row
+    {
+        width: 100% !important;
+    }
+}
 
 @media (max-width: 1080px){
 
-    #map 
+    aside div img
     {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        width:90%;
+        width: 128px;
+    }
+
+    #diams-port-container
+    {
+        padding: 1rem;
+        padding-top: 75px;
+        padding-bottom: 75px;
+    }
+
+    h1 
+    {
+        font-size: 1rem;
+    }
+
+    form, .form
+    {
+        width: 75% !important;
+    }
+
+    .form img
+    {
+        width: 128px;
     }
 }
+
+@media (max-width: 767px){
+
+    header img 
+    {
+        width: 256px;
+    }
+    
+    #nav-dropdown
+    {
+        width: 66%;
+    }
+
+    #atmosudLogo
+    {
+        align-items: center !important;
+        justify-content: start !important;
+    }
+}
+
+@media (max-width: 575px){
+
+    .modal-dialog{
+        margin: 0;
+    }
+}
+

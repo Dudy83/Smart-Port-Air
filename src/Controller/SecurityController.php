@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\HttpFoundation\Session\Session;
+use App\Repository\UserRepository;
 
 class SecurityController extends AbstractController
 {
@@ -42,7 +46,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-        /**
+    /**
      * @Route("/connexion", name="security_login")
      */
     public function login(AuthenticationUtils $authenticationUtils)
@@ -52,5 +56,68 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', [
             'error' => $error
         ]);
+    }
+
+    /**
+     * @Route("/logout", name="security_logout")
+     */
+    public function logout(){}
+
+    /**
+    * @Route("/edition", name="security_modify")
+    */
+    public function account_modify(Request $request, ObjectManager $manager, UserPasswordEncoderInterface $encoder) {
+        
+        $user = $this->getUser();
+        
+        $form = $this->createFormBuilder($user)
+                        ->add('email', EmailType::class)
+                        ->add('username')
+                        ->add('password', PasswordType::class)
+                        ->add('confirm_password', PasswordType::class)
+                        ->getForm();
+
+        $form->handleRequest($request);
+        
+        if($form->isSubmitted() && $form->isValid())
+        {  
+            $hash = $encoder->encodePassword($user, $user->getPassword());
+            
+            $user->setPassword($hash);
+            
+            $manager->persist($user);
+            
+            $manager->flush();
+            
+            return $this->redirectToRoute('profil'); 
+        }
+
+        return $this->render('security/modify.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+    * @Route("/delete-user", name="security_delete_user") 
+    */
+    public function deleteUser(UserRepository $repo, ObjectManager $manager)
+    {
+        $user = $this->getUser();
+        
+        $userId = $user->getId();
+
+        $deleteUser = $repo->find($userId);
+
+        $session = $this->get('session');
+
+        $session = new Session();
+
+        $session->invalidate();
+        
+        $manager->remove($deleteUser);
+        
+        $manager->flush();
+
+        return $this->redirectToRoute('smart_port');
     }
 }

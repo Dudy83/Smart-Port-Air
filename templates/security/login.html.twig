@@ -5,7 +5,7 @@
     <div class="form-container w-100 d-flex justify-content-center align-items-center" style="height:100vh;">
 
         <form class="form w-25 d-flex flex-column justify-content-center align-items-center" style="color:#fff;" method="post" action="{{ path('security_login') }}">
-            <img src="images/logo/logo_smartport.png" class="mb-5">
+            <img src="images/logo/logo_smartport.png" class="mb-4">
 
             <div class="form-group w-100"> 
 
@@ -27,7 +27,7 @@
     </div>
 
     {% if error %}
-        <div class="alert alert-danger w-100" style="position:absolute;top:50px;"><i class="fas fa-exclamation-triangle mr-2"></i>Email ou mot de passe invalide</div>
+        <div class="alert alert-danger w-100" style="position:absolute;top:50px;text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Email ou mot de passe invalide</div>
     {% endif %}
 
 {% endblock %}

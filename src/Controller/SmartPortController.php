@@ -7,6 +7,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
+
 class SmartPortController extends AbstractController
 {
     /**
@@ -51,6 +52,22 @@ class SmartPortController extends AbstractController
         return $this->json(['code' => 200, 'message' => json_encode($results)], 200);
     }
 
+    /**
+    *@Route("/profil", name="profil")
+    */
+    public function profil()
+    {
+        $user = $this->getUser();
+
+        $username = $user->getUsername();
+
+        $email = $user->getEmail();
+
+        return $this->render('smart_port/profil.html.twig', [
+            'username' => $username,
+            'email' => $email,
+        ]);
+    }
 }
 
 
