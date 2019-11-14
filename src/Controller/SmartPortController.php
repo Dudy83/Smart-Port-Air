@@ -15,7 +15,6 @@ class SmartPortController extends AbstractController
     */
     public function index()
     {
-
         return $this->render('smart_port/index.html.twig');
     }
 

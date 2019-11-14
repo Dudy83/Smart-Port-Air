@@ -37,26 +37,30 @@
 
         <div id="cards-absolute" class="d-flex flex-wrap justify-content-around align-items-center">
             <div class="m-2">
-                <div class="cards-background m-2 d-flex justify-content-center align-items-center"><img
-                        src="images/cardBoat.png" alt="Card image cap" width="256px" height="256px"></div><button
-                    type="button" class="btn w-100 legendBtn"><i class="fas fa-ship mr-2"></i>Tracking des
+                <div class="cards-background m-2 d-flex justify-content-center align-items-center">
+                    <img src="images/cardBoat.png" alt="Card image cap" width="256px" height="256px">
+                </div>
+                <button type="button" class="btn w-100 legendBtn"><i class="fas fa-ship mr-2"></i>Tracking des
                     bateaux</button>
             </div>
             <div class="m-2">
-                <div class="cards-background m-2 d-flex justify-content-center align-items-center"><img
-                        src="images/factory.png" alt="Card image cap" width="256px" height="256px"></div><button
-                    type="button" class="btn w-100 legendBtn"><i class="fas fa-anchor mr-2"></i>Pollution du
+                <div class="cards-background m-2 d-flex justify-content-center align-items-center">
+                    <img src="images/factory.png" alt="Card image cap" width="256px" height="256px">
+                </div>
+                <button type="button" class="btn w-100 legendBtn"><i class="fas fa-anchor mr-2"></i>Pollution du
                     port</button>
             </div>
             <div class="m-2">
-                <div class="cards-background m-2 d-flex justify-content-center align-items-center"><img
-                        src="images/map.png" alt="Card image cap" width="256px" height="256px"></div><button
-                    type="button" class="btn w-100 legendBtn"><i class="fas fa-map-marked-alt mr-2"></i>Carte
+                <div class="cards-background m-2 d-flex justify-content-center align-items-center">
+                    <img src="images/map.png" alt="Card image cap" width="256px" height="256px">
+                </div>
+                <button type="button" class="btn w-100 legendBtn"><i class="fas fa-map-marked-alt mr-2"></i>Carte
                     interactive</button>
             </div>
         </div>
 
-        <h1 style="color:#95a5a6;"> Bienvenue sur Smart Port &copy; <br>{% if not app.user %}Connectez-vous ou inscrivez-vous pour accéder à la map{% endif %}</h1>
+        <h1 style="color:#95a5a6;"> Bienvenue sur Smart Port &copy; <br>{% if not app.user %}Connectez-vous ou
+            inscrivez-vous pour accéder à la map{% endif %}</h1>
 
         <div id="welcome-buttons" class="w-100 d-flex align-items-center justify-content-center">
             {% if not app.user %}
@@ -75,19 +79,23 @@
 
 
 <footer class="d-flex flex-wrap justify-content-around align-items-center">
-    <div class="w-100 pb-2 d-flex flex-wrap justify-content-around align-items-center" style="border-bottom:1px solid #f2f2f2">
+    <div class="w-100 pb-2 d-flex flex-wrap justify-content-around align-items-center"
+        style="border-bottom:1px solid #f2f2f2">
         <a href="http://www.airpaca.org/" class="m-2">
             <img src="images/logo/atmosud.png" width="128px">
         </a>
-        <div>
-            <a href="https://www.facebook.com/AtmoSud" class="m-3"><img src="images/reseaux/facebook.png" width="48px"></a>
-            <a href="https://www.linkedin.com/company/atmosud/" class="m-3"><img src="images/reseaux/linkedin.png" width="48px"></a>
+        <div class="w-100 d-flex justify-content-center align-items-center">
+            <a href="https://www.facebook.com/AtmoSud" class="m-3"><img src="images/reseaux/facebook.png"
+                    width="48px"></a>
+            <a href="https://www.linkedin.com/company/atmosud/" class="m-3"><img src="images/reseaux/linkedin.png"
+                    width="48px"></a>
             <a href="https://twitter.com/AtmoSud" class="m-3"><img src="images/reseaux/twitter.png" width="48px"></a>
-            <a href="https://www.youtube.com/c/AtmoSud" class="m-3"><img src="images/reseaux/youtube.png" width="48px"></a> 
+            <a href="https://www.youtube.com/c/AtmoSud" class="m-3"><img src="images/reseaux/youtube.png"
+                    width="48px"></a>
         </div>
         <img src="images/logo/logo_smartport.png" class="m-2" width="128px">
     </div>
     <p style="color:#fff;" class="m-2">2019 &copy; SmartPort | Tous droits réservés.</p>
 </footer>
 
-        {% endblock %}
+{% endblock %}
