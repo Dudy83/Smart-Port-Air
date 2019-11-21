@@ -386,7 +386,7 @@ class SmartPortMap extends HTMLElement
 
             let pollution = [null, null, null, null, null];
 
-            let releve = [15, 28, 54, 31];
+            let releve = [15, 28, 54, 19];
 
             while(ech <= 2)
             {
@@ -395,6 +395,7 @@ class SmartPortMap extends HTMLElement
                 axios.get(url).then((response) =>
                 {
                     pollution.push(response.data.data.valeur);
+   
                 })
                 
                 if(ech === 2)
@@ -405,7 +406,7 @@ class SmartPortMap extends HTMLElement
                         releve.push(response.data.data.valeur);
                     });
 
-                    axios.get("https://apigeoloc.atmosud.org/getpollution?pol=NO2&lon="+data.coordinates[0]+"&lat="+data.coordinates[1]+"&ech=p2")
+                    axios.get("https://apigeoloc.atmosud.org/getpollution?pol=NO2&lon="+data.coordinates[0]+"&lat="+data.coordinates[1]+"&ech=p0")
                     .then((response) =>
                     {
                         releve.push(response.data.data.valeur);
