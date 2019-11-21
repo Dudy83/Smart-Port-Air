@@ -415,28 +415,22 @@ const get_mesures_max_jour = (year, month, day, id_poll_ue, code_station, ech) =
     
 
 
-// get_mesures_max_jour(2019, 11, 16, 8, "FR02005", 5).then((data) =>
-// {
-//     console.log(data)
-// })
+get_mesures_max_jour(2019, 11, 16, 8, "FR02005", 5).then((data) =>
+{
+    console.log(data)
+})
 
 
-// get_mesures(8, "FR02005").then((data) =>
-// {
-//     console.log(data)
-// })
+get_mesures(8, "FR02005").then((data) =>
+{
+    console.log(data)
+})
 
-// get_previsions(6.0672369, 44.54864888, "NO2").then((data) =>
-// {
-//     console.log(data);
-// })
-
-// Paramètres : id_poll_ue, code_station
-// get_mesures(8, "FR02005").then((data) =>
-// {
-//     console.log(data[0])
-// });
-
+get_previsions(6.0672369, 44.54864888, "NO2").then((data) =>
+{
+    console.log(data);
+})
+ 
 // Paramètres : lon, lat
 // get_previsions(7.20194387, 43.6577454, "NO2").then((data) =>
 // {
