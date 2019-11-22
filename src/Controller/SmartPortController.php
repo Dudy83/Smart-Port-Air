@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Doctrine\DBAL\Driver\Connection;
 use Symfony\Component\HttpFoundation\Request;
 
 
@@ -33,11 +34,11 @@ class SmartPortController extends AbstractController
     public function mapAPI(Request $request) : Response
     {    
         // Create connection
-        $db = new \PDO('mysql:host=vmli-bdd;dbname=mesmod', 'etude', 'etude');
+        $db = new \PDO('mysql:host=127.0.0.1;dbname=smartport', 'root', '');
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 
         // Prepare the query
-        $sql = $db->prepare("SELECT `id`, `lon` ,`lat` FROM `chimie_stations_2`");
+        $sql = $db->prepare("SELECT nom, lon , lat FROM `table 2`");
         // Execute SQL query
         $sql->execute();
         //Prepare an array to push all the results from the query

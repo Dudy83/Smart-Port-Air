@@ -31,6 +31,27 @@ map.setView([iniLat, iniLon], iniZoom);
 // map.scrollWheelZoom.disable();
 // map.dragging.disable();
 
+function create_stations()
+{
+    fetch('/api/map').then((response) =>
+    {
+        return response.json().then((data)=>{
+            var feature = {
+                type: 'Feature',
+                properties: data,
+                geometry: {
+                    type: 'Point',
+                    coordinates: data.message.geometry.coordinates,
+                },
+                stationId: station.properties.nom_station,
+                modal: station.properties.code_station,
+            } 
+        })
+    })
+}
+
+create_stations();
+
 function generate_wind() 
 {
     var monthNames = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
@@ -44,7 +65,7 @@ function generate_wind()
     var year = new Date().getFullYear();
     var hours = new Date().getHours();
 
-    return  $.getJSON('cdn/js/wind' + '_' + dayNames[day] + monthNames[monthIndex] + year + '_' + hoursNames[hours] + '.json', 
+    return  $.getJSON('cdn/js/wind' + '_' + day + monthNames[monthIndex] + year + '_' + hoursNames[hours] + '.json', 
 
     (data) =>
     {
@@ -155,7 +176,10 @@ function stations_NO2()
                                         <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">S02</a>
                                     </li>
                                 </ul>
-                                <canvas class="chartjs-render-monitor" id="canvas-`+feature.modal+`" width="400" height="400"></canvas>
+                                <div class="w-100  d-flex justify-content-center align-items-center">
+                                <img src="images/legend_NO2.png">
+                                    <canvas class="chartjs-render-monitor" id="canvas-`+feature.modal+`" width="400" height="400"></canvas>
+                                </div>
                             </div>
         
                             <div class="modal-footer justify-content-center">
@@ -200,12 +224,7 @@ function stations_NO2()
             let monthName = new Date().getMonth();
             let year = new Date().getFullYear();
 
-            var monthId = [
-                "01", "02", "03",
-                "04", "05", "06", 
-                "07", "08", "09", 
-                "10", "11", "12"
-            ];
+            var monthId = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
             console.log(year + "/" + monthId[monthName] + "/" + days)
 
@@ -221,13 +240,6 @@ function stations_NO2()
                     }
 
                     var days = new Array();
-
-                    var monthId = [
-                        "01", "02", "03",
-                        "04", "05", "06", 
-                        "07", "08", "09", 
-                        "10", "11", "12"
-                    ];
             
                     for(let i = -5; i < 3; i++)
                     {      
@@ -240,8 +252,7 @@ function stations_NO2()
 
                     let ctx = document.getElementById('canvas-'+station.code_station).getContext("2d");
 
-                    var width = window.innerWidth || document.body.clientWidth;
-                    var gradient = ctx.createLinearGradient(0, 100, 0, 466);
+                    var gradient = ctx.createLinearGradient(0, 100, 0, 600);
                     gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
                     gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
                     gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
@@ -287,10 +298,6 @@ function stations_NO2()
                                     ticks: {
                                         beginAtZero: true,
                                         suggestedMax: 250
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'µg/m3'
                                     }
                                 }]
                             },
@@ -415,21 +422,21 @@ const get_mesures_max_jour = (year, month, day, id_poll_ue, code_station, ech) =
     
 
 
-get_mesures_max_jour(2019, 11, 16, 8, "FR02005", 5).then((data) =>
-{
-    console.log(data)
-})
+// get_mesures_max_jour(2019, 11, 16, 8, "FR24018", 5).then((data) =>
+// {
+//     console.log(data)
+// })
 
 
-get_mesures(8, "FR02005").then((data) =>
-{
-    console.log(data)
-})
+// get_mesures(8, "FR24018").then((data) =>
+// {
+//     console.log(data)
+// })
 
-get_previsions(6.0672369, 44.54864888, "NO2").then((data) =>
-{
-    console.log(data);
-})
+// get_previsions(6.0672369, 44.54864888, "NO2").then((data) =>
+// {
+//     console.log(data);
+// })
  
 // Paramètres : lon, lat
 // get_previsions(7.20194387, 43.6577454, "NO2").then((data) =>
