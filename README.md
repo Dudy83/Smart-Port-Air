@@ -43,7 +43,7 @@ get_mesures_max_jour(2019, 11, 16, 8, "FR24018", 5).then((data) =>
 ```
 
 ```js
-// Cette fonction retourne les prévisions selon le polluant et les coordonnées souhaité.
+// Cette fonction retourne les prévisions selon le polluant et les coordonnées souhaitées.
 
 // @Params(longitude, latitude, nom_polluant)
 get_previsions(7.20194387, 43.6577454, "NO2").then((data) =>
