@@ -16,7 +16,7 @@
 
 Fonctions pour récupérer les prévisions et les mesures (moyenne ou max journaliers) :
 
-Le code de ces fonctions se trouve dans : ./assets/js/smartportmap.js
+Le code de ces fonctions se trouve dans : ./assets/js/smartportmap.jsguill
 
 ```js
 // Cette fonction retourne les 5 derniers jours de mesures (moyenne) selon le polluant et la station souhaités.

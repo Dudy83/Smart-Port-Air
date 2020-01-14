@@ -32,13 +32,13 @@ class SmartPortController extends AbstractController
     *@Route("/api/map", name="mapAPI")
     */
     public function mapAPI(Request $request) : Response
-    {    
+    {  
         // Create connection
         $db = new \PDO('mysql:host=127.0.0.1;dbname=smartport', 'root', '');
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 
         // Prepare the query
-        $sql = $db->prepare("SELECT nom, lon , lat FROM `table 2`");
+        $sql = $db->prepare("SELECT nom, lon , lat, id, aasqa FROM `chimie_stations2` WHERE aasqa = 'PACA'");
         // Execute SQL query
         $sql->execute();
         //Prepare an array to push all the results from the query
@@ -49,7 +49,8 @@ class SmartPortController extends AbstractController
             $results[] = $data; 
         } 
         // returns JSON object to javascript with our array
-        return $this->json(['code' => 200, 'message' => json_encode($results)], 200);
+        return $this->json(['code' => 200, 'results' => json_encode($results)], 200);
+    
     }
 
     /**

@@ -31,16 +31,13 @@
        
       <div id="list-container" class="d-flex justify-content-around align-items-center mx-auto float-right">
 
-                  <a class="navbar-links" href="{{ path('smart_port') }}"><i class="fas fa-home mr-2"></i><p class="navbar-links-content" style="margin:0">Home</p></a>
+                  <a class="navbar-links" href="{{ path('smart_port') }}"><i class="fas fa-home mr-2"></i><p class="navbar-links-content" style="margin:0">Accueil</p></a>
             
         
             
-                  <a class="navbar-links" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i><p class="navbar-links-content" style="margin:0">Map</p></a>
+                  <a class="navbar-links" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i><p class="navbar-links-content" style="margin:0">Carte</p></a>
         
-        
-          
-                  <a class="navbar-links" href="{{ path('map') }}"><i class="fas fa-layer-group mr-2"></i><p class="navbar-links-content" style="margin:0">Paramètres</p></a>
-        
+                
         
                   <a class="navbar-links" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i><p class="navbar-links-content" style="margin:0">Profil</p></a>
       </div>
@@ -53,8 +50,9 @@
     
       <i id="nav-dropdown-leaver" class="fas fa-chevron-left d-flex justify-content-center align-items-center"></i>
 
-      <div class="d-flex justify-content-center align-items-center border-bottom">
-        <img src="images/logo/logo_transparent.png" width="256px" style="margin:70px 0 50px 0">
+      <div class="d-flex flex-column justify-content-center align-items-center border-bottom">
+        <img src="images/logo/logo_transparent.png" width="256px">
+        <h1>Smart Port</h1>
       </div>
 
     <div>
@@ -67,9 +65,8 @@
     </div>
 
       <div id="dropdown-content" class="d-flex flex-column justify-content-start align-items-center border-bottom border-top mt-3 pb-3">
-        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db"><i class="fas fa-cog mr-2"></i> Paramètres</a>
-        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i> Mon compte</a>
-        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i> Map</a>
+        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i> Profil</a>
+        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i> Carte</a>
       </div>
     </aside>
 

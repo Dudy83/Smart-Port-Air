@@ -1,5 +1,3 @@
-import { cpus } from "os";
-
 let attrib = '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2019 </a>| &copy; Mapbox';
 let iniLon = 5.9367;
 let iniLat = 43.7284;
@@ -31,26 +29,27 @@ map.setView([iniLat, iniLon], iniZoom);
 // map.scrollWheelZoom.disable();
 // map.dragging.disable();
 
-function create_stations()
-{
-    fetch('/api/map').then((response) =>
-    {
-        return response.json().then((data)=>{
-            var feature = {
-                type: 'Feature',
-                properties: data,
-                geometry: {
-                    type: 'Point',
-                    coordinates: data.message.geometry.coordinates,
-                },
-                stationId: station.properties.nom_station,
-                modal: station.properties.code_station,
-            } 
-        })
-    })
-}
+// function create_stations()
+// {
+//     fetch('/api/map').then((response) =>
+//     {
+//         return response.json().then((data)=>{
+//             console.log(data)
+//             var feature = {
+//                 type: 'Feature',
+//                 properties: data,
+//                 geometry: {
+//                     type: 'Point',
+//                     coordinates: data.message.geometry.coordinates,
+//                 },
+//                 stationId: station.properties.nom_station,
+//                 modal: station.properties.code_station,
+//             } 
+//         })
+//     })
+// }
 
-create_stations();
+// create_stations();
 
 function generate_wind() 
 {
@@ -226,10 +225,9 @@ function stations_NO2()
 
             var monthId = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
-            console.log(year + "/" + monthId[monthName] + "/" + days)
-
             get_mesures_max_jour(year, monthId[monthName], days, 8, station.code_station, 4).then((data) =>
             { 
+                console.log(data)
                 get_previsions(station.coord[0], station.coord[1], "NO2").then((PrevisionData) =>
                 {
                     PrevisionData.unshift(data[data.length-1]);
@@ -384,15 +382,23 @@ const get_mesures_max_jour = (year, month, day, id_poll_ue, code_station, ech) =
         {
             const results = [];
 
+            let dayNames = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"];
+
             for(let i = 0; i <= ech; i++)
             {
-                let nextDate = day+i;
+                let nextDate;
+                if(i == 0)
+                {
+                    nextDate = dayNames[day];
+                } else {
+                    nextDate = dayNames[day+i];
+                }
               
                 let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+ year + "/" + month + "/" + nextDate + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27%20AND%20date_fin<=%27"+ year + "/" + month + "/" + nextDate +"%20" + "23:59" + "%27";
-
                 const request = axios.get(url);
-    
                 results.push(request);
+
+                console.log(url)
             }
             return results;
         }
@@ -420,11 +426,9 @@ const get_mesures_max_jour = (year, month, day, id_poll_ue, code_station, ech) =
     })
 }
     
-
-
-// get_mesures_max_jour(2019, 11, 16, 8, "FR24018", 5).then((data) =>
+// get_mesures_max_jour(2020, 01, 08, 8, "FR03060", 5).then((data) =>
 // {
-//     console.log(data)
+//     console.log(data);
 // })
 
 
@@ -438,11 +442,7 @@ const get_mesures_max_jour = (year, month, day, id_poll_ue, code_station, ech) =
 //     console.log(data);
 // })
  
-// Paramètres : lon, lat
-// get_previsions(7.20194387, 43.6577454, "NO2").then((data) =>
-// {
-//     console.log(data);
-// })
+
 // for(let i = 0; i < jsonFeatures.length-1; i++)
 // {
 //         const get_previsions = (lon, lat, pol) => 
