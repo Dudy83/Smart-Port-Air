@@ -1,96 +1,126 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="Access-Control-Allow-Origin" content="*">
-        <meta name="viewport" content="width=device-width, user-scalable=no">
-        {% block stylesheets %}
-            <!-- Font Awesome icons <i> -->
-            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
-            <!-- Bootstrap core CSS -->
-            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-            <!-- Material Design Bootstrap -->
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>         
-  
-            <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
-            
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
 
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    {% block stylesheets %}
+    <!-- Font Awesome icons <i> -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
 
-    <body>
+    <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="images/logo/favicon.png" />
+
+
+    {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+</head>
+
+<body>
 
     <nav id="navbar" class="d-flex justify-content-start align-items-center">
 
-      <div id="nav-icon3" class="d-flex flex-column justify-content-around align-items-center">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-       
-      <div id="list-container" class="d-flex justify-content-around align-items-center mx-auto float-right">
+        <img src="images/logo/logo-removebg-preview.png" width="128px">
 
-                  <a class="navbar-links" href="{{ path('smart_port') }}"><i class="fas fa-home mr-2"></i><p class="navbar-links-content" style="margin:0">Accueil</p></a>
-            
-        
-            
-                  <a class="navbar-links" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i><p class="navbar-links-content" style="margin:0">Carte</p></a>
-        
-                
-        
-                  <a class="navbar-links" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i><p class="navbar-links-content" style="margin:0">Profil</p></a>
-      </div>
+        <div id="list-container" class="d-flex justify-content-around align-items-center mx-auto float-right">
 
+            <a class="navbar-links" href="{{ path('smart_port') }}"><i class="fas fa-home mr-2"></i>
+                <p class="navbar-links-content" style="margin:0">Accueil</p>
+            </a>
+
+            <a class="navbar-links" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i>
+                <p class="navbar-links-content" style="margin:0">Carte</p>
+            </a>
+
+            <a class="navbar-links" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i>
+                <p class="navbar-links-content" style="margin:0">Profil</p>
+            </a>
+
+            <svg id="nav-icon" class="ham hamRotate ham8" viewBox="0 0 100 100" width="40" onclick="this.classList.toggle('active')">
+                <path class="line top" d="m 30,33 h 40 c 3.722839,0 7.5,3.126468 7.5,8.578427 0,5.451959 -2.727029,8.421573 -7.5,8.421573 h -20" />
+                <path class="line middle" d="m 30,50 h 40" />
+                <path class="line bottom" d="m 70,67 h -40 c 0,0 -7.5,-0.802118 -7.5,-8.365747 0,-7.563629 7.5,-8.634253 7.5,-8.634253 h 20" />
+            </svg>
+
+
+        </div>
 
 
     </nav>
 
     <aside id="nav-dropdown" class="not-loaded">
-    
-      <i id="nav-dropdown-leaver" class="fas fa-chevron-left d-flex justify-content-center align-items-center"></i>
 
-      <div class="d-flex flex-column justify-content-center align-items-center border-bottom">
-        <img src="images/logo/logo_transparent.png" width="256px">
-        <h1>Smart Port</h1>
-      </div>
+        <div class="d-flex flex-column justify-content-center align-items-center border-bottom">
+            <img src="images/logo/logo_transparent.png" width="256px">
 
-    <div>
-    {% if not app.user %}
-      <a tabindex="4" href="/connexion" class="btn btn-success w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
-      <a tabindex="4" href="/inscription" class="btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-user-edit mr-2"></i> Créer un compte</a>
-    {% else %}
-      <a tabindex="4" href="{{ path('security_logout') }}" class="btn btn-danger w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-sign-out-alt mr-2"></i> Déconnexion</a>
-    {% endif %}
-    </div>
+        </div>
 
-      <div id="dropdown-content" class="d-flex flex-column justify-content-start align-items-center border-bottom border-top mt-3 pb-3">
-        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i> Profil</a>
-        <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#3498db" href="{{ path('map') }}"><i class="fas fa-anchor mr-2"></i> Carte</a>
-      </div>
+        <div>
+            {% if not app.user %}
+            <a tabindex="4" href="/connexion" class="btn btn-success w-100 m-0 mt-3" style="color: #fff"><i
+                    class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
+            <a tabindex="4" href="/inscription" class="btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i
+                    class="fas fa-user-edit mr-2"></i> Créer un compte</a>
+            {% else %}
+            <a tabindex="4" href="{{ path('security_logout') }}" class="btn btn-danger w-100 m-0 mt-3"
+                style="color: #fff"><i class="fas fa-sign-out-alt mr-2"></i> Déconnexion</a>
+            {% endif %}
+        </div>
+
+        <div id="dropdown-content"
+            class="d-flex flex-column justify-content-start align-items-center border-bottom border-top mt-3 pb-3">
+            <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#6BBA62" href="{{ path('profil') }}"><i
+                    class="fas fa-user mr-2"></i> Profil</a>
+            <a class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#6BBA62" href="{{ path('map') }}"><i
+                    class="fas fa-anchor mr-2"></i> Carte</a>
+        </div>
     </aside>
 
-      <main id="main">
-      {% block body %}{% endblock %}
-      </main>
-       
-        {% block javascripts %}
+    {% for message in app.flashes('success') %}
 
-            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <div class="alert alert-success" style="margin-top:50px">{{ message }}</div>
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    {% endfor %}
 
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <main id="main">
+        {% block body %}{% endblock %}
+    </main>
 
-            <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-            
-            <script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"></script>
+    {% block javascripts %}
 
-            <script type="text/javascript" src="cdn/js/leaflet-velocity.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
 
-            {{ encore_entry_script_tags('app') }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
 
-        {% endblock %}
-    </body>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+
+    <script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"></script>
+
+    <script type="text/javascript" src="cdn/js/leaflet-velocity.js"></script>
+
+    {{ encore_entry_script_tags('app') }}
+
+    {% endblock %}
+</body>
 
 </html>

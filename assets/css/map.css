@@ -8,6 +8,12 @@ body{
     background-size: 100%;
 }
 
+#navbar
+{
+    background-color: #fff;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+}
+
 .leaflet-control-layers-toggle
 {
     background-image: none;
@@ -76,14 +82,24 @@ div[aria-haspopup="true"]{
     z-index: 1050;
 }
 
-.nav-link
+#navbar div a
 {
-    color: #363636;
+    color: #6BBA62;
+}
+
+.line
+{
+    stroke: #6BBA62;
 }
 
 .nav-link.active
 {
     font-weight: bolder;
+}
+
+.nav-link
+{
+    color: #495057;
 }
 
 .modal-body {

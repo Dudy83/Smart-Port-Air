@@ -3,22 +3,24 @@ require('../css/app.css');
 //function drop nav-side
 function dropdown_menu()
 {
-    let $navLeaver = document.getElementById('nav-dropdown-leaver');
     let $dropdown = document.getElementById('nav-dropdown');
-    let $hamburger = document.getElementById('nav-icon3');
+    let $hamburger = document.getElementById('nav-icon');
     let $dropdownContent = document.getElementById('dropdown-content');
 
-    $navLeaver.addEventListener('click', () => {
-        $dropdown.setAttribute('class', 'dropdown-not-loaded');
-        $dropdownContent.style.visibility = "hidden";
-        setTimeout(() =>{
-            $dropdown.setAttribute('class', 'not-loaded');
-        }, 500)
-    });
-
-    $hamburger.addEventListener('click', () => {
-        $dropdown.setAttribute('class', 'dropdown-loaded');
-        $dropdownContent.style.visibility = "visible";
+    $hamburger.addEventListener('click', () => 
+    {
+        if($dropdown.classList.contains('dropdown-loaded'))
+        {
+            $dropdown.setAttribute('class', 'dropdown-not-loaded');
+           
+            setTimeout(() =>{
+                $dropdownContent.style.visibility = "hidden";
+                $dropdown.setAttribute('class', 'not-loaded');
+            }, 500)
+        } else {
+            $dropdown.setAttribute('class', 'dropdown-loaded');
+            $dropdownContent.style.visibility = "visible";
+        }
     });
 }
 
@@ -43,12 +45,34 @@ function navIcons()
 function navbarAnim()
 {
     let nav = document.getElementById('navbar');
+    let navLinks = document.getElementsByClassName('navbar-links');
+    let spans = document.getElementsByClassName('line');
 
     if(window.scrollY !== 0)
     {
-        nav.style.setProperty('box-shadow', '0 .125rem .25rem rgba(0,0,0,.075)')
+        nav.style.setProperty('box-shadow', '0 .125rem .25rem rgba(0,0,0,.075)');
+        nav.style.setProperty('background-color', '#fff');
+        navLinks.forEach(element =>
+        {
+            element.style.setProperty('color', '#6BBA62')
+        })
+
+        spans.forEach(element =>
+        {
+            element.style.setProperty('stroke', '#6BBA62')
+        })
     }else{
-        nav.removeAttribute('style')
+        nav.removeAttribute('style');
+        navLinks.forEach(element =>
+        {
+            element.removeAttribute('style');
+        })
+
+        spans.forEach(element =>
+        {
+            element.removeAttribute('style');
+        })
+        
     }
 }
 

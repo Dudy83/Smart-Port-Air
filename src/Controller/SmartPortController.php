@@ -38,7 +38,7 @@ class SmartPortController extends AbstractController
         $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 
         // Prepare the query
-        $sql = $db->prepare("SELECT nom, lon , lat, id, aasqa FROM `chimie_stations2` WHERE aasqa = 'PACA'");
+        $sql = $db->prepare("SELECT nom, lon , lat, id FROM `chimie_stations2` WHERE aasqa = 'PACA'");
         // Execute SQL query
         $sql->execute();
         //Prepare an array to push all the results from the query

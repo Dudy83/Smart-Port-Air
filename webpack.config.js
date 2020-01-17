@@ -26,6 +26,8 @@ Encore
     .addEntry('app', './assets/js/app.js')
     .addEntry('map', './assets/js/map.js')
     .addEntry('smartportmap', './assets/js/smartportmap.js')
+    .addEntry('forms', './assets/js/forms.js')
+
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
 

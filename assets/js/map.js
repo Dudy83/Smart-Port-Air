@@ -16,7 +16,7 @@ class SmartPortMap extends HTMLElement
         this.iniLat = 43.7284;
         this.iniZoom = 9;
 
-        this.DarkGreyCanvas = L.tileLayer("http://{s}.sm.mapstack.stamen.com/" + "(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/" + "{z}/{x}/{y}.png",
+        this.DarkGreyCanvas = L.tileLayer("http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
         {
             attribution: this.attrib
         });
@@ -28,27 +28,24 @@ class SmartPortMap extends HTMLElement
 
         this.baseLayers = {
             "<span class='base-layers-choices'><i class='fas fa-map-marked-alt'></i> Normal</span>": this.WorldImagery,
-            "<span class='base-layers-choices'><i class='fas fa-map-marked-alt'></i> Noir</span>": this.DarkGreyCanvas
+            "<span class='base-layers-choices'><i class='fas fa-map-marked-alt'></i> Noir</span>": this.DarkGreyCanvas,
         };
-
-        this.logo = L.control({position: 'topleft'});
 
         this.map = L.map('map', {
             layers: [  this.DarkGreyCanvas ],
+            minZoom: 6,
+            maxZoom: 20,
             zoomControl: false
         });
 
         this.map.setView([this.iniLat, this.iniLon], this.iniZoom);
-        // this.map.scrollWheelZoom.disable();
-        // this.map.dragging.disable();
-
     }
 
     connectedCallback()
     {
         this.create_stations();
         this.generate_wind();
-        this.add_logo();
+        this.modele_pollution();
     }
     
     create_stations()
@@ -76,19 +73,30 @@ class SmartPortMap extends HTMLElement
 
                     let geoJson = { type: 'FeatureCollection', features: this.stations };
         
-                    L.geoJSON(geoJson, {
+                    this.show_stations = L.geoJSON(geoJson, {
             
                         pointToLayer: (feature, latlng) => 
                         {
-                            return new L.marker(latlng);
+                            return new L.CircleMarker(latlng);
                         },
                     
                         onEachFeature: (feature, layer) =>
                         {
-                            layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.nom +  '</h5><button type="button" class="btn btn-primary w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.station_id+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
+                            layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.nom +  '</h5><button id="modalBtn'+feature.station_id+'" code='+feature.station_id+' lon='+feature.geometry.coordinates[0]+' lat='+feature.geometry.coordinates[1]+' type="button" class="btn btn-primary w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.station_id+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
                             
+                            layer.on('click', () =>
+                            {
+                                document.getElementsByClassName('dataNO2').forEach((element) => 
+                                {
+                                    element.addEventListener('click', (e) =>
+                                    {
+                                        this.get_NO2(e);
+                                    });
+                                });
+                            })
+
                             document.getElementById('modals-container').innerHTML += `
-                            <div style="z-index: 7000;" class="modal fade right" id=mod-`+feature.station_id+` tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                            <div style="z-index: 7000;" class="modal fade right" id="mod-`+feature.station_id+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
                                 
                                 <div class="modal-dialog modal-full-height modal-right w-100" role="document" style="position: fixed !important;right: 0;height: 100%;top: 0;margin: 0;">
                                 
@@ -98,26 +106,27 @@ class SmartPortMap extends HTMLElement
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
-                                            <h4 class="modal-title w-100" id="myModalLabel" style="text-align:center;">`+feature.nom+ " <br> " +feature.station_id+`</h4>
+                                            <h4 class="modal-title w-100" id="myModalLabel" style="text-align:center;">`+feature.nom+ `</h4>
+                                            <h4 id="`+feature.station_id+`">`+feature.station_id+`</h4>
                                         </div>
                                     
                                         <div class="modal-body">
-                                            <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5">
+                                            <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.station_id+`">
                                                 <li class="nav-item">
-                                                    <a class="nav-link active" href="#">NO2</a>
+                                                    <a id="NO2-`+feature.station_id+`" class="NO2graph nav-link active" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a class="nav-link" href="#">O3</a>
+                                                    <a id="O3-`+feature.station_id+`" class="O3graph nav-link" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a class="nav-link" href="#">PM10</a>
+                                                    <a id="PM10-`+feature.station_id+`" class="PM10graph nav-link" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">S02</a>
+                                                    <a id="SO2-`+feature.station_id+`" class="SO2graph nav-link" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
                                                 </li>
                                             </ul>
                                             <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.station_id+`">
-                                            <img src="images/legend_NO2.png">
+                                                <img src="images/legend_NO2.png">
                                                 <canvas class="chartjs-render-monitor" id="canvas-`+feature.station_id+`" width="400" height="400"></canvas>
                                             </div>
                                         </div>
@@ -131,17 +140,16 @@ class SmartPortMap extends HTMLElement
                                 </div>
                     
                             </div>`;
-                        }
+                        } 
                     }).addTo(this.map);
                 }
 
             }).then(() => 
             {
-                this.border_paca();
-                this.get_NO2();
-            })
+                this.bind_events();
+            });
 
-        })
+        });
     }
 
     generate_wind()
@@ -150,7 +158,7 @@ class SmartPortMap extends HTMLElement
         let monthIndex = new Date().getMonth();
         let year = new Date().getFullYear();
         let hours = new Date().getHours();
-    
+
         fetch('cdn/js/wind' + '_' + this.dayNames[day] + this.monthNames[monthIndex] + year + '_' + this.hoursNames[hours] + '.json').then((response) =>
         {
             return response.json().then((data) =>
@@ -168,13 +176,11 @@ class SmartPortMap extends HTMLElement
                 let wind = 
                 {
                     "<span class='base-layers-choices'><i class='fas fa-wind'></i> Vent</span>": layer,
+                    "<span class='base-layers-choices'><i class='fas fa-map-marker-alt'></i> Station</span>": this.show_stations,
                 }
-        
-                if(!document.getElementsByClassName('leaflet-control-layers')[0])
-                {
-                    L.control.layers(this.baseLayers, wind).addTo(this.map);
-                }
-        
+
+                L.control.layers(this.baseLayers, wind).addTo(this.map);
+                                
                 setInterval(() => 
                 {
                     if(new Date().getMinutes() == "00")
@@ -192,109 +198,81 @@ class SmartPortMap extends HTMLElement
         })  
     }
 
-    get_NO2()
-    {      
-        this.stations.forEach((station) => 
+    modele_pollution()
+    {
+        let wms_adress = 'https://geoservices.atmosud.org/geoserver/azurjour/wms?';
+        
+        L.tileLayer.wms(wms_adress, 
         {
-            let day = (new Date().getDate()-5);
-            let monthName = new Date().getMonth();
-            let year = new Date().getFullYear();
-
-            this.get_mesures_max_jour(year, this.monthNames[monthName], day, 8, station.station_id, 4).then((data) =>
-            { 
-                if(data[0] != -Infinity)
-                {
-                    this.get_previsions(station.geometry.coordinates[0], station.geometry.coordinates[1], "NO2").then((PrevisionData) =>
-                    {
-                        PrevisionData.unshift(data[data.length-1]);
-    
-                        for(let u = 0; u < 4; u++)
-                        {
-                            PrevisionData.unshift(null);
-                        }
-    
-                        let days = new Array();
-                
-                        for(let i = -5; i < 3; i++)
-                        {  
-                            day = new Date().getDate();                            
-                            days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
-                        }
-    
-                        let ctx = document.getElementById('canvas-'+station.station_id).getContext("2d");
-    
-                        var gradient = ctx.createLinearGradient(0, 100, 0, 600);
-                        
-                        gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
-                        gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
-                        gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
-                        gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
-                        gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
-                        gradient.addColorStop(1, 'rgb(0, 204, 170)');
-                        
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: days,
-                                datasets: [
-                                    {
-                                        label: "NO2 Mesures",
-                                        borderColor: gradient,
-                                        fill: false,
-                                        data: data,
-                                    },
-                                    {
-                                        label: "NO2 Prévisions",
-                                        borderColor: gradient,
-                                        borderDash: [10,5],
-                                        fill: false,
-                                        data:  PrevisionData,
-                                    },
-                                    {
-                                        label: "NO2 valeur limite",
-                                        fill: false,
-                                        backgroundColor: "red",
-                                        borderColor: "red",
-                                        data: [200, 200, 200, 200, 200, 200, 200, 200],
-                                    },
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                title: {
-                                    fontSize: 20,
-                                    display: true,
-                                    text: 'Evolution des max horaires journaliers en NO2'
-                                },
-                                scales: {
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true,
-                                            suggestedMax: 250
-                                        }
-                                    }]
-                                },
-                                legend: {
-                                    position: 'bottom',
-                                    display: true, 
-                                    labels: {fontSize: 10},                
-                                },
-                            }
-                        });
-    
-                    })
-                } else {
-                    let modal_body = document.getElementById('modal-'+station.station_id);
-                    modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le NO2 </div>';
-
-                }
-            });
-        })
+            layers: 'paca-multi-1578870000-0',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.6
+        }).addTo(this.map);
     }
 
-    get_03(code_station)
-    {
+    get_NO2(e)
+    {      
+        e.preventDefault();
 
+        let station = document.getElementById(e.target.id);
+
+        let lon = station.getAttribute('lon');
+
+        let lat = station.getAttribute('lat');
+
+        let code_station = station.getAttribute('code');
+
+        let modal = document.getElementById('mod-'+code_station);
+
+        let nav = modal.querySelector('#nav-'+code_station);
+
+        let container = modal.querySelector('#modal-'+code_station);
+
+        nav.querySelector('#NO2-'+code_station).classList.remove('active');
+        nav.querySelector('#O3-'+code_station).classList.remove('active');
+        nav.querySelector('#PM10-'+code_station).classList.remove('active');
+        nav.querySelector('#SO2-'+code_station).classList.remove('active');
+
+        nav.querySelector('#NO2-'+code_station).classList.add('active');
+        console.log('OKK')
+        container.innerHTML = `
+            <img src="images/legend_NO2.png">
+            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="400" height="400"></canvas>`;
+       
+        this.draw_graph(code_station, "NO2", 8, lon, lat);
+    }
+
+    get_O3(e) 
+    {
+        e.preventDefault();
+
+        let station = document.getElementById(e.target.id);
+
+        let lon = station.getAttribute('lon');
+
+        let lat = station.getAttribute('lat');
+
+        let code_station = station.getAttribute('code');
+
+        let modal = document.getElementById('mod-'+code_station);
+
+        let nav = modal.querySelector('#nav-'+code_station);
+
+        let container = modal.querySelector('#modal-'+code_station);
+
+        nav.querySelector('#NO2-'+code_station).classList.remove('active');
+        nav.querySelector('#O3-'+code_station).classList.remove('active');
+        nav.querySelector('#PM10-'+code_station).classList.remove('active');
+        nav.querySelector('#SO2-'+code_station).classList.remove('active');
+
+        nav.querySelector('#O3-'+code_station).classList.add('active');
+
+        container.innerHTML = `
+            <img src="images/legend_O3.png">
+            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="400" height="400"></canvas>`;
+       
+        this.draw_graph(code_station, "O3", 7, lon, lat);
     }
 
     get_PM10(code_station)
@@ -305,6 +283,33 @@ class SmartPortMap extends HTMLElement
     get_SO2(code_station)
     {
 
+    }
+
+    bind_events()
+    {
+        let self = this;
+
+        document.getElementsByClassName('O3graph').forEach((element) => 
+        {
+            element.addEventListener('click', (e) =>
+            {
+                self.get_O3(e);
+            });
+        });
+
+        document.getElementsByClassName('NO2graph').forEach((element) => 
+        {
+            element.addEventListener('click', (e) =>
+            {
+                self.get_NO2(e);
+            });
+        });
+    }
+
+    timestamp(strDate) 
+    {
+        let datum = Date.parse(strDate);
+        return datum/1000;
     }
 
     get_mesures_max_jour(year, month, day, id_poll_ue, code_station, ech)
@@ -374,29 +379,101 @@ class SmartPortMap extends HTMLElement
         }
     }
 
-    border_paca()
+    draw_graph(code_station, nom_polluant, code_polluant, lon, lat)
     {
-        fetch('cdn/js/border_paca.geojson').then((response) => 
-        {
-            return response.json().then((data) =>
-            {
-                if(data)
-                {
-                    new L.GeoJSON(data).addTo(this.map);
-                }
-            });
-        })  
-    }
+        let day = (new Date().getDate()-5);
+        let monthName = new Date().getMonth();
+        let year = new Date().getFullYear();
 
-    add_logo()
-    {
-        this.logo.onAdd = () => 
-        {
-            let element = L.DomUtil.create('div', 'info logo d-flex flex-column justify-content-center align-items-center');  
-            element.innerHTML = '<img src="images/logo/atmosud.png" width="128px">';
-            return element;
-        };
-        this.logo.addTo(this.map);  
+        this.get_mesures_max_jour(year, this.monthNames[monthName], day, code_polluant, code_station, 4).then((data) =>
+        { 
+            if(data[0] != -Infinity || data[1] != -Infinity || data[2] != -Infinity || data[3] != -Infinity || data[4] != -Infinity)
+            {    
+                this.get_previsions(lon, lat, nom_polluant).then((PrevisionData) =>
+                {
+                    PrevisionData.unshift(data[data.length-1]);
+
+                    for(let u = 0; u < 4; u++)
+                    {
+                        PrevisionData.unshift(null);
+                    }
+
+                    let days = new Array();
+            
+                    for(let i = -5; i < 3; i++)
+                    {  
+                        day = new Date().getDate();                            
+                        days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
+                    }
+
+                    let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
+
+                    var gradient = ctx.createLinearGradient(0, 100, 0, 600);
+                    
+                    gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
+                    gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
+                    gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
+                    gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
+                    gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
+                    gradient.addColorStop(1, 'rgb(0, 204, 170)');
+                    
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: days,
+                            datasets: [
+                                {
+                                    label: nom_polluant + " Mesures",
+                                    borderColor: gradient,
+                                    fill: false,
+                                    data: data,
+                                },
+                                {
+                                    label: nom_polluant + " Prévisions",
+                                    borderColor: gradient,
+                                    borderDash: [10,5],
+                                    fill: false,
+                                    data:  PrevisionData,
+                                },
+                                {
+                                    label: nom_polluant + " Valeur limite",
+                                    fill: false,
+                                    backgroundColor: "red",
+                                    borderColor: "red",
+                                    data: [180, 180, 180, 180, 180, 180, 180, 180],
+                                },
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            title: {
+                                fontSize: 20,
+                                display: true,
+                                text: 'Evolution des max horaires journaliers en ' + nom_polluant
+                            },
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 250
+                                    }
+                                }]
+                            },
+                            legend: {
+                                position: 'bottom',
+                                display: true, 
+                                labels: {fontSize: 10},                
+                            },
+                        }
+                    });
+
+                })
+            } else {
+                let modal_body = document.getElementById('modal-'+code_station);
+                modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas'+' '+nom_polluant+'</div>';
+
+            }
+        });
     }
 
     static Register()
@@ -406,3 +483,5 @@ class SmartPortMap extends HTMLElement
 }
 
 SmartPortMap.Register();
+
+
