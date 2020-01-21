@@ -163,7 +163,7 @@ L.Control.Velocity = L.Control.extend({
 
 	options: {
 		position: 'bottomleft',
-		emptyString: 'Unavailable',
+		emptyString: 'Données indisponibles',
 		// Could be any combination of 'bearing' (angle toward which the flow goes) or 'meteo' (angle from which the flow comes)
 		// and 'CW' (angle value increases clock-wise) or 'CCW' (angle value increases counter clock-wise)
 		angleConvention: 'bearingCCW',
@@ -231,7 +231,7 @@ L.Control.Velocity = L.Control.extend({
 		var htmlOut = "";
 
 		if (gridValue && !isNaN(gridValue[0]) && !isNaN(gridValue[1]) && gridValue[2]) {
-			htmlOut = "<strong>" + this.options.velocityType + " Direction: </strong>" + self.vectorToDegrees(gridValue[0], gridValue[1], this.options.angleConvention).toFixed(2) + "°" + ", <strong>" + this.options.velocityType + " Speed: </strong>" + self.vectorToSpeed(gridValue[0], gridValue[1], this.options.speedUnit).toFixed(2) + this.options.speedUnit;
+			htmlOut = "<div id='wind-control-menu' class='w-100'><i class='fas fa-wind mr-2'></i><p class='strong-wind'> Vent </p></div><br><div class='d-flex justify-content-between align-items-center w-100'><p class='wind-text-content'><i class='fas fa-location-arrow'></i> Direction :</p><p class='wind-text-content'>" + self.vectorToDegrees(gridValue[0], gridValue[1], this.options.angleConvention).toFixed(2) + "°" + "</p></div><br><div class='d-flex justify-content-between align-items-center w-100'><p class='wind-text-content'><i class='fas fa-tachometer-alt'></i> Vélocité :</p><p class='wind-text-content'>" + self.vectorToSpeed(gridValue[0], gridValue[1], this.options.speedUnit).toFixed(2) + "nd</p></div></div>";
 		} else {
 			htmlOut = this.options.emptyString;
 		}
