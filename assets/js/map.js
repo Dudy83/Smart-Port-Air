@@ -283,9 +283,7 @@ class SmartPortMap extends HTMLElement
         let container = modal.querySelector('#modal-'+code_station);
 
         container.innerHTML = `
-            <div id="spinner-`+code_station+`" class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>`;
+            <div id="spinner-${code_station}" class="loader spinner-border"></div>`;
         // Just change the active pollutant in the modal menu.
         nav.querySelector('#NO2-'+code_station).classList.remove('active');
         nav.querySelector('#O3-'+code_station).classList.remove('active');
@@ -325,9 +323,7 @@ class SmartPortMap extends HTMLElement
         let container = modal.querySelector('#modal-'+code_station);
 
         container.innerHTML = `
-            <div id="spinner-`+code_station+`" class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>`;
+            <div id="spinner-${code_station}" class="loader spinner-border"></div>`;
 
         nav.querySelector('#NO2-'+code_station).classList.remove('active');
         nav.querySelector('#O3-'+code_station).classList.remove('active');
@@ -354,6 +350,10 @@ class SmartPortMap extends HTMLElement
 
     get_SO2(e)
     {
+        let day = (new Date().getDate()-7);
+        let monthIndex = new Date().getMonth();
+        let year = new Date().getFullYear();
+
         e.preventDefault();
 
         let station = document.getElementById(e.target.id);
@@ -371,9 +371,7 @@ class SmartPortMap extends HTMLElement
         let container = modal.querySelector('#modal-'+code_station);
 
         container.innerHTML = `
-            <div id="spinner-`+code_station+`" class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>`;
+            <div id="spinner-${code_station}" class="loader spinner-border"></div>`;
 
         nav.querySelector('#NO2-'+code_station).classList.remove('active');
         nav.querySelector('#O3-'+code_station).classList.remove('active');
@@ -390,7 +388,81 @@ class SmartPortMap extends HTMLElement
 
         image.style.visibility = "hidden";
 
-        this.draw_graph(code_station, "SO2", 1, lon, lat);
+        this.get_mesures_max_jour(year, this.monthNames[monthIndex], day, 1, code_station, 6).then((data) =>
+        {
+            if(data[0] != -Infinity || data[1] != -Infinity || data[2] != -Infinity || data[3] != -Infinity || data[4] != -Infinity || data[5] != -Infinity || data[6] != -Infinity)
+            {
+                let days = new Array();
+            
+                for(let i = 0; i < 7; i++)
+                {                              
+                    days.push((day+i) + '/' + this.monthNames[monthIndex] + '/' + year);
+                }
+
+                let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
+
+                var gradient = ctx.createLinearGradient(0, 100, 0, 600);
+                
+                gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
+                gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
+                gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
+                gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
+                gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
+                gradient.addColorStop(1, 'rgb(0, 204, 170)');
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: days,
+                        datasets: [
+                            {
+                                label:  "SO2 Mesures",
+                                borderColor: gradient,
+                                fill: false,
+                                data: data,
+                            },
+                            {
+                                label: "SO2 Valeur limite",
+                                fill: false,
+                                backgroundColor: "red",
+                                borderColor: "red",
+                                data: [350, 350, 350, 350, 350, 350, 350, 350],
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        title: {
+                            fontSize: 20,
+                            display: true,
+                            text: 'Evolution des max horaires journaliers en SO2'
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    suggestedMax: 250
+                                }
+                            }]
+                        },
+                        legend: {
+                            position: 'bottom',
+                            display: true, 
+                            labels: {fontSize: 10},                
+                        },
+                    }
+                });
+
+                let image = document.getElementById('image-'+code_station);
+                let spinner = document.getElementById('spinner-'+code_station);
+                spinner.style.visibility = "hidden";
+                image.style.visibility = "visible";
+                
+            } else {
+                let modal_body = document.getElementById('modal-'+code_station);
+                modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant : SO2</div>';
+            }
+        })
     }
 
     // this method will return an array of the last 5 day measuring at the station you want, with the pollutant you want.
@@ -458,7 +530,7 @@ class SmartPortMap extends HTMLElement
                   
                     let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+ year + "/" + month + "/" + nextDate + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27%20AND%20date_fin<=%27"+ year + "/" + month + "/" + nextDate +"%20" + "23:59" + "%27";
                     const request = axios.get(url);
-                    results.push(request);    
+                    results.push(request);  
                 }
                 return results;
             }
@@ -494,11 +566,10 @@ class SmartPortMap extends HTMLElement
         if(lon && lat)
         {
             const getURL = (ech) => `https://apigeoloc.atmosud.org/getpollution?pol=${pol}&lon=${lon}&lat=${lat}&ech=p${ech}`;
-
+            
             const requestsNO2 = new Array(3)
                                 .fill(null)
                                 .map((_, i) => axios.get(getURL(i)));
-
             
             return (await Promise.all(requestsNO2))
                     .map(response => response.data.data.valeur);
@@ -532,9 +603,6 @@ class SmartPortMap extends HTMLElement
 
                         vLimite = [180, 180, 180, 180, 180, 180, 180, 180];
 
-                    } else if(nom_polluant == "SO2") {
-
-                        vLimite = [350, 350, 350, 350, 350, 350, 350, 350];
                     } else {
                         vLimite = [50, 50, 50, 50, 50, 50, 50, 50];
                     }
@@ -686,6 +754,12 @@ class SmartPortMap extends HTMLElement
         let firstChild = document.getElementsByClassName('leaflet-control-layers-list')[0];
 
         let $hamburger = document.getElementById('toggle-btn-control-menu');
+
+        let menu = document.getElementById('toggle-control-map');
+
+        let svg = document.getElementsByClassName('line');
+
+        let wind = document.querySelector('.leaflet-top.leaflet-right');
        
         let logo = document.createElement('img');
         logo.setAttribute('id', 'control-menu-logo');
@@ -699,6 +773,7 @@ class SmartPortMap extends HTMLElement
         homeLink.innerHTML = `<i class="fas fa-home mr-2"></i><p class="control-menu-text-content">Retour à l'accueil</p>`
 
         controlPanel.appendChild(homeLink);
+        controlPanel.appendChild(wind);
         controlPanel.insertBefore(logo, firstChild);
         controlPanel.classList.add('not-loaded');
 
@@ -707,14 +782,23 @@ class SmartPortMap extends HTMLElement
             if(controlPanel.classList.contains('dropdown-loaded'))
             {
                 controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-not-loaded');
-            
+                menu.classList.remove('menu-anim');
+                $hamburger.removeAttribute('style');
+                svg.forEach(line =>
+                {
+                    line.removeAttribute('style');
+                });
                 setTimeout(() =>{
-
                     controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control not-loaded');
                 }, 500)
             } else {
                 controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-loaded');
-
+                menu.classList.add('menu-anim');
+                $hamburger.setAttribute('style', 'border-color: grey');
+                svg.forEach(line =>
+                {
+                    line.setAttribute('style', 'stroke: grey')
+                });
             }
         });
     }
@@ -730,45 +814,3 @@ class SmartPortMap extends HTMLElement
 
 SmartPortMap.Register();
 
-// const get_mesures = async (id_poll_ue, code_station) =>
-// {
-//     let monthNames = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-
-//     let dayNames = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"];
-    
-//     let day = (new Date().getDate()-6);
-//     let monthIndex = new Date().getMonth();
-//     let year = new Date().getFullYear();
-
-//     return new Promise((resolve, reject) =>
-//     {
-//         const createRequests = () =>
-//         {
-//             const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+  year + '/' +  monthNames[monthIndex] + '/' + dayNames[day] + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27";
-            
-//             const requestPoll = [];
-
-//             const request = axios.get(getURL);
-
-//             requestPoll.push(request);
-
-//             return requestPoll
-//         }
-
-//         if(id_poll_ue && code_station)
-//         {
-//             const requests = createRequests();
-
-//             Promise.all(requests).then(responseS =>
-//             {
-//                 const data = responseS.map(response => response.data.features.map(feature => feature.properties.valeur));
-
-//                 const values = data[0];
-
-//                 resolve(values);
-//             })
-//         } else {
-//             reject();
-//         }
-//     })        
-// }
