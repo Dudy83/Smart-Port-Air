@@ -75,6 +75,12 @@ div[aria-haspopup="true"] {
     justify-content: center;
 }
 
+.leaflet-control-layers-base 
+{
+    border-bottom: 1px solid grey;
+    padding-bottom: 0.7rem;
+}
+
 .leaflet-control-layers-base label:hover,
 .leaflet-control-layers-overlays label:hover {
     cursor: pointer;
@@ -125,6 +131,7 @@ div[aria-haspopup="true"] {
 .leaflet-control-layers-separator {
     display: none;
 }
+
 
 .leaflet-left {
     box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
@@ -209,6 +216,17 @@ div[aria-haspopup="true"] {
     margin: 0;
 }
 
+.active-radio
+{
+    background-color: #6BBA62 !important;
+    border-color: #6BBA62;
+
+    i 
+    {
+        color: #fff;
+    }
+}
+
 .spinner-border {
     position: absolute;
     top: 50%;
@@ -246,6 +264,7 @@ div[aria-haspopup="true"] {
     margin: 0
 }
 
+
 .menu-anim
 {
     animation-name: menuOpacity;
@@ -281,6 +300,7 @@ div[aria-haspopup="true"] {
     0% 
     {
         opacity: 0;
+        background: #363636;
 
     } 
 

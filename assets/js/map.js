@@ -194,16 +194,16 @@ class SmartPortMap extends HTMLElement
             let strDateToday = `${year} ${this.monthNames[month]} ${today}`;
 
             let todayToTimestamp = this.toTimestamp(strDateToday);
-            console.log(`generated the WMS Map of date : ${today}/${this.monthNames[month]}/${year}`)
+            console.log(`generated the WMS Map of date : ${today}/${this.monthNames[month]}/${year} J+0`)
             result = `paca-multi-${todayToTimestamp}-1`;
 
         } else {
 
             let strDateYesterday = `${year} ${this.monthNames[month]} ${yesterday}`;
-            console.log(`generated the WMS Map of date : ${yesterday}/${this.monthNames[month]}/${year}. Must wait 11:00 to load the new model`)
+            console.log(`generated the WMS Map of date : ${yesterday}/${this.monthNames[month]}/${year} J+1. Must wait until 11:00 to load the new model`)
             let yesterdayToTimestamp = this.toTimestamp(strDateYesterday);
 
-            result = `paca-multi-${yesterdayToTimestamp}-1`;  
+            result = `paca-multi-${yesterdayToTimestamp}-2`;  
         }
 
         // Use the leaflet function to load the wms map
@@ -343,17 +343,8 @@ class SmartPortMap extends HTMLElement
         this.draw_graph(code_station, "O3", 7, lon, lat);
     }
 
-    get_PM10(code_station)
+    get_PM10(e)
     {
-
-    }
-
-    get_SO2(e)
-    {
-        let day = (new Date().getDate()-7);
-        let monthIndex = new Date().getMonth();
-        let year = new Date().getFullYear();
-
         e.preventDefault();
 
         let station = document.getElementById(e.target.id);
@@ -361,6 +352,41 @@ class SmartPortMap extends HTMLElement
         let lon = station.getAttribute('lon');
 
         let lat = station.getAttribute('lat');
+
+        let code_station = station.getAttribute('code');
+
+        let modal = document.getElementById('mod-'+code_station);
+
+        let nav = modal.querySelector('#nav-'+code_station);
+
+        let container = modal.querySelector('#modal-'+code_station);
+
+        container.innerHTML = `
+            <div id="spinner-${code_station}" class="loader spinner-border"></div>`;
+
+        nav.querySelector('#NO2-'+code_station).classList.remove('active');
+        nav.querySelector('#O3-'+code_station).classList.remove('active');
+        nav.querySelector('#PM10-'+code_station).classList.remove('active');
+        nav.querySelector('#SO2-'+code_station).classList.remove('active');
+
+        nav.querySelector('#PM10-'+code_station).classList.add('active');
+
+        container.innerHTML += `
+            <img id="image-`+code_station+`" src="images/legend_PM10.png">
+            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="400" height="400"></canvas>`;
+       
+        let image = document.getElementById('image-'+code_station);
+
+        image.style.visibility = "hidden";
+
+        this.draw_graph(code_station, "PM10", 5, lon, lat);
+    }
+
+    get_SO2(e)
+    {
+        e.preventDefault();
+
+        let station = document.getElementById(e.target.id);
 
         let code_station = station.getAttribute('code');
 
@@ -388,87 +414,13 @@ class SmartPortMap extends HTMLElement
 
         image.style.visibility = "hidden";
 
-        this.get_mesures_max_jour(year, this.monthNames[monthIndex], day, 1, code_station, 6).then((data) =>
-        {
-            if(data[0] != -Infinity || data[1] != -Infinity || data[2] != -Infinity || data[3] != -Infinity || data[4] != -Infinity || data[5] != -Infinity || data[6] != -Infinity)
-            {
-                let days = new Array();
-            
-                for(let i = 0; i < 7; i++)
-                {                              
-                    days.push((day+i) + '/' + this.monthNames[monthIndex] + '/' + year);
-                }
-
-                let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
-
-                var gradient = ctx.createLinearGradient(0, 100, 0, 600);
-                
-                gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
-                gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
-                gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
-                gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
-                gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
-                gradient.addColorStop(1, 'rgb(0, 204, 170)');
-                
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: days,
-                        datasets: [
-                            {
-                                label:  "SO2 Mesures",
-                                borderColor: gradient,
-                                fill: false,
-                                data: data,
-                            },
-                            {
-                                label: "SO2 Valeur limite",
-                                fill: false,
-                                backgroundColor: "red",
-                                borderColor: "red",
-                                data: [350, 350, 350, 350, 350, 350, 350, 350],
-                            },
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        title: {
-                            fontSize: 20,
-                            display: true,
-                            text: 'Evolution des max horaires journaliers en SO2'
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true,
-                                    suggestedMax: 250
-                                }
-                            }]
-                        },
-                        legend: {
-                            position: 'bottom',
-                            display: true, 
-                            labels: {fontSize: 10},                
-                        },
-                    }
-                });
-
-                let image = document.getElementById('image-'+code_station);
-                let spinner = document.getElementById('spinner-'+code_station);
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
-                
-            } else {
-                let modal_body = document.getElementById('modal-'+code_station);
-                modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant : SO2</div>';
-            }
-        })
+        this.draw_graph(code_station, "SO2", 1);
     }
 
     // this method will return an array of the last 5 day measuring at the station you want, with the pollutant you want.
     async get_mesures(id_poll_ue, code_station) 
     {
-        let day = (new Date().getDate()-6);
+        let day = (new Date().getDate()-5);
         let monthIndex = new Date().getMonth();
         let year = new Date().getFullYear();
 
@@ -477,7 +429,7 @@ class SmartPortMap extends HTMLElement
             const createRequests = () =>
             {
                 const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+  year + '/' +  this.monthNames[monthIndex] + '/' + this.dayNames[day] + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27";
-                
+                console.log(getURL);
                 const requestPoll = [];
 
                 const request = axios.get(getURL);
@@ -530,6 +482,7 @@ class SmartPortMap extends HTMLElement
                   
                     let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+ year + "/" + month + "/" + nextDate + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27%20AND%20date_fin<=%27"+ year + "/" + month + "/" + nextDate +"%20" + "23:59" + "%27";
                     const request = axios.get(url);
+                    console.log(url)
                     results.push(request);  
                 }
                 return results;
@@ -547,7 +500,7 @@ class SmartPortMap extends HTMLElement
     
                     for(let idx = 0; idx < data.length; idx++)
                     {
-                         maxValue.push(Math.max.apply(null, data[idx]));
+                        maxValue.push(Math.max.apply(null, data[idx]));
                     }
     
                     resolve(maxValue);
@@ -584,54 +537,135 @@ class SmartPortMap extends HTMLElement
         let day = (new Date().getDate()-5);
         let monthName = new Date().getMonth();
         let year = new Date().getFullYear();
+        let days = new Array();
+        let vLimite;
 
-        this.get_mesures_max_jour(year, this.monthNames[monthName], day, code_polluant, code_station, 4).then((data) =>
-        { 
-            // If the array results != -Infinity => It means that this station is actually measuring this pollutant. So we can create the graph.
-            // Else we show a message which means that this stations is not measuring this pollutant
-            if(data[0] != -Infinity || data[1] != -Infinity || data[2] != -Infinity || data[3] != -Infinity || data[4] != -Infinity)
-            {    
-                this.get_previsions(lon, lat, nom_polluant).then((PrevisionData) =>
-                {
-                    let vLimite;
+        let image = document.getElementById('image-'+code_station);
+        let spinner = document.getElementById('spinner-'+code_station);
+        let modal_body = document.getElementById('modal-'+code_station);
+        let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
+        var gradient = ctx.createLinearGradient(0, 100, 0, 600);
+                
+        gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
+        gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
+        gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
+        gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
+        gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
+        gradient.addColorStop(1, 'rgb(0, 204, 170)');
 
-                    if(nom_polluant == "NO2")
-                    {
-                        vLimite = [200, 200, 200, 200, 200, 200, 200, 200];
+        switch(nom_polluant)
+        {
+            case 'SO2':
+                vLimite = [350, 350, 350, 350, 350, 350, 350, 350];
+                break;
 
-                    } else if(nom_polluant == "O3") {
+            case 'O3': 
+                vLimite = [180, 180, 180, 180, 180, 180, 180, 180];
+                break;
 
-                        vLimite = [180, 180, 180, 180, 180, 180, 180, 180];
-
-                    } else {
-                        vLimite = [50, 50, 50, 50, 50, 50, 50, 50];
-                    }
-
-                    PrevisionData.unshift(data[data.length-1]);
-
-                    for(let u = 0; u < 4; u++)
-                    {
-                        PrevisionData.unshift(null);
-                    }
-
-                    let days = new Array();
+            case 'PM10': 
+                vLimite = [50, 50, 50, 50, 50, 50, 50, 50];
+                break;
             
-                    for(let i = -5; i < 3; i++)
-                    {  
-                        day = new Date().getDate();                            
+            default: 
+                vLimite = [200, 200, 200, 200, 200, 200, 200, 200]
+        }
+
+        if(nom_polluant == "NO2" || nom_polluant == "O3")
+        {
+            this.get_mesures_max_jour(year, this.monthNames[monthName], day, code_polluant, code_station, 4).then((data) =>
+            { 
+                // If the array results != -Infinity => It means that this station is actually measuring this pollutant. So we can create the graph.
+                // Else we show a message which means that this stations is not measuring this pollutant
+                if(data[0] != -Infinity || data[1] != -Infinity || data[2] != -Infinity || data[3] != -Infinity || data[4] != -Infinity)
+                {    
+                    this.get_previsions(lon, lat, nom_polluant).then((PrevisionData) =>
+                    {
+                        PrevisionData.unshift(data[data.length-1]);
+    
+                        for(let u = 0; u < 4; u++)
+                        {
+                            PrevisionData.unshift(null);
+                        }
+                
+                        for(let i = -5; i < 3; i++)
+                        {  
+                            day = new Date().getDate();                            
+                            days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
+                        }
+                        
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: days,
+                                datasets: [
+                                    {
+                                        label: nom_polluant + " Mesures",
+                                        borderColor: gradient,
+                                        fill: false,
+                                        data: data,
+                                    },
+                                    {
+                                        label: nom_polluant + " Prévisions",
+                                        borderColor: gradient,
+                                        borderDash: [10,5],
+                                        fill: false,
+                                        data:  PrevisionData,
+                                    },
+                                    {
+                                        label: nom_polluant + " Valeur limite",
+                                        fill: false,
+                                        backgroundColor: "red",
+                                        borderColor: "red",
+                                        data: vLimite,
+                                    },
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                title: {
+                                    fontSize: 20,
+                                    display: true,
+                                    text: 'Evolution des max horaires journaliers en ' + nom_polluant
+                                },
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true,
+                                            suggestedMax: 250
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                    position: 'bottom',
+                                    display: true, 
+                                    labels: {fontSize: 10},                
+                                },
+                            }
+                        });
+    
+                    });
+                    spinner.style.visibility = "hidden";
+                    image.style.visibility = "visible";
+                    
+    
+                } else {
+                    modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                }
+            });
+            
+        } else if (nom_polluant == "SO2") {
+            
+            day = (new Date().getDate()-7);
+
+            this.get_mesures_max_jour(year, this.monthNames[monthName], day, code_polluant, code_station, 6).then((data) =>
+            {
+                if(data[0] != -Infinity || data[1] != -Infinity || data[2] != -Infinity || data[3] != -Infinity || data[4] != -Infinity)
+                {
+                    for(let i = 0; i < 7; i++)
+                    {                              
                         days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
                     }
-
-                    let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
-
-                    var gradient = ctx.createLinearGradient(0, 100, 0, 600);
-                    
-                    gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
-                    gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
-                    gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
-                    gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
-                    gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
-                    gradient.addColorStop(1, 'rgb(0, 204, 170)');
                     
                     new Chart(ctx, {
                         type: 'line',
@@ -639,17 +673,10 @@ class SmartPortMap extends HTMLElement
                             labels: days,
                             datasets: [
                                 {
-                                    label: nom_polluant + " Mesures",
+                                    label:  nom_polluant + " Mesures",
                                     borderColor: gradient,
                                     fill: false,
                                     data: data,
-                                },
-                                {
-                                    label: nom_polluant + " Prévisions",
-                                    borderColor: gradient,
-                                    borderDash: [10,5],
-                                    fill: false,
-                                    data:  PrevisionData,
                                 },
                                 {
                                     label: nom_polluant + " Valeur limite",
@@ -671,7 +698,7 @@ class SmartPortMap extends HTMLElement
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        suggestedMax: 250
+                                        suggestedMax: 450
                                     }
                                 }]
                             },
@@ -682,21 +709,93 @@ class SmartPortMap extends HTMLElement
                             },
                         }
                     });
+        
+                    spinner.style.visibility = "hidden";
+                    image.style.visibility = "visible";
+                    
+                } else {
+                    modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant : '+ nom_polluant +'</div>';
+                }
+            });
+        } else {
 
-                });
-
-                let image = document.getElementById('image-'+code_station);
-                let spinner = document.getElementById('spinner-'+code_station);
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
+            this.get_mesures(5, code_station).then((data) =>
+            {
+                if(data.length > 0)
+                {    
+                    this.get_previsions(lon, lat, nom_polluant).then((PrevisionData) =>
+                    {
+                        PrevisionData.unshift(data[data.length-1]);
+    
+                        for(let u = 0; u < 4; u++)
+                        {
+                            PrevisionData.unshift(null);
+                        }
                 
-
-            } else {
-                let modal_body = document.getElementById('modal-'+code_station);
-                modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
-
-            }
-        });
+                        for(let i = -5; i < 3; i++)
+                        {  
+                            day = new Date().getDate();                            
+                            days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
+                        }
+                        
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: days,
+                                datasets: [
+                                    {
+                                        label: nom_polluant + " Mesures",
+                                        borderColor: gradient,
+                                        fill: false,
+                                        data: data,
+                                    },
+                                    {
+                                        label: nom_polluant + " Prévisions",
+                                        borderColor: gradient,
+                                        borderDash: [10,5],
+                                        fill: false,
+                                        data:  PrevisionData,
+                                    },
+                                    {
+                                        label: nom_polluant + " Valeur limite",
+                                        fill: false,
+                                        backgroundColor: "red",
+                                        borderColor: "red",
+                                        data: vLimite,
+                                    },
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                title: {
+                                    fontSize: 20,
+                                    display: true,
+                                    text: 'Evolution des moyennes journalières en ' + nom_polluant
+                                },
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true,
+                                            suggestedMax: 100
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                    position: 'bottom',
+                                    display: true, 
+                                    labels: {fontSize: 10},                
+                                },
+                            }
+                        });
+    
+                    });
+                    spinner.style.visibility = "hidden";
+                    image.style.visibility = "visible";
+                } else {
+                    modal_body.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                }
+            })
+        }
     }
 
     // Just add EventListeners to the NO2, O3, SO2 buttons onclick. It will call the draw_graph() method
@@ -727,6 +826,14 @@ class SmartPortMap extends HTMLElement
                 self.get_SO2(e);
             });
         });
+
+        document.getElementsByClassName('PM10graph').forEach((element) => 
+        {
+            element.addEventListener('click', (e) =>
+            {
+                self.get_PM10(e);
+            });
+        });
     }
 
     // This method convert a date into an integer. 
@@ -754,6 +861,8 @@ class SmartPortMap extends HTMLElement
         let firstChild = document.getElementsByClassName('leaflet-control-layers-list')[0];
 
         let $hamburger = document.getElementById('toggle-btn-control-menu');
+
+        let checkboxes = document.getElementsByClassName('leaflet-control-layers-selector');
 
         let menu = document.getElementById('toggle-control-map');
 
@@ -801,9 +910,75 @@ class SmartPortMap extends HTMLElement
                 });
             }
         });
+
+        checkboxes[0].parentElement.querySelector('.icons-container').classList.add('active-radio');
+        
+        checkboxes[0].addEventListener('click', () =>
+        {
+            let parentDiv = checkboxes[0].parentElement;
+
+            let otherParentDiv = checkboxes[1].parentElement;
+
+            let otherDiv = otherParentDiv.querySelector('.icons-container')
+
+            let div = parentDiv.querySelector('.icons-container');
+
+            if(div.classList.contains('active-radio'))
+            {
+                div.classList.remove('active-radio');
+                otherDiv.classList.add('active-radio');
+
+            } else {
+                div.classList.add('active-radio');
+                otherDiv.classList.remove('active-radio');
+
+            }
+        })
+
+        checkboxes[1].addEventListener('click', () =>
+        {
+            let parentDiv = checkboxes[1].parentElement;
+
+            let otherParentDiv = checkboxes[0].parentElement;
+
+            let otherDiv = otherParentDiv.querySelector('.icons-container')
+
+            let div = parentDiv.querySelector('.icons-container');
+
+            if(div.classList.contains('active-radio'))
+            {
+                div.classList.remove('active-radio');
+                otherDiv.classList.add('active-radio');
+
+            } else {
+                div.classList.add('active-radio');
+                otherDiv.classList.remove('active-radio');
+
+            }
+        })
+
+        checkboxes.forEach(checkbox =>
+        {
+            checkbox.addEventListener('click', () =>
+            {
+
+                let parentDiv = checkbox.parentElement;
+
+                let div = parentDiv.querySelector('.icons-container');
+
+                let icon = div.querySelector('.fa-fw');
+
+                if(checkbox.checked == true)
+                {
+                    div.removeAttribute('style');
+                    icon.removeAttribute('style');
+                } else {
+                    div.setAttribute('style', 'background: #6BBA62; border-color: #6BBA62')
+                    icon.setAttribute('style', 'color: #fff !important')
+                }
+            })
+        })
     }
-
-
 
     // this method creates the specific html tag inside the DOM
     static Register()
