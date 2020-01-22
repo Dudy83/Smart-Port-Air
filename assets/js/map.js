@@ -544,7 +544,7 @@ class SmartPortMap extends HTMLElement
         let spinner = document.getElementById('spinner-'+code_station);
         let modal_body = document.getElementById('modal-'+code_station);
         let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
-        var gradient = ctx.createLinearGradient(0, 100, 0, 600);
+        var gradient = ctx.createLinearGradient(0, 300, 600, 300);
                 
         gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
         gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
