@@ -44,13 +44,16 @@ function navbarAnim() {
     let nav = document.getElementById('navbar');
     let navLinks = document.getElementsByClassName('navbar-links');
     let spans = document.getElementsByClassName('line');
+    let dropdown = document.getElementsByClassName('dropdown-toggle')[0];
 
     if (window.scrollY !== 0) {
         nav.style.setProperty('box-shadow', '0 .125rem .25rem rgba(0,0,0,.075)');
         nav.style.setProperty('background-color', '#fff');
+        
         navLinks.forEach(element => {
             element.style.setProperty('color', '#6BBA62')
         })
+        dropdown.setAttribute('style', 'color: #6BBA62 !important')
 
         spans.forEach(element => {
             element.style.setProperty('stroke', '#6BBA62')
@@ -60,7 +63,7 @@ function navbarAnim() {
         navLinks.forEach(element => {
             element.removeAttribute('style');
         })
-
+        dropdown.removeAttribute('style');
         spans.forEach(element => {
             element.removeAttribute('style');
         })

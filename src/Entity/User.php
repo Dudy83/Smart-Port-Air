@@ -48,6 +48,17 @@ class User implements UserInterface
      */
     private $email;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $confirmation_token;
+
+    /**
+    * @ORM\Column(type="boolean", options={"default"=false})
+    */
+    private $account_activated;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +100,30 @@ class User implements UserInterface
         return $this;
     }
 
+    public function getConfirmationToken(): ?string
+    {
+        return $this->confirmation_token;
+    }
+
+    public function setConfirmationToken(string $confirmation_token): self
+    {
+        $this->confirmation_token = $confirmation_token;
+
+        return $this;
+    }
+
+    public function getAccountActivated(): ?string
+    {
+        return $this->account_activated;
+    }
+
+    public function setAccountActivated(string $account_activated): self
+    {
+        $this->account_activated = $account_activated;
+
+        return $this;
+    }
+
     public function getRoles()
     {
         return ['ROLE_USER'];
@@ -104,5 +139,14 @@ class User implements UserInterface
         // you *may* need a real salt depending on your encoder
         // see section on salt below
         return null;
+    }
+
+    public function isEnabled()
+    {
+        if($this->account_activated == true) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

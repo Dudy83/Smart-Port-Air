@@ -1,7 +1,7 @@
 security:
     encoders:
         App\Entity\User:
-            algorithm: bcrypt
+            algorithm: argon2i
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         in_memory: { memory: null }
@@ -16,8 +16,11 @@ security:
             security: false
         main:
             anonymous: true
-
+            pattern: ^/
+            user_checker: App\Security\UserChecker
+            
             provider: in_database
+
 
             form_login: 
                 login_path: security_login

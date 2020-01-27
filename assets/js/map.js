@@ -292,8 +292,8 @@ class SmartPortMap extends HTMLElement
         nav.querySelector('#NO2-'+code_station).classList.add('active');
         // Put a <canvas> tag in the modal-body, then draw_graph() will use it to create the graph.
         container.innerHTML += `
-            <img id="image-`+code_station+`" src="images/legend_NO2.png">
-            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="400" height="400"></canvas>`;
+            <img class="charts-legend" id="image-`+code_station+`" src="images/legend_NO2.png">
+            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="600" height="600"></canvas>`;
 
         let image = document.getElementById('image-'+code_station);
 
@@ -333,8 +333,8 @@ class SmartPortMap extends HTMLElement
         nav.querySelector('#O3-'+code_station).classList.add('active');
 
         container.innerHTML += `
-            <img id="image-`+code_station+`" src="images/legend_O3.png">
-            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="400" height="400"></canvas>`;
+            <img class="charts-legend" id="image-`+code_station+`" src="images/legend_O3.png">
+            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="600" height="600"></canvas>`;
        
         let image = document.getElementById('image-'+code_station);
 
@@ -372,8 +372,8 @@ class SmartPortMap extends HTMLElement
         nav.querySelector('#PM10-'+code_station).classList.add('active');
 
         container.innerHTML += `
-            <img id="image-`+code_station+`" src="images/legend_PM10.png">
-            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="400" height="400"></canvas>`;
+            <img class="charts-legend" id="image-`+code_station+`" src="images/legend_PM10.png">
+            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="600" height="600"></canvas>`;
        
         let image = document.getElementById('image-'+code_station);
 
@@ -407,8 +407,8 @@ class SmartPortMap extends HTMLElement
         nav.querySelector('#SO2-'+code_station).classList.add('active');
 
         container.innerHTML += `
-            <img id="image-`+code_station+`" src="images/legend_O3.png">
-            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="400" height="400"></canvas>`;
+            <img class="charts-legend" id="image-`+code_station+`" src="images/legend_O3.png">
+            <canvas class="chartjs-render-monitor" id="canvas-`+code_station+`" width="600" height="600"></canvas>`;
        
         let image = document.getElementById('image-'+code_station);
 
@@ -429,7 +429,7 @@ class SmartPortMap extends HTMLElement
             const createRequests = () =>
             {
                 const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+  year + '/' +  this.monthNames[monthIndex] + '/' + this.dayNames[day] + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27";
-                console.log(getURL);
+
                 const requestPoll = [];
 
                 const request = axios.get(getURL);
@@ -482,7 +482,7 @@ class SmartPortMap extends HTMLElement
                   
                     let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+ year + "/" + month + "/" + nextDate + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27%20AND%20date_fin<=%27"+ year + "/" + month + "/" + nextDate +"%20" + "23:59" + "%27";
                     const request = axios.get(url);
-                    console.log(url)
+
                     results.push(request);  
                 }
                 return results;
@@ -539,13 +539,15 @@ class SmartPortMap extends HTMLElement
         let year = new Date().getFullYear();
         let days = new Array();
         let vLimite;
+        let maxPoint;
 
         let image = document.getElementById('image-'+code_station);
         let spinner = document.getElementById('spinner-'+code_station);
         let modal_body = document.getElementById('modal-'+code_station);
         let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
-        var gradient = ctx.createLinearGradient(0, 300, 600, 300);
-                
+               
+        let gradient = ctx.createLinearGradient(300, 250, 300, 600);
+        
         gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
         gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
         gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
@@ -553,22 +555,27 @@ class SmartPortMap extends HTMLElement
         gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
         gradient.addColorStop(1, 'rgb(0, 204, 170)');
 
+
         switch(nom_polluant)
         {
             case 'SO2':
                 vLimite = [350, 350, 350, 350, 350, 350, 350, 350];
+                maxPoint = 700;
                 break;
 
             case 'O3': 
                 vLimite = [180, 180, 180, 180, 180, 180, 180, 180];
+                maxPoint = 360;
                 break;
 
             case 'PM10': 
                 vLimite = [50, 50, 50, 50, 50, 50, 50, 50];
+                maxPoint = 100;
                 break;
             
             default: 
-                vLimite = [200, 200, 200, 200, 200, 200, 200, 200]
+                vLimite = [200, 200, 200, 200, 200, 200, 200, 200];
+                maxPoint = 400;
         }
 
         if(nom_polluant == "NO2" || nom_polluant == "O3")
@@ -632,7 +639,7 @@ class SmartPortMap extends HTMLElement
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true,
-                                            suggestedMax: 250
+                                            suggestedMax: maxPoint
                                         }
                                     }]
                                 },
@@ -698,7 +705,7 @@ class SmartPortMap extends HTMLElement
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        suggestedMax: 450
+                                        suggestedMax: maxPoint
                                     }
                                 }]
                             },
@@ -776,7 +783,7 @@ class SmartPortMap extends HTMLElement
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true,
-                                            suggestedMax: 100
+                                            suggestedMax: maxPoint
                                         }
                                     }]
                                 },

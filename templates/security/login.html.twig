@@ -2,7 +2,7 @@
 
 {% block body %}
 
-    <div class="form-container w-100 d-flex justify-content-center align-items-center" style="height:100vh;">
+    <div class="form-container w-100 d-flex flex-column justify-content-center align-items-center" style="height:100vh;">
 
         <form class="form w-25 d-flex flex-column justify-content-center align-items-center" style="color:#fff;" method="post" action="{{ path('security_login') }}">
 
@@ -23,10 +23,16 @@
                 <a tabindex="4" href="{{ path('security_registration') }}" class="btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-user-edit mr-2"></i> Créer un compte</a>
         </form>
 
+        <a class="mt-3" href="{{ path('security_forgotten_password') }}">Mot de passe oublié ? </a>
     </div>
 
     {% if error %}
-        <div class="alert alert-danger w-100" style="position:absolute;top:50px;text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Email ou mot de passe invalide</div>
+        <div class="alert alert-danger alert-dismissible fade show w-100" role="alert" style="position:absolute;top:50px;text-align:center;">
+            <i class="fas fa-exclamation-triangle mr-2"></i> {{ error.messageKey|trans(error.messageData, 'security') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     {% endif %}
 
     <style>

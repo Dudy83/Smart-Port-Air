@@ -44,16 +44,22 @@ body
     width: 100vw; 
 }
 
-#navbar div a
+#navbar div a:not(.dropdown-item)
 {
     color: #fff;
     font-size: 110%;
     height: 30px;
-    border-radius: 100%;
     padding: 0.3rem;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
+}
+
+#navbar div .dropdown-toggle
+{
+    color: #fff;
+    font-size: 110%;
+    padding: 0.3rem !important;
 }
 
 #navbar div a:hover
@@ -79,6 +85,11 @@ body
 #list-container a
 {
     content: "";
+}
+
+.btn:hover
+{
+    color: #fff !important;
 }
 
 .ham 

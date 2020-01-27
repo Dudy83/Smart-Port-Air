@@ -6,19 +6,15 @@
 
     <div class="form w-25 d-flex flex-column justify-content-center align-items-center" style="color:#fff;">
   
-  {{ form_start(form, {'attr': {'class': 'w-100'}}) }}
-  {{ form_row(form.username, {'label': 'Nom d\'utilisateur', 'attr': {'placeholder': 'Pseudo'}}) }}
-  {{ form_row(form.email, {'label': 'Email', 'attr': {'placeholder': 'Email'}, 'type': 'email'}) }}
-  {{ form_row(form.password, {'label': 'Mot de passe', 'attr': {'placeholder': 'Mot de passe'}}) }}
-  {{ form_row(form.confirm_password, {'label': 'Confirmation du mot de passe', 'attr': {'placeholder': 'Répétez le mot de passe'}}) }}
-  
-  <div class="form-group d-flex align-items-center justify-content-between">
-    <button id="submit-login" type="submit" class="btn btn-success mt-2"><i class="fas fa-edit mr-2"></i>Modifier</button>
+  {{form_start(form, {'attr': {'class': 'w-100'}})}}
+        {{form_row(form.username, {'label': 'Nom d\'utilisateur', 'attr': {'placeholder': 'Entrez un nom d\'utilisateur'}})}}
+        {{form_row(form.old_password, {'label': 'Ancien mot de passe', 'attr': {'placeholder': 'Entrez un nom d\'utilisateur'}})}}
+        {{form_row(form.password, {'label': 'Mot de passe', 'attr': {'placeholder': 'Entrez un mot de passe'}})}}
+        {{form_row(form.confirm_password, {'label': 'Confirmez le mot de passe', 'attr': {'placeholder': 'Confirmez le mot de passe'}})}}
+        <button type="submit" class="btn btn-success rounded w-100 m-0"><i class="fas fa-user-edit mr-2"></i>
+            Modifier</button>
 
-    <a class="btn btn-danger m-0 mt-2" id="delete-account-button" data-toggle="modal" data-target="#delete-account"><i class="fas fa-trash-alt mr-2"></i>Supprimer</a>     
-  </div>
-  
-  {{ form_end(form) }}
+    {{form_end(form)}}
 
     <div>
 </div>
@@ -57,34 +53,44 @@
         color: #fff;
     }
 
-    label[for="form_username"]::before
+    label[for="reset_password_username"]::before 
     {
         font-family: "Font Awesome 5 Free";
         content: "\f007";
         margin-right: 0.5rem;
     }
-
-    label[for="form_email"]::before
-    {
-        font-family: "Font Awesome 5 Free";
-        content: "\f0e0";
-        margin-right: 0.5rem;
-    }
 </style>
 
 <script>
-    divPassword = document.getElementsByClassName('form-group')[2];
-    divConfirmPassword = document.getElementsByClassName('form-group')[3];
-    var labelPassword = document.getElementsByClassName('required')[2];
-    var labelConfirmPassword = document.getElementsByClassName('required')[3];
+    divPassword = document.getElementsByClassName('form-group')[1];
+    var labelConfirmPassword = document.getElementsByClassName('required')[1];
+    
     var iPassword = document.createElement('i');
     var iConfirm = document.createElement('i');
     iPassword.setAttribute('class', 'fas fa-unlock-alt mr-2');
     iConfirm.setAttribute('class', 'fas fa-unlock-alt mr-2');
 
-    divConfirmPassword.insertBefore(iConfirm, labelConfirmPassword);
-        
-    divPassword.insertBefore(iPassword, labelPassword);
+    divPassword.insertBefore(iConfirm, labelConfirmPassword);
+
+    divPassword = document.getElementsByClassName('form-group')[2];
+    var labelConfirmPassword = document.getElementsByClassName('required')[2];
+    
+    var iPassword = document.createElement('i');
+    var iConfirm = document.createElement('i');
+    iPassword.setAttribute('class', 'fas fa-unlock-alt mr-2');
+    iConfirm.setAttribute('class', 'fas fa-unlock-alt mr-2');
+
+    divPassword.insertBefore(iConfirm, labelConfirmPassword);
+
+    divPassword = document.getElementsByClassName('form-group')[3];
+    var labelConfirmPassword = document.getElementsByClassName('required')[3];
+    
+    var iPassword = document.createElement('i');
+    var iConfirm = document.createElement('i');
+    iPassword.setAttribute('class', 'fas fa-unlock-alt mr-2');
+    iConfirm.setAttribute('class', 'fas fa-unlock-alt mr-2');
+
+    divPassword.insertBefore(iConfirm, labelConfirmPassword);
 </script>
 
 {% endblock %}
