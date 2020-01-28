@@ -122,10 +122,32 @@ input:focus~.highlight {
     animation: inputHighlighter 0.3s ease;
 }
 
-#registration_email:focus~.highlight {
-    -webkit-animation: inputHighlighter 0.3s ease;
-    -moz-animation: inputHighlighter 0.3s ease;
-    animation: inputHighlighter 0.3s ease;
+
+
+ul
+{
+    padding: 0;
+    margin-bottom: 1.25rem;
+}
+
+li
+{
+    color: red;
+    list-style-type: none;
+    font-size: 80%;
+    margin-bottom: 1rem;
+}
+
+li::before
+{
+    background-color: rgb(219, 67, 67);
+    content: "ERREUR";
+    color: #fff;
+    font-weight: 500;
+    padding: 0rem 0.2rem;
+    padding-top: 0.1rem;
+    border-radius: .25rem;
+    margin-right: 0.5rem;
 }
 
 /* ANIMATIONS ================ */

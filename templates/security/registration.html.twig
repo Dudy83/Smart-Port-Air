@@ -2,6 +2,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     {{ encore_entry_link_tags('forms') }}
 {% endblock %}
 
@@ -12,37 +13,50 @@
     <div class="form w-100 d-flex flex-column justify-content-center align-items-center" style="color:#fff;">
    
         {{form_start(form, {'attr': {'class': 'w-100'}})}}
-
-            <div class="group w-100"> 
+            
+            <div class="form-group w-100">
                 {{ form_errors(form.username) }}
-                {{ form_widget(form.username) }}
-                <span class="highlight"></span>
-                <span class="bar"></span>
-                <label for="login-input-email" class="required active"><i class="fas fa-user mr-2"></i> Nom d'utilisateur</label>
+                <div class="group w-100"> 
+                    
+                    {{ form_widget(form.username) }}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-user mr-2"></i> Nom d'utilisateur</label>
+                </div>
             </div>
 
-            <div class="group w-100"> 
-                {{ form_errors(form.email) }}
-                {{form_widget(form.email)}}
-                <span class="highlight"></span>
-                <span class="bar"></span>
-                <label for="login-input-email" class="required active"><i class="fas fa-envelope mr-2"></i> Email</label>
+            <div class="form-group w-100">
+                    {{ form_errors(form.email) }}
+                <div class="group w-100"> 
+                    
+                    {{form_widget(form.email)}}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-envelope mr-2"></i> Email</label>
+                </div>
             </div>
 
-            <div class="group w-100"> 
-                {{ form_errors(form.password) }}
-                {{form_widget(form.password)}}
-                <span class="highlight"></span>
-                <span class="bar"></span>
-                <label for="login-input-email" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Mot de passe</label>
+            <div class="form-group w-100">
+                    {{ form_errors(form.password) }}
+                <div class="group w-100"> 
+                    
+                    {{form_widget(form.password)}}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Mot de passe</label>
+                </div>
             </div>
 
-            <div class="group w-100"> 
-                {{ form_errors(form.confirm_password) }}
-                {{form_widget(form.confirm_password)}}
-                <span class="highlight"></span>
-                <span class="bar"></span>
-                <label for="login-input-email" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Confirmer le mot de passe</label>
+
+            <div class="form-group w-100">
+                    {{ form_errors(form.confirm_password) }}
+                <div class="group w-100"> 
+                    
+                    {{form_widget(form.confirm_password)}}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Confirmer le mot de passe</label>
+                </div>
             </div>
             
             

@@ -67,7 +67,7 @@ class SecurityController extends AbstractController
                 $username = $user->getUsername();
     
                 $message = (new \Swift_Message('Smart Port | Lien de confirmation'))
-                    ->setFrom('send@example.com')
+                    ->setFrom('hello@smartport.com')
                     ->setTo($email)
                     ->setBody(
                         $this->renderView(
@@ -258,7 +258,7 @@ class SecurityController extends AbstractController
             $manager->flush();
 
             $message = (new \Swift_Message('Smart Port | Réinitialisation du votre mot de passe'))
-            ->setFrom('send@example.com')
+            ->setFrom('hello@smartport.com')
             ->setTo($email)
             ->setBody(
                 $this->renderView(
