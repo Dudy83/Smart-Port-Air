@@ -44,13 +44,21 @@
 
             <!-- Example single danger button -->
             <div class="btn-group">
-                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button type="button" id="dropdown-trigger" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-user mr-2"></i>{% if app.user %} {{ app.user.getUsername }} {% else %}Profil {% endif %}
                 </button>
-                <div class="dropdown-menu dropdown-menu-right p-2">
-                    <a class="btn btn-warning mb-2" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i>Profil</a>
-        
-                    <a class="btn btn-danger" href="{{ path('security_logout') }}"><i class="fas fa-sign-out-alt mr-2"></i> Déconnexion</a>
+                <div id="profil-dropdown-menu" class="profil-dropdown-hidden p-2">
+                   
+                {% if not app.user %}
+                        <a tabindex="4" href="/connexion" class="profil-dropdown-link btn btn-success w-100 m-0" style="color: #fff"><i
+                                class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
+                        <a tabindex="4" href="/inscription" class="profil-dropdown-link btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i
+                                class="fas fa-user-edit mr-2"></i> Inscription</a>
+                {% else %}
+                        <a class="w-100 btn btn-warning mb-2 profil-dropdown-link" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i>Profil</a>
+                        <a tabindex="4" href="{{ path('security_logout') }}" class="profil-dropdown-link btn btn-danger w-100 m-0 mt-3 d-flex align-items-center justify-content-center"
+                                style="color: #fff"><i class="fas fa-sign-out-alt mr-2"></i> Déconnexion</a>
+                {% endif %}
                 </div>
             </div>
 
@@ -96,7 +104,7 @@
 
     {% for message in app.flashes('success') %}
 
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:50px;display:flex;align-items:center;justify-content: center;">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="far fa-check-circle mr-2"></i> {{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -107,7 +115,7 @@
 
     {% for message in app.flashes('account_modified') %}
 
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:50px;display:flex;align-items:center;justify-content: center;">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="far fa-check-circle mr-2"></i> {{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -119,9 +127,9 @@
     
     {% for message in app.flashes('modify_error') %}
 
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:50px;display:flex;align-items:center;justify-content: center;">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position:static;margin-top:50px;">
             <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="top:50px">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -130,9 +138,9 @@
 
     {% for message in app.flashes('modify_success') %}
 
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:50px;display:flex;align-items:center;justify-content: center;">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="position:static;margin-top:50px;">
             <i class="far fa-check-circle mr-2"></i> {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="top:50px">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -141,7 +149,7 @@
     
     {% for message in app.flashes('success_email_confirm_token') %}
 
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="position:absolute;top:50px;width:100%;display:flex;align-items:center;justify-content: center;">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="far fa-check-circle mr-2"></i> {{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -153,7 +161,18 @@
 
     {% for message in app.flashes('error_forgotten_password') %}
 
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:50px;display:flex;align-items:center;justify-content: center;">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position:static;margin-top:50px;">
+            <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="top:50px">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+    {% endfor %}
+
+    {% for message in app.flashes('error_email') %}
+
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -164,8 +183,19 @@
 
     {% for message in app.flashes('mail_forgotten_password') %}
 
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="position:absolute;top:50px;width:100%;display:flex;align-items:center;justify-content: center;">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="position:static;margin-top:50px;">
             <i class="far fa-check-circle mr-2"></i> {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="top:50px">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+    {% endfor %}
+
+    {% for message in app.flashes('error_captcha') %}
+
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>

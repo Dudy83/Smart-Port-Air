@@ -13,6 +13,7 @@
         {{form_row(form.confirm_password, {'label': 'Confirmez le mot de passe', 'attr': {'placeholder': 'Confirmez le mot de passe'}})}}
         <button type="submit" class="btn btn-success rounded w-100 m-0"><i class="fas fa-user-edit mr-2"></i>
             Modifier</button>
+        <a data-toggle="modal" data-target="#delete-account" class="btn btn-danger w-100 m-0 mt-2" href="{{ path('security_delete_user') }}"><i class="fas fa-trash-alt mr-2"></i>Supprimer</a>
 
     {{form_end(form)}}
 
@@ -34,7 +35,7 @@
       </div>
 
       <div class="modal-footer d-flex flex-wrap justify-content-between align-items-center">
-        <div class="modal-title alert alert-danger w-100" style="text-align:center;margin:0 0 1rem 0;">êtes vous sur de vouloir continuer ?</div>
+        <div id="modal-delete-account" class="modal-title alert alert-danger w-100" style="text-align:center;margin:0 0 1rem 0;">êtes vous sur de vouloir continuer ?</div>
         <button type="button" class="btn btn-warning" data-dismiss="modal" style="color:#fff;"><i class="fas fa-times-circle mr-2"></i>Fermer</button>
         <a href="{{ path('security_delete_user') }}" class="btn btn-danger"><i class="fas fa-trash-alt mr-2"></i>Supprimer</a>
       </div>

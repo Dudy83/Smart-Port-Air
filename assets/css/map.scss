@@ -53,7 +53,6 @@ div[aria-haspopup="true"] {
     width: 50px;
     border-radius: 0.25rem;
     margin-right: 1rem;
-    border: 1px solid grey;
 }
 
 .base-layers-choices i {
@@ -83,16 +82,14 @@ div[aria-haspopup="true"] {
 
 .leaflet-control-layers-base label:hover,
 .leaflet-control-layers-overlays label:hover {
+    
     cursor: pointer;
 
-    .icons-container {
-        background-color: #6BBA62;
-        border-color: #6BBA62;
-
-        i {
-            color: #fff;
-        }
+    i, p 
+    {
+        color: #3498db;
     }
+    
 
 }
 
@@ -159,6 +156,9 @@ div[aria-haspopup="true"] {
     bottom: 20px;
     left: auto;
     width: 94%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #toggle-control-map {
@@ -169,7 +169,6 @@ div[aria-haspopup="true"] {
     background: transparent;
     opacity: 0.8;
     z-index: 1050;
-    padding: .25rem;
     padding-top: .5rem;
 
     div i {
@@ -181,8 +180,8 @@ div[aria-haspopup="true"] {
 #toggle-btn-control-menu {
     border: 2px solid #363636;
     background-color: #fff;
-    opacity: 0.8;
     border-radius: 50%;
+    margin-left: 25px;
 }
 
 #toggle-btn-control-menu:hover {
@@ -225,12 +224,10 @@ div[aria-haspopup="true"] {
 
 .active-radio
 {
-    background-color: #6BBA62 !important;
-    border-color: #6BBA62;
 
-    i 
+    i, p 
     {
-        color: #fff;
+        color: rgb(150, 56, 56);
     }
 }
 
@@ -350,6 +347,16 @@ div[aria-haspopup="true"] {
         content: url('../../public/images/logo/logo_menu_control.png');
         width: 100% !important;
         padding: 1rem 0 1rem 0;
+    }
+
+    #toggle-control-map
+    {
+        padding: 0.25rem;
+    }
+
+    #toggle-btn-control-menu
+    {
+        margin-left: 0;
     }
 
     #map-home-link i {

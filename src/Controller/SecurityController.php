@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use ReCaptcha\ReCaptcha;
 use App\Form\RegistrationType;
 use App\Service\MailerService;
 use App\Form\ResetPasswordType;
@@ -35,41 +36,63 @@ class SecurityController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            $hash = $encoder->encodePassword($user, $user->getPassword());
+            $regex = '/^[^0-9][_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
 
-            $user->setPassword($hash);
+            if (!preg_match($regex, $user->getEmail())) 
+            {
+                $this->addFlash('error_email', 'Veuillez entrer un email valide');
+    
+                return $this->redirectToRoute('security_registration');
+            }
 
-            $user->setConfirmationToken($this->generateToken());
+            $recaptcha = new \ReCaptcha\ReCaptcha('6Lc4LdMUAAAAAGj3RIgCebGn2JpVmiaHt45Jrzem');
+            $resp = $recaptcha->verify($_POST['g-recaptcha-response']);
 
-            $user->setAccountActivated(false);
+            if ($resp->isSuccess()) 
+            {
+                $hash = $encoder->encodePassword($user, $user->getPassword());
 
-            $manager->persist($user);
+                $user->setPassword($hash);
+    
+                $user->setConfirmationToken($this->generateToken());
+    
+                $user->setAccountActivated(false);
+    
+                $manager->persist($user);
+    
+                $manager->flush();
+    
+                $email = $user->getEmail();
+                $token = $user->getConfirmationToken();
+                $username = $user->getUsername();
+    
+                $message = (new \Swift_Message('Smart Port | Lien de confirmation'))
+                    ->setFrom('send@example.com')
+                    ->setTo($email)
+                    ->setBody(
+                        $this->renderView(
+                            'email/registration.html.twig',
+                            [
+                             'username' => $username,
+                             'token' => $token
+                            ]
+                        ),
+                        'text/html'
+                    );
+    
+                $mailer->send($message);
+    
+                $this->addFlash('success', 'Votre compte a bien été enregistré. Un mail de vérification vous a été envoyé à : ' . $email);
+    
+                return $this->redirectToRoute('security_login');
 
-            $manager->flush();
+            } else {
+               $errors = $resp->getErrorCodes();
 
-            $email = $user->getEmail();
-            $token = $user->getConfirmationToken();
-            $username = $user->getUsername();
+               $this->addFlash('error_captcha', 'Veuillez recommencer la validation par reCaptcha');
 
-            $message = (new \Swift_Message('Smart Port | Lien de confirmation'))
-                ->setFrom('send@example.com')
-                ->setTo($email)
-                ->setBody(
-                    $this->renderView(
-                        'email/registration.html.twig',
-                        [
-                         'username' => $username,
-                         'token' => $token
-                        ]
-                    ),
-                    'text/html'
-                );
-
-            $mailer->send($message);
-
-            $this->addFlash('success', 'Votre compte a bien été enregistré. Un mail de vérification vous a été envoyé à : ' . $email);
-
-            return $this->redirectToRoute('security_login');
+            }
+                    
         }
 
         return $this->render('security/registration.html.twig', [
@@ -91,7 +114,7 @@ class SecurityController extends AbstractController
         
         if($token === $tokenExist) 
         {
-            $user->setConfirmationToken("null");
+            $user->setConfirmationToken("NULL");
            
            $user->setAccountActivated(true);
            
@@ -219,7 +242,7 @@ class SecurityController extends AbstractController
 
             if($userForgotten === null)
             {
-                $this->addFlash('error_forgotten_password', 'Veuillez entrer un email valide.');
+                $this->addFlash('error_forgotten_password', 'Email inconnu.');
 
                 return $this->redirectToRoute('security_forgotten_password');
             } 
@@ -285,7 +308,7 @@ class SecurityController extends AbstractController
 
             $user->setPassword($hash);
 
-            $user->setConfirmationToken("null");
+            $user->setConfirmationToken("NULL");
 
             $manager->persist($user);
 

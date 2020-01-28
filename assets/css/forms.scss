@@ -1,0 +1,202 @@
+body {
+    background-image: linear-gradient(to bottom, #6bba62, #52ae6b, #3ea272, #2f9576, #2a8776, #248078, #247979, #287177, #266e7b, #296b7e, #306780, #386380);
+    overflow: hidden;
+}
+
+#navbar {
+    visibility: hidden;
+}
+
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+
+}
+
+#form-login {
+    background: #fff;
+    padding: 3rem;
+    box-shadow: 0 0.125rem 0.25rem #666666 !important;
+}
+
+label {
+    color: grey;
+}
+
+.group {
+    position: relative;
+    margin-bottom: 45px;
+}
+
+input {
+    font-size: 18px;
+    padding: 10px 10px 10px 5px;
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid grey;
+}
+
+input:focus {
+    outline: none;
+}
+
+label {
+    color: #999;
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+/* active state */
+input:focus~label,
+input:valid~label {
+    top: -20px;
+    font-size: 14px;
+    color: #6bba62;
+}
+
+
+.bar {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.bar:before,
+.bar:after {
+    content: '';
+    height: 4px;
+    width: 0;
+    bottom: 0px;
+    position: absolute;
+    background: #6bba62;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+.bar:before {
+    left: 50%;
+}
+
+.bar:after {
+    right: 50%;
+}
+
+/* active state */
+#registration_email:focus~.bar:before,
+#registration_email:focus~.bar:after {
+    width: 50%;
+}
+
+input:focus~.bar:before,
+input:focus~.bar:after {
+    width: 50%;
+}
+
+/* HIGHLIGHTER ================================== */
+.highlight {
+    position: absolute;
+    height: 60%;
+    width: 100px;
+    top: 25%;
+    left: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* active state */
+input:focus~.highlight {
+    -webkit-animation: inputHighlighter 0.3s ease;
+    -moz-animation: inputHighlighter 0.3s ease;
+    animation: inputHighlighter 0.3s ease;
+}
+
+#registration_email:focus~.highlight {
+    -webkit-animation: inputHighlighter 0.3s ease;
+    -moz-animation: inputHighlighter 0.3s ease;
+    animation: inputHighlighter 0.3s ease;
+}
+
+/* ANIMATIONS ================ */
+@-webkit-keyframes inputHighlighter {
+    from {
+        background: #6bba62;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@-moz-keyframes inputHighlighter {
+    from {
+        background: #6bba62;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@keyframes inputHighlighter {
+    from {
+        background: #6bba62;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@media(max-width: 1500px)
+{
+    #form-image
+    {
+        visibility: hidden;
+        width: 0% !important;
+    }
+
+    #form-login
+    {
+        width: 100% !important;
+        background-color: transparent !important;
+    }
+
+    input
+    {
+        background-color: transparent;
+        border-bottom: 1px solid #fff;
+        color: #fff;
+    }
+
+    label
+    {
+        color: #fff;
+    }
+
+    .bar:before, .bar:after
+    {
+        background-color: #fff;
+    }
+
+    input:focus~label,
+    input:valid~label 
+    {
+        color: #fff;
+    }
+}
+
