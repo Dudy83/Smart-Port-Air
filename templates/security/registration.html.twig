@@ -13,7 +13,7 @@
     <div class="form w-100 d-flex flex-column justify-content-center align-items-center" style="color:#fff;">
    
         {{form_start(form, {'attr': {'class': 'w-100'}})}}
-            
+            <h3 id="form-title">Inscription</h3>
             <div class="form-group w-100">
                 {{ form_errors(form.username) }}
                 <div class="group w-100"> 
@@ -60,7 +60,7 @@
             </div>
             
             
-            <div id="captcha" class="d-flex align-items-center justify-content-center mb-3"></div>
+            <div id="captcha" class="d-flex align-items-center justify-content-center"></div>
             
             <button type="submit" class="btn btn-success rounded w-100 m-0"><i class="fas fa-user-edit mr-2"></i>S'inscrire</button>
 

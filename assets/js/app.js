@@ -79,9 +79,31 @@ profilBtn.addEventListener('click', () =>
     if(dropdownProfilContainer.classList.contains('profil-dropdown-hidden')) {
         dropdownProfilContainer.classList.remove('profil-dropdown-hidden');
         dropdownProfilContainer.classList.add('profil-dropdown-visible');
+        addRule("#dropdown-trigger:after", {
+            display: "inline-block",
+            "margin-left": ".255em",
+            "vertical-align": ".255em",
+            content: "",
+            "border-top": ".3em solid",
+            "border-right": ".3em solid transparent",
+            "border-bottom": "0",
+            "border-left": ".3em solid transparent",
+            transform: "rotate(180deg)", 
+        });
     } else {
         dropdownProfilContainer.classList.remove('profil-dropdown-visible');
         dropdownProfilContainer.classList.add('profil-dropdown-leave');
+        addRule("#dropdown-trigger:after", {
+            display: "inline-block",
+            "margin-left": ".255em",
+            "vertical-align": ".255em",
+            content: "",
+            "border-top": ".3em solid",
+            "border-right": ".3em solid transparent",
+            "border-bottom": "0",
+            "border-left": ".3em solid transparent", 
+            transform: "rotate(0deg)",
+        });
         setTimeout(() =>
         {
             dropdownProfilContainer.classList.remove('profil-dropdown-leave');
@@ -95,3 +117,14 @@ dropdown_menu();
 window.addEventListener('resize', navIcons);
 navIcons();
 document.addEventListener('scroll', navbarAnim);
+
+var addRule = (function (style) {
+    var sheet = document.head.appendChild(style).sheet;
+    return function (selector, css) {
+        var propText = typeof css === "string" ? css : Object.keys(css).map(function (p) {
+            return p + ":" + (p === "content" ? "'" + css[p] + "'" : css[p]);
+        }).join(";");
+        sheet.insertRule(selector + "{" + propText + "}", sheet.cssRules.length);
+    };
+})(document.createElement("style"));
+

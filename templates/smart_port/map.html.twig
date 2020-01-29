@@ -2,26 +2,46 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="stylesheet" href="https://unpkg.com/balloon-css/balloon.min.css">
     {{ encore_entry_link_tags('map') }}
 {% endblock %}
 
 {% block body %}
 
-    <div id="toggle-control-map">
-        <div id="toggle-btn-control-menu" class="w-100 d-flex justify-content-center align-items-center">
-            <svg id="nav-icon" class="ham hamRotate ham8" viewBox="0 0 100 100" width="100%" onclick="this.classList.toggle('active')">
-                <path class="line top" d="m 30,33 h 40 c 3.722839,0 7.5,3.126468 7.5,8.578427 0,5.451959 -2.727029,8.421573 -7.5,8.421573 h -20" />
-                <path class="line middle" d="m 30,50 h 40" />
-                <path class="line bottom" d="m 70,67 h -40 c 0,0 -7.5,-0.802118 -7.5,-8.365747 0,-7.563629 7.5,-8.634253 7.5,-8.634253 h 20" />
-            </svg>
+    <div id="toggle-control-map" class="d-flex flex-column justify-content-start align-items-center">
+        <div aria-label="Menu" data-balloon-pos="right" id="toggle-btn-control-menu" class="d-flex justify-content-center align-items-center">
+          <div>
+                <span></span>
+                <span></span>
+                <span></span>
+          </div>
+        </div>
+
+        <div aria-label="Rechercher" data-balloon-pos="right" id="toggle-search">
+            <svg viewBox="0 0 24 24"><g><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></g></svg>
+        </div>
+
+        <div aria-label="Accueil" data-balloon-pos="right" id="toggle-search">
+            <a href="{{ path('smart_port') }}">
+                <img width="24px" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4Igp3aWR0aD0iNTAiIGhlaWdodD0iNTAiCnZpZXdCb3g9IjAgMCAxNzIgMTcyIgpzdHlsZT0iIGZpbGw6IzAwMDAwMDsiPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0ibm9uemVybyIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1kYXNoYXJyYXk9IiIgc3Ryb2tlLWRhc2hvZmZzZXQ9IjAiIGZvbnQtZmFtaWx5PSJub25lIiBmb250LXdlaWdodD0ibm9uZSIgZm9udC1zaXplPSJub25lIiB0ZXh0LWFuY2hvcj0ibm9uZSIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBub3JtYWwiPjxwYXRoIGQ9Ik0wLDE3MnYtMTcyaDE3MnYxNzJ6IiBmaWxsPSJub25lIj48L3BhdGg+PGcgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTg2LDEzLjk0MTQxbC0zLjg2MzI4LDMuNjk1MzFsLTY5Ljg3NSw2OS44NzVsNy43MjY1Niw3LjcyNjU2bDYuODg2NzIsLTYuODg2NzJ2NjIuMTQ4NDRoNDguMzc1di01My43NWgyMS41djUzLjc1aDQ4LjM3NXYtNjIuMTQ4NDRsNi44ODY3Miw2Ljg4NjcybDcuNzI2NTYsLTcuNzI2NTZsLTY5Ljg3NSwtNjkuODc1ek04NiwyOS4yMjY1Nmw0OC4zNzUsNDguMzc1djYyLjE0ODQ0aC0yNi44NzV2LTUzLjc1aC00M3Y1My43NWgtMjYuODc1di02Mi4xNDg0NHoiPjwvcGF0aD48L2c+PC9nPjwvc3ZnPg==">            
+            </a>
         </div>
 
     </div>
+
+    <div id="search-results" class="not-loaded">
+            <div>
+                <input type="text" max-length="255" placeholder="Rechercher"/>
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+                <div id="search-leaver"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg></div>
+            </div>
+    </div>
+
     <smartport-map id="map"></smartport-map>
-    {# <div id="map"></div> #}
     
-    <div id="modals-container">
-    </div> 
+    <div id="modals-container"></div> 
+
+
 {% endblock %}
 
 {% block javascripts %}
@@ -30,5 +50,4 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
     <script src="cdn/js/jquery-3.4.1.min.js"></script>
     {{ encore_entry_script_tags('map') }}
-    {# {{ encore_entry_script_tags('smartportmap') }} #}
- {% endblock %}
+{% endblock %}

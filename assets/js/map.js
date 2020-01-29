@@ -805,6 +805,14 @@ class SmartPortMap extends HTMLElement
         }
     }
 
+    // this method will create the search container
+    search_station(layer)
+    {
+        layer.on('click', (e) => {
+            this.map.setView(e.latlng, 13);
+        });
+    }
+
     // Just add EventListeners to the NO2, O3, SO2 buttons onclick. It will call the draw_graph() method
     bind_events()
     {
@@ -864,61 +872,80 @@ class SmartPortMap extends HTMLElement
         L.control.layers(this.baseLayers, controls, {collapsed: false, position: 'topleft'}).addTo(this.map);
 
         let controlPanel = document.getElementsByClassName('leaflet-control-layers')[0];
-
         let firstChild = document.getElementsByClassName('leaflet-control-layers-list')[0];
-
         let $hamburger = document.getElementById('toggle-btn-control-menu');
-
+        let searchBtn = document.getElementById('toggle-search');
         let checkboxes = document.getElementsByClassName('leaflet-control-layers-selector');
-
         let menu = document.getElementById('toggle-control-map');
-
         let svg = document.getElementsByClassName('line');
-
         let wind = document.querySelector('.leaflet-top.leaflet-right');
-       
+        wind.setAttribute('id', 'wind-velocity-menu')
         let logo = document.createElement('img');
         logo.setAttribute('id', 'control-menu-logo');
-        logo.src = '/images/logo/logo.png';
-        logo.style.setProperty('width', '100%');
+        logo.src = '/images/logo/facebook_cover_photo_1.png';
+        logo.style.setProperty('width', '95%');
+        logo.style.setProperty('margin', '10px 0px');
 
-        let homeLink = document.createElement('a');
-        homeLink.setAttribute('href', '/');
-        homeLink.setAttribute('class', 'btn btn-success');
-        homeLink.setAttribute('id', 'map-home-link');
-        homeLink.innerHTML = `<i class="fas fa-home mr-2"></i><p class="control-menu-text-content">Retour à l'accueil</p>`
-
-        controlPanel.appendChild(homeLink);
+        let dropdownLeaver = document.createElement('div');
+        dropdownLeaver.setAttribute('id', 'dropdown-leaver');
+        dropdownLeaver.innerHTML = `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>`;      
+        controlPanel.appendChild(dropdownLeaver);
         controlPanel.appendChild(wind);
         controlPanel.insertBefore(logo, firstChild);
         controlPanel.classList.add('not-loaded');
+        let searchContainer = document.getElementById('search-results');
+        let searchLeaver = document.getElementById('search-leaver');
+
+        let drpdwnLeaver = document.getElementById('dropdown-leaver')
+
+        drpdwnLeaver.addEventListener('click', () =>
+        {
+            controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-not-loaded');
+            menu.classList.remove('menu-anim');
+            $hamburger.removeAttribute('style');
+            svg.forEach(line =>
+            {
+                line.removeAttribute('style');
+            });
+            setTimeout(() =>{
+                controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control not-loaded');
+            }, 500);
+        })
 
         $hamburger.addEventListener('click', () => 
         {
-            if(controlPanel.classList.contains('dropdown-loaded'))
+            if(searchContainer.classList.contains('dropdown-loaded'))
             {
-                controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-not-loaded');
-                menu.classList.remove('menu-anim');
-                $hamburger.removeAttribute('style');
-                svg.forEach(line =>
-                {
-                    line.removeAttribute('style');
-                });
+                searchContainer.setAttribute('class', 'dropdown-not-loaded');
                 setTimeout(() =>{
-                    controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control not-loaded');
-                }, 500)
-            } else {
-                controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-loaded');
-                menu.classList.add('menu-anim');
-                $hamburger.setAttribute('style', 'border-color: grey');
-                svg.forEach(line =>
-                {
-                    line.setAttribute('style', 'stroke: grey')
-                });
+                    searchContainer.setAttribute('class', 'not-loaded');
+                }, 500);
             }
+            controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-loaded');
+            menu.classList.add('menu-anim');
+            $hamburger.setAttribute('style', 'border-color: grey');
+            svg.forEach(line =>
+            {
+                line.setAttribute('style', 'stroke: grey')
+            });
         });
 
-        checkboxes[0].parentElement.querySelector('.icons-container').classList.add('active-radio');
+        searchBtn.addEventListener('click', () => 
+        {
+            searchContainer.setAttribute('class', 'dropdown-loaded');
+        })
+
+
+        searchLeaver.addEventListener('click', () =>
+        {
+            searchContainer.setAttribute('class', 'dropdown-not-loaded');
+
+            setTimeout(() =>{
+                searchContainer.setAttribute('class', 'not-loaded');
+            }, 500);
+        })
+
+        checkboxes[0].parentElement.classList.add('active-radio');
         
         checkboxes[0].addEventListener('click', () =>
         {
@@ -926,18 +953,14 @@ class SmartPortMap extends HTMLElement
 
             let otherParentDiv = checkboxes[1].parentElement;
 
-            let otherDiv = otherParentDiv.querySelector('.icons-container')
-
-            let div = parentDiv.querySelector('.icons-container');
-
-            if(div.classList.contains('active-radio'))
+            if(parentDiv.classList.contains('active-radio'))
             {
-                div.classList.remove('active-radio');
-                otherDiv.classList.add('active-radio');
+                parentDiv.classList.remove('active-radio');
+                otherParentDiv.classList.add('active-radio');
 
             } else {
-                div.classList.add('active-radio');
-                otherDiv.classList.remove('active-radio');
+                parentDiv.classList.add('active-radio');
+                otherParentDiv.classList.remove('active-radio');
 
             }
         })
@@ -948,18 +971,14 @@ class SmartPortMap extends HTMLElement
 
             let otherParentDiv = checkboxes[0].parentElement;
 
-            let otherDiv = otherParentDiv.querySelector('.icons-container')
-
-            let div = parentDiv.querySelector('.icons-container');
-
-            if(div.classList.contains('active-radio'))
+            if(parentDiv.classList.contains('active-radio'))
             {
-                div.classList.remove('active-radio');
-                otherDiv.classList.add('active-radio');
+                parentDiv.classList.remove('active-radio');
+                otherParentDiv.classList.add('active-radio');
 
             } else {
-                div.classList.add('active-radio');
-                otherDiv.classList.remove('active-radio');
+                parentDiv.classList.add('active-radio');
+                otherParentDiv.classList.remove('active-radio');
 
             }
         })
@@ -973,15 +992,19 @@ class SmartPortMap extends HTMLElement
 
                 let div = parentDiv.querySelector('.icons-container');
 
+                let text = parentDiv.querySelector('.control-menu-text-content');
+
+                console.log(text)
+
                 let icon = div.querySelector('.fa-fw');
 
                 if(checkbox.checked == true)
                 {
-                    div.removeAttribute('style');
                     icon.removeAttribute('style');
+                    text.removeAttribute('style');
                 } else {
-                    div.setAttribute('style', 'background: #6BBA62; border-color: #6BBA62')
-                    icon.setAttribute('style', 'color: #fff !important')
+                    icon.setAttribute('style', 'color: #2979ff !important')
+                    text.setAttribute('style', 'color: #2979ff !important')
                 }
             })
         })

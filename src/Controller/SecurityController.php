@@ -288,6 +288,11 @@ class SecurityController extends AbstractController
     {
         $user = $repo->findOneBy(['username' => $username]);
 
+        if($user == NULL)
+        {
+            return $this->redirectToRoute('smart_port');
+        }
+
         $checkToken = $user->getConfirmationToken();
 
         $form = $this->createForm(ForgottenPasswordType::class, $user);
