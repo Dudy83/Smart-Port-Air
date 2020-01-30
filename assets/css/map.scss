@@ -53,7 +53,6 @@ div[aria-haspopup="true"] {
     justify-content: center;
     width: 50px;
     border-radius: 0.25rem;
-    margin-right: 2rem;
 }
 
 .base-layers-choices i {
@@ -77,37 +76,48 @@ div[aria-haspopup="true"] {
 
 .leaflet-control-layers-base {
     border-bottom: 1px solid #dbdbdb;
-    padding-bottom: 0.7rem;
 }
 
 .leaflet-control-layers-base label:hover,
 .leaflet-control-layers-overlays label:hover {
     cursor: pointer;
-
-    i,
-    p {
-        color: #3498db;
-    }
 }
 
 .leaflet-top.leaflet-right {
-    top: 50%;
-    width: 310px;
-    left: 5px;
+    top: 100%;
+    width: 200px;
+    left: 56px;
     border-radius: .25rem;
 }
 
 #wind-velocity-menu .leaflet-control {
-    width: 310px !important;
+    width: 200px !important;
 }
 
 .leaflet-control-layers-base label,
 .leaflet-control-layers-overlays label {
     width: 100%;
+    margin-top: .5rem;
 }
 
-.leaflet-control-layers-selector {
-    visibility: hidden;
+.leaflet-control-layers-base {
+    label div {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding-left: 1rem;
+        margin-left: 1rem;
+    }
+}
+
+.leaflet-control-layers-overlays {
+    label div {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding-left: 1rem;
+        margin-left: 1rem;
+    }
 }
 
 .leaflet-control-velocity {
@@ -155,7 +165,6 @@ div[aria-haspopup="true"] {
 }
 
 .leaflet-control-layers-list {
-    border-bottom: 1px solid #dbdbdb;
     border-top: 1px solid #dbdbdb;
 }
 
@@ -321,6 +330,7 @@ path {
 
 .control-menu-text-content {
     margin: 0;
+    font-weight: 400;
 }
 
 .spinner-border {
@@ -348,15 +358,11 @@ path {
     margin: 0 2rem;
 }
 
-#wind-velocity-menu {
-    border: 1px solid #dbdbdb;
-}
-
 .wind-text-content {
     margin: 0;
     font-family: 'Chivo';
-    color: #363636;
-    font-size: 110%;
+    color: #727272;
+    font-size: 130%;
 }
 
 .strong-wind {
@@ -377,7 +383,7 @@ path {
 
 
 #search-results {
-    position: fixed;
+    position: relative;
     top: 0;
     left: 56px;
     width: 400px;
@@ -389,7 +395,13 @@ path {
     z-index: 1100;
     box-shadow: 0 0.125rem 0.25rem #666666 !important;
 
-    div {
+    #container-results-search{
+        position: absolute;
+        top: 64px;
+        width: 100%;
+    }
+
+    #search-block {
         width: 100%;
         display: flex;
         align-items: center;
@@ -444,10 +456,18 @@ path {
             }
         }
     }
+}
 
+.map-search-results div:hover:not(#error-search-results) {
+    cursor: pointer;
+    color: #3498db;
+    
+}
 
-
-
+#search-leaver:hover {
+    border-radius: 50%;
+    background-color: #cccccc !important;
+    cursor: pointer;
 }
 
 /* Safari */
@@ -479,50 +499,23 @@ path {
 
 @media (max-width: 1200px) {
 
-    // .leaflet-top.leaflet-right
-    // {
-    //     top: 0;
-    //     left: 55px;
-    // }
-    // .control-menu-text-content {
-    //     display: none;
-    // }
-
     .leaflet-control-container .leaflet-top .leaflet-control-layers-expanded {
         width: 230px !important;
         padding: 0;
     }
 
     .leaflet-top.leaflet-right {
-        width: 220px;
+        width: 155px;
+        left: 58px;
     }
 
     #wind-velocity-menu .leaflet-control {
-        width: 220px !important;
+        width: 155px !important;
     }
 
-    // .base-layers-choices {
-    //     margin-left: 0;
-    //     padding-right: 0;
-    //     margin-left: 6px;
-    // }
-
-    // #control-menu-logo {
-    //     content: url('../../public/images/logo/logo_menu_control.png');
-    //     width: 100% !important;
-    //     padding: 2rem 0 2rem 0;
-    // }
-
-    // #toggle-control-map
-    // {
-    //     padding: 0.25rem;
-    // }
-
-    // #toggle-btn-control-menu
-    // {
-    //     margin-left: 0;
-    // }
-
+    .wind-text-content {
+        font-size: 110%;
+    }
 }
 
 @media (max-width: 750px) {
@@ -535,8 +528,102 @@ path {
     .charts-legend {
         display: none;
     }
-
-
 }
 
-@media (max-width: 500px) {}
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+    position: relative;
+}
+
+.leaflet-control-layers-base label div input, .leaflet-control-layers-overlays label div input {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+.radioCheck {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background: #cccccc;
+    border: 0px solid #000000;
+    border-radius: 50%;
+}
+
+.check {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background: #cccccc;
+    border: 0px solid #000000;
+    border-radius: 4px;
+}
+
+.leaflet-control-layers-base label:hover .radioCheck,
+.leaflet-control-layers-base label:focus .radioCheck,
+.leaflet-control-layers-overlays label:hover .check,
+.leaflet-control-layers-overlays label:hover .check {
+    background: #dbdbdb;
+}
+
+.leaflet-control-layers-base label div input:checked ~ span span .radioCheck,
+.leaflet-control-layers-overlays label div input:checked ~ span span .check {
+    animation: s-ripple-dup 250ms ease-out;
+    background: #3498db;
+}
+
+.leaflet-control-layers-base label div input:checked ~ span span .radioCheck::before {
+    position: absolute;
+    content: "";
+    top: auto;
+    left: 6px;
+    z-index: 99999;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.leaflet-control-layers-overlays label div input:checked ~ span span .check::before {
+    position: absolute;
+    font-family: "Font Awesome 5 Free";
+    content: "\f00c";
+    top: auto;
+    left: 4px;
+    font-size: 80%;
+    z-index: 99999;
+    color: #fff;
+}
+
+@keyframes s-ripple {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    20% {
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0.01;
+        transform: scale(1);
+    }
+}
+
+@keyframes s-ripple-dup {
+   0% {
+       transform: scale(0);
+    }
+   30% {
+        transform: scale(1);
+    }
+    60% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

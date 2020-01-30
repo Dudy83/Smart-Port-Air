@@ -33,8 +33,8 @@ class SmartPortMap extends HTMLElement
         // add the 2 maps design in an object we will use in the custom_menu() method
         this.baseLayers = 
         {
-            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marked-alt fa-fw'></i></div> <p class='control-menu-text-content'>Normal</p></span>": this.WorldImagery,
-            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marked-alt fa-fw'></i></div> <p class='control-menu-text-content'>Noir</p></span>": this.DarkGreyCanvas,
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marked-alt fa-fw'></i></div> <p class='control-menu-text-content'>Normal</p><div class='radioCheck'></div></span>": this.WorldImagery,
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marked-alt fa-fw'></i></div> <p class='control-menu-text-content'>Noir</p><div class='radioCheck'></div></span></span>": this.DarkGreyCanvas,
         };
         // InitialZoom for large screen
         this.iniZoom = 9;
@@ -59,8 +59,9 @@ class SmartPortMap extends HTMLElement
         });
         // set the view over PACA region
         this.map.setView([43.7284, 5.9367], this.scaleZoom());
-    }
 
+        this.markerObject = [];
+    }
     // this method is a specific function for the lifecycle of the component, and it's call when the custom element is inserted inside the DOM
     // so we call all the function here
     connectedCallback()
@@ -69,7 +70,7 @@ class SmartPortMap extends HTMLElement
         this.generate_wind();
         this.modele_pollution();
     }
-    
+
     // This method fetch the php route /api/map which is returning a json object containing all the the stations informations
     // You can see the php function at : /src/Controller/SmartPortController.php
     create_stations()
@@ -103,7 +104,10 @@ class SmartPortMap extends HTMLElement
             
                         pointToLayer: (feature, latlng) => 
                         {
-                            return new L.CircleMarker(latlng);
+                            
+                            let circle = new L.CircleMarker(latlng, {title: feature.nom});
+                            this.markerObject.push(circle);
+                            return circle;
                         },
                     
                         onEachFeature: (feature, layer) =>
@@ -172,6 +176,7 @@ class SmartPortMap extends HTMLElement
             {
                 // Now all the stations are generated in the map, so we can bind the eventListeners we need to each stations
                 this.bind_events();
+                this.search_station();
             });
 
         });
@@ -418,6 +423,10 @@ class SmartPortMap extends HTMLElement
     }
 
     // this method will return an array of the last 5 day measuring at the station you want, with the pollutant you want.
+    /**
+     * @param {number} id_poll_ue 
+     * @param {string} code_station  
+     */
     async get_mesures(id_poll_ue, code_station) 
     {
         let day = (new Date().getDate()-5);
@@ -461,6 +470,15 @@ class SmartPortMap extends HTMLElement
     // this Promise returns an array of the max measured NO2 at the date you want between 00:00 - 23:59 
     // => It push in the array the max value of the 24 measures. 
     // ==> repeat that according to the parameter 'ech' which means the deadline.
+    /**
+     * 
+     * @param {number} year 
+     * @param {number} month 
+     * @param {number} day 
+     * @param {number} id_poll_ue 
+     * @param {string} code_station 
+     * @param {number} ech 
+     */
     get_mesures_max_jour(year, month, day, id_poll_ue, code_station, ech)
     {
         return new Promise((resolve, reject) =>
@@ -512,8 +530,13 @@ class SmartPortMap extends HTMLElement
     }
 
     // this method uses apigeoloc.
-    // it returns an array of the forecast p0, p1, p2 data.
-    // @Params : longitude, latitude, pollutant name.
+    // it returns an array of  p0, p1, p2 forecast.
+    /**
+     * 
+     * @param {number} lon 
+     * @param {nuber} lat 
+     * @param {string} pol you must use "" between the string
+     */
     async get_previsions(lon, lat, pol)
     {
         if(lon && lat)
@@ -532,6 +555,14 @@ class SmartPortMap extends HTMLElement
     }
 
     // this method will uses get_mesures_max_jour() and get_previsions() arrays data to create a graph with Chart.js at the station you want.
+    /**
+     * 
+     * @param {number} code_station 
+     * @param {string} nom_polluant 
+     * @param {number} code_polluant 
+     * @param {number} lon 
+     * @param {number} lat 
+     */
     draw_graph(code_station, nom_polluant, code_polluant, lon, lat)
     {
         let day = (new Date().getDate()-5);
@@ -805,12 +836,82 @@ class SmartPortMap extends HTMLElement
         }
     }
 
-    // this method will create the search container
-    search_station(layer)
+    // this methods fetch /api/search which is a php function.
+    // fetching api_search with a body containing the value of the search input.
+    // api_search php function will decode this string, try a SQL request with it, and returns results.
+    // Here, we use the response results to display informations.
+    // Then 
+    search_station()
     {
-        layer.on('click', (e) => {
-            this.map.setView(e.latlng, 13);
-        });
+        let search = document.getElementById('search-tool-input');
+        let resultsContainer = document.getElementById('container-results-search');
+        
+        const createRequests = (e) => {
+            if(e.target.value == "") {
+                return;
+            } else {
+                let value = {};
+                value.content = e.target.value;
+
+                fetch('/api/search', {
+                    method: 'POST',
+                    body: JSON.stringify(value)
+                }).then((response) => 
+                {
+                    return response.json().then((data) => {
+                        if(data.result) {
+
+                            let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
+
+                            JSON.parse(data.results).forEach(elm => {
+                               
+                                childrenResults += `<div class="searchResults w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;" id="${elm.id}" station="${elm.nom}" lon="${elm.lon}" lat="${elm.lat}">${elm.nom}</div>`;
+
+                            });
+
+                            childrenResults += '</div>';
+
+                            resultsContainer.innerHTML = childrenResults;
+
+                            document.getElementsByClassName('searchResults').forEach((element) => {
+                                
+                                let lon = element.getAttribute('lon');
+                                let lat = element.getAttribute('lat');
+                                let nomStation = element.getAttribute('station');
+                                let id = element.getAttribute('id');
+                                let NO2trigger = document.getElementById('NO2-'+id);
+                                
+                                NO2trigger.click();
+                            
+                                element.addEventListener('click', () => {
+                                    this.map.setView([lat, lon], 14);
+                                    
+                                    for (var i in this.markerObject)
+                                    {
+                                        let markerID = this.markerObject[i].options.title;
+                                        if (markerID == nomStation){
+                                            this.markerObject[i].openPopup();
+                                        };
+                                    }
+                                });
+                            })
+
+                        } else {
+                            let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
+                           
+                            childrenResults += `<div id="error-search-results" class="w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;"><i class="fas fa-exclamation-circle mr-2"></i>Aucun résultat !</div>`;
+
+                            childrenResults += '</div>';
+
+                            resultsContainer.innerHTML = childrenResults;
+                        }
+                    })
+                    
+                })
+            }
+        }
+
+        search.addEventListener('keypress', createRequests);
     }
 
     // Just add EventListeners to the NO2, O3, SO2 buttons onclick. It will call the draw_graph() method
@@ -853,6 +954,10 @@ class SmartPortMap extends HTMLElement
 
     // This method convert a date into an integer. 
     // Used to show the wms map
+    /**
+     * 
+     * @param {date} strDate 
+     */
     toTimestamp(strDate) 
     {
         let datum = Date.parse(strDate);
@@ -864,55 +969,53 @@ class SmartPortMap extends HTMLElement
     {     
         let controls = 
         {
-            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-wind fa-fw'></i></div> <p class='control-menu-text-content'>Vent</p></span>": this.wind,
-            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marker-alt fa-fw'></i></div> <p class='control-menu-text-content'>Station</p></span>": this.show_stations,
-            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-smog fa-fw'></i></div> <p class='control-menu-text-content'>Pollution</p></span>": this.azur_paca_multi,
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marker-alt fa-fw'></i></div> <p class='control-menu-text-content'>Station</p><div class='check'></div></span>": this.show_stations,
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-smog fa-fw'></i></div> <p class='control-menu-text-content'>Pollution</p><div class='check'></div></span>": this.azur_paca_multi,
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-wind fa-fw'></i></div> <p class='control-menu-text-content'>Vent</p><div class='check'></div></span>": this.wind
+
         }
 
         L.control.layers(this.baseLayers, controls, {collapsed: false, position: 'topleft'}).addTo(this.map);
 
         let controlPanel = document.getElementsByClassName('leaflet-control-layers')[0];
-        let firstChild = document.getElementsByClassName('leaflet-control-layers-list')[0];
-        let $hamburger = document.getElementById('toggle-btn-control-menu');
+        let checkboxContainer = document.querySelector('.leaflet-control-layers-overlays');
+        let hamburger = document.getElementById('toggle-btn-control-menu');
         let searchBtn = document.getElementById('toggle-search');
-        let checkboxes = document.getElementsByClassName('leaflet-control-layers-selector');
-        let menu = document.getElementById('toggle-control-map');
-        let svg = document.getElementsByClassName('line');
         let wind = document.querySelector('.leaflet-top.leaflet-right');
-        wind.setAttribute('id', 'wind-velocity-menu')
         let logo = document.createElement('img');
+        let hr = document.createElement('hr');
+        let dropdownLeaver = document.createElement('div');
+        let searchContainer = document.getElementById('search-results');
+        let searchLeaver = document.getElementById('search-leaver');
+
+        wind.setAttribute('id', 'wind-velocity-menu');
+        
         logo.setAttribute('id', 'control-menu-logo');
         logo.src = '/images/logo/facebook_cover_photo_1.png';
         logo.style.setProperty('width', '95%');
         logo.style.setProperty('margin', '10px 0px');
-
-        let dropdownLeaver = document.createElement('div');
+        hr.style.setProperty('margin-top', '70px');
+      
         dropdownLeaver.setAttribute('id', 'dropdown-leaver');
-        dropdownLeaver.innerHTML = `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>`;      
+        dropdownLeaver.innerHTML = `<svg><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>`;      
         controlPanel.appendChild(dropdownLeaver);
-        controlPanel.appendChild(wind);
-        controlPanel.insertBefore(logo, firstChild);
+        checkboxContainer.appendChild(wind);
+        controlPanel.insertBefore(logo, document.getElementsByClassName('leaflet-control-layers-list')[0]);
         controlPanel.classList.add('not-loaded');
-        let searchContainer = document.getElementById('search-results');
-        let searchLeaver = document.getElementById('search-leaver');
+        controlPanel.appendChild(hr);
 
-        let drpdwnLeaver = document.getElementById('dropdown-leaver')
-
-        drpdwnLeaver.addEventListener('click', () =>
+        document.getElementById('dropdown-leaver').addEventListener('click', () =>
         {
             controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-not-loaded');
-            menu.classList.remove('menu-anim');
-            $hamburger.removeAttribute('style');
-            svg.forEach(line =>
-            {
-                line.removeAttribute('style');
-            });
+            
+            hamburger.removeAttribute('style');
+
             setTimeout(() =>{
                 controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control not-loaded');
             }, 500);
         })
 
-        $hamburger.addEventListener('click', () => 
+        hamburger.addEventListener('click', () => 
         {
             if(searchContainer.classList.contains('dropdown-loaded'))
             {
@@ -922,19 +1025,15 @@ class SmartPortMap extends HTMLElement
                 }, 500);
             }
             controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-loaded');
-            menu.classList.add('menu-anim');
-            $hamburger.setAttribute('style', 'border-color: grey');
-            svg.forEach(line =>
-            {
-                line.setAttribute('style', 'stroke: grey')
-            });
+            
+            hamburger.setAttribute('style', 'border-color: grey');
+
         });
 
         searchBtn.addEventListener('click', () => 
         {
             searchContainer.setAttribute('class', 'dropdown-loaded');
-        })
-
+        });
 
         searchLeaver.addEventListener('click', () =>
         {
@@ -943,71 +1042,7 @@ class SmartPortMap extends HTMLElement
             setTimeout(() =>{
                 searchContainer.setAttribute('class', 'not-loaded');
             }, 500);
-        })
-
-        checkboxes[0].parentElement.classList.add('active-radio');
-        
-        checkboxes[0].addEventListener('click', () =>
-        {
-            let parentDiv = checkboxes[0].parentElement;
-
-            let otherParentDiv = checkboxes[1].parentElement;
-
-            if(parentDiv.classList.contains('active-radio'))
-            {
-                parentDiv.classList.remove('active-radio');
-                otherParentDiv.classList.add('active-radio');
-
-            } else {
-                parentDiv.classList.add('active-radio');
-                otherParentDiv.classList.remove('active-radio');
-
-            }
-        })
-
-        checkboxes[1].addEventListener('click', () =>
-        {
-            let parentDiv = checkboxes[1].parentElement;
-
-            let otherParentDiv = checkboxes[0].parentElement;
-
-            if(parentDiv.classList.contains('active-radio'))
-            {
-                parentDiv.classList.remove('active-radio');
-                otherParentDiv.classList.add('active-radio');
-
-            } else {
-                parentDiv.classList.add('active-radio');
-                otherParentDiv.classList.remove('active-radio');
-
-            }
-        })
-
-        checkboxes.forEach(checkbox =>
-        {
-            checkbox.addEventListener('click', () =>
-            {
-
-                let parentDiv = checkbox.parentElement;
-
-                let div = parentDiv.querySelector('.icons-container');
-
-                let text = parentDiv.querySelector('.control-menu-text-content');
-
-                console.log(text)
-
-                let icon = div.querySelector('.fa-fw');
-
-                if(checkbox.checked == true)
-                {
-                    icon.removeAttribute('style');
-                    text.removeAttribute('style');
-                } else {
-                    icon.setAttribute('style', 'color: #2979ff !important')
-                    text.setAttribute('style', 'color: #2979ff !important')
-                }
-            })
-        })
+        });
     }
 
     // this method creates the specific html tag inside the DOM
