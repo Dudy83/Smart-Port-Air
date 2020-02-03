@@ -65,9 +65,14 @@
             <button type="submit" class="btn btn-success rounded w-100 m-0"><i class="fas fa-user-edit mr-2"></i>S'inscrire</button>
 
             <a tabindex="4" href="{{ path('security_login') }}" class="btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i class="fas fa-sign-in-alt mr-2"></i> Déjà inscrit ?</a>
+       
         {{form_end(form)}}
+            <small class="mt-4" style="color:#727272;">
+                Vos données personnelles (email et nom d'utilisateur) ne sont utilisées qu'à des fin d'authentification et ne sont pas partagées avec des tiers.
+            </small>
+            <small class="mt-2" style="color:#727272;">Ce formulaire utilise <a style="text-decoration:underline;color:#727272;" href="https://www.google.com/recaptcha/intro/android.html">reCAPTCHA</a> afin de lutter contre le SPAM. L'utilisation de cette fonctionnalité est soumise aux <a style="text-decoration:underline;color:#727272;" href="https://www.google.com/intl/fr/policies/privacy/">Règles de confidentialité</a> et aux <a style="text-decoration:underline;color:#727272" href="https://www.google.com/intl/fr/policies/terms/">Conditions d'utilisation</a> de Google.</small>
     </div>
-
+   
 </div>
 
 <div id="form-image" class="w-75 d-flex flex-column justify-content-center align-items-center">

@@ -470,6 +470,14 @@ path {
     cursor: pointer;
 }
 
+// #scenario-modal-dialog {
+//     max-width: 80% !important;
+// }
+
+#scenario-modal-body {
+    max-width: 100% !important;
+}
+
 /* Safari */
 @-webkit-keyframes spin {
     0% {
@@ -515,6 +523,14 @@ path {
 
     .wind-text-content {
         font-size: 110%;
+    }
+
+    #search-results {
+        width: 300px;
+
+        #search-block input {
+            width: 60%;
+        }
     }
 }
 

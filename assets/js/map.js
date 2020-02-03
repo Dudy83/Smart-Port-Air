@@ -9,18 +9,11 @@ class SmartPortMap extends HTMLElement
         super();
 
         // Initial variables 
-        this.monthNames = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-        this.hoursNames = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"];
-        this.dayNames = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"];
         this.stations = new Array();
 
         this.attrib = '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2020 </a>| © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | © <a href="https://www.mapbox.com/">Mapbox</a>';
         // Dark map design
-        this.DarkGreyCanvas = L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-        {
-            attribution: this.attrib
-        });
-
+        this.DarkGreyCanvas = L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", { attribution: this.attrib });
         // mapbox map design. Must create an account et get your token at https://account.mapbox.com/access-tokens/
         this.WorldImagery = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', 
         {
@@ -29,7 +22,6 @@ class SmartPortMap extends HTMLElement
             id: 'mapbox/streets-v11',
             accessToken: 'pk.eyJ1IjoiZHVkeTgzIiwiYSI6ImNrNW1pbTA1djA4MHIzZGw1NTBjZHh5dW8ifQ.jJ8WpKmBG9WSoc5hWGALag'
         });
-
         // add the 2 maps design in an object we will use in the custom_menu() method
         this.baseLayers = 
         {
@@ -38,7 +30,6 @@ class SmartPortMap extends HTMLElement
         };
         // InitialZoom for large screen
         this.iniZoom = 9;
-
         // this will just try to get the good Zoom depending on screen width (mobile, tablet, computer)
         this.scaleZoom = () =>
         {
@@ -61,6 +52,8 @@ class SmartPortMap extends HTMLElement
         this.map.setView([43.7284, 5.9367], this.scaleZoom());
 
         this.markerObject = [];
+
+        this.moment = require('moment');
     }
     // this method is a specific function for the lifecycle of the component, and it's call when the custom element is inserted inside the DOM
     // so we call all the function here
@@ -69,6 +62,7 @@ class SmartPortMap extends HTMLElement
         this.create_stations();
         this.generate_wind();
         this.modele_pollution();
+        this.smoke_scenario();
     }
 
     // This method fetch the php route /api/map which is returning a json object containing all the the stations informations
@@ -186,51 +180,31 @@ class SmartPortMap extends HTMLElement
     modele_pollution()
     {
         let wms_adress = 'https://geoservices.atmosud.org/geoserver/azurjour/wms?';
-
-        let today = new Date().getDate();
-        let yesterday = (new Date().getDate()-1);
-        let month = new Date().getMonth();
-        let year = new Date().getFullYear();
         let result;
-        
-        // Must check if the new map is available in the geoserver. Else we show the yesterday map
-        if(new Date().getHours() >= "11")
-        {
-            let strDateToday = `${year} ${this.monthNames[month]} ${today}`;
 
-            let todayToTimestamp = this.toTimestamp(strDateToday);
-            console.log(`generated the WMS Map of date : ${today}/${this.monthNames[month]}/${year} J+0`)
-            result = `paca-multi-${todayToTimestamp}-1`;
+        if(new Date().getHours() >= "11") 
+            result = `paca-multi-${this.toTimestamp(this.moment().format('YYYY MM DD'))}-1`;
+        else 
+            result = `paca-multi-${this.toTimestamp(this.moment().subtract(1, 'days').format('YYYY MM DD'))}-2`;
 
-        } else {
-
-            let strDateYesterday = `${year} ${this.monthNames[month]} ${yesterday}`;
-            console.log(`generated the WMS Map of date : ${yesterday}/${this.monthNames[month]}/${year} J+1. Must wait until 11:00 to load the new model`)
-            let yesterdayToTimestamp = this.toTimestamp(strDateYesterday);
-
-            result = `paca-multi-${yesterdayToTimestamp}-2`;  
-        }
-
-        // Use the leaflet function to load the wms map
-        this.azur_paca_multi = L.tileLayer.wms(wms_adress, 
-        {
+        this.azurPacaMulti = L.tileLayer.wms(wms_adress, {
             layers: result,
             format: 'image/png',
             transparent: true,
             opacity: 0.6
         }).addTo(this.map);
+
+        this.azurPacaMulti.on('tileerror', (error, tile) => {
+            console.log(error);
+            console.log(tile);
+        });
     }
 
     // This method will fetch every hours a specific folder which contains all the json wind data for the next 24 hours
     generate_wind()
     {
-        let day = new Date().getDate();
-        let monthIndex = new Date().getMonth();
-        let year = new Date().getFullYear();
-        let hours = new Date().getHours();
-
         // Generate the url with the correct date time
-        fetch('cdn/js/wind' + '_' + this.dayNames[day] + this.monthNames[monthIndex] + year + '_' + this.hoursNames[hours] + '.json').then((response) =>
+        fetch(`cdn/js/wind_${this.moment().format('DDMMYYYY')}_${this.moment().format('HH')}.json`).then((response) =>
         {
             // Use the leaflet plugin to show the wind data: (leaflet-velocity.js) 
             return response.json().then((data) =>
@@ -247,20 +221,13 @@ class SmartPortMap extends HTMLElement
                     data: data,
                 }).addTo(this.map);
 
-                // All the layers are shown, so we can add all of them to the control menu thanks to custom_menu() method. 
                 this.custom_menu();
-
-                // The function checks every minutes if it's time to load the new wind model. 
-                setInterval(() => 
-                {
-                    if(new Date().getMinutes() == "00")
-                    {
+ 
+                setInterval(() => {
+                    if(new Date().getMinutes() == "00") {
                         this.generate_wind();
                         console.log("wind has been correctly generated");
-                    }
-        
-                    else
-                    {
+                    } else {
                         console.log("wind will be generated at "+ (new Date().getHours()+1) + ":00");
                     }
                 }, 60000);
@@ -429,15 +396,13 @@ class SmartPortMap extends HTMLElement
      */
     async get_mesures(id_poll_ue, code_station) 
     {
-        let day = (new Date().getDate()-5);
-        let monthIndex = new Date().getMonth();
-        let year = new Date().getFullYear();
+        const date = this.moment().subtract(5, 'days').format('YYYY/MM/DD');
 
         return new Promise((resolve, reject) =>
         {
             const createRequests = () =>
             {
-                const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+  year + '/' +  this.monthNames[monthIndex] + '/' + this.dayNames[day] + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27";
+                const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+date+ "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27";
 
                 const requestPoll = [];
 
@@ -467,38 +432,28 @@ class SmartPortMap extends HTMLElement
     }
 
     // this method uses the geoserver data and returns a Promise. 
-    // this Promise returns an array of the max measured NO2 at the date you want between 00:00 - 23:59 
+    // this Promise returns an array of the max measured NO2 at the deadline you want
     // => It push in the array the max value of the 24 measures. 
     // ==> repeat that according to the parameter 'ech' which means the deadline.
     /**
      * 
-     * @param {number} year 
-     * @param {number} month 
-     * @param {number} day 
      * @param {number} id_poll_ue 
      * @param {string} code_station 
      * @param {number} ech 
      */
-    get_mesures_max_jour(year, month, day, id_poll_ue, code_station, ech)
+    get_mesures_max_jour(id_poll_ue, code_station, ech)
     {
         return new Promise((resolve, reject) =>
         {
             const createRequests = () =>
             {
-                const results = [];
-        
+                const results = [];                
+
                 for(let i = 0; i <= ech; i++)
                 {
-                    let nextDate;
-
-                    if(i == 0)
-                    {
-                        nextDate = this.dayNames[day];
-                    } else {
-                        nextDate = this.dayNames[day+i];
-                    }
+                    const date = this.moment().subtract(i, 'days').format('YYYY/MM/DD');
                   
-                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+ year + "/" + month + "/" + nextDate + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27%20AND%20date_fin<=%27"+ year + "/" + month + "/" + nextDate +"%20" + "23:59" + "%27";
+                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + date + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27%20AND%20date_fin<=%27"+ date +"%20" + "23:59" + "%27";
                     const request = axios.get(url);
 
                     results.push(request);  
@@ -506,7 +461,7 @@ class SmartPortMap extends HTMLElement
                 return results;
             }
     
-            if(year && month && day && id_poll_ue && code_station && ech)
+            if(id_poll_ue && code_station && ech)
             {
                 const requests = createRequests();
     
@@ -564,19 +519,16 @@ class SmartPortMap extends HTMLElement
      * @param {number} lat 
      */
     draw_graph(code_station, nom_polluant, code_polluant, lon, lat)
-    {
-        let day = (new Date().getDate()-5);
-        let monthName = new Date().getMonth();
-        let year = new Date().getFullYear();
+    {                   
         let days = new Array();
         let vLimite;
         let maxPoint;
+        const newDate = new Date();
 
         let image = document.getElementById('image-'+code_station);
         let spinner = document.getElementById('spinner-'+code_station);
         let modal_body = document.getElementById('modal-'+code_station);
         let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
-               
         let gradient = ctx.createLinearGradient(300, 250, 300, 600);
         
         gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
@@ -609,9 +561,31 @@ class SmartPortMap extends HTMLElement
                 maxPoint = 400;
         }
 
+        let chartOptions = {
+            responsive: true,
+            title: {
+                fontSize: 20,
+                display: true,
+                text: 'Evolution des max horaires journaliers en ' + nom_polluant
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMax: maxPoint
+                    }
+                }]
+            },
+            legend: {
+                position: 'bottom',
+                display: true, 
+                labels: {fontSize: 10},                
+            },
+        }
+
         if(nom_polluant == "NO2" || nom_polluant == "O3")
         {
-            this.get_mesures_max_jour(year, this.monthNames[monthName], day, code_polluant, code_station, 4).then((data) =>
+            this.get_mesures_max_jour(code_polluant, code_station, 4).then((data) =>
             { 
                 // If the array results != -Infinity => It means that this station is actually measuring this pollutant. So we can create the graph.
                 // Else we show a message which means that this stations is not measuring this pollutant
@@ -627,9 +601,10 @@ class SmartPortMap extends HTMLElement
                         }
                 
                         for(let i = -5; i < 3; i++)
-                        {  
-                            day = new Date().getDate();                            
-                            days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
+                        {   
+                            newDate.setDate(newDate.getDate()+i)
+
+                            days.push(newDate.toLocaleString().substring(0, 10));
                         }
                         
                         new Chart(ctx, {
@@ -659,27 +634,7 @@ class SmartPortMap extends HTMLElement
                                     },
                                 ]
                             },
-                            options: {
-                                responsive: true,
-                                title: {
-                                    fontSize: 20,
-                                    display: true,
-                                    text: 'Evolution des max horaires journaliers en ' + nom_polluant
-                                },
-                                scales: {
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true,
-                                            suggestedMax: maxPoint
-                                        }
-                                    }]
-                                },
-                                legend: {
-                                    position: 'bottom',
-                                    display: true, 
-                                    labels: {fontSize: 10},                
-                                },
-                            }
+                            options: chartOptions
                         });
     
                     });
@@ -693,16 +648,17 @@ class SmartPortMap extends HTMLElement
             });
             
         } else if (nom_polluant == "SO2") {
-            
-            day = (new Date().getDate()-7);
 
-            this.get_mesures_max_jour(year, this.monthNames[monthName], day, code_polluant, code_station, 6).then((data) =>
+            newDate.setDate((newDate.getDate()-8));
+
+            this.get_mesures_max_jour(code_polluant, code_station, 7).then((data) =>
             {
                 if(data[0] != -Infinity || data[1] != -Infinity || data[2] != -Infinity || data[3] != -Infinity || data[4] != -Infinity)
                 {
-                    for(let i = 0; i < 7; i++)
+                    for(let i = 0; i < 8; i++)
                     {                              
-                        days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
+                        const date = this.moment(newDate).add(i, 'days').format('DD/MM/YYYY'); 
+                        days.push(date);
                     }
                     
                     new Chart(ctx, {
@@ -725,27 +681,7 @@ class SmartPortMap extends HTMLElement
                                 },
                             ]
                         },
-                        options: {
-                            responsive: true,
-                            title: {
-                                fontSize: 20,
-                                display: true,
-                                text: 'Evolution des max horaires journaliers en ' + nom_polluant
-                            },
-                            scales: {
-                                yAxes: [{
-                                    ticks: {
-                                        beginAtZero: true,
-                                        suggestedMax: maxPoint
-                                    }
-                                }]
-                            },
-                            legend: {
-                                position: 'bottom',
-                                display: true, 
-                                labels: {fontSize: 10},                
-                            },
-                        }
+                        options: chartOptions
                     });
         
                     spinner.style.visibility = "hidden";
@@ -760,7 +696,9 @@ class SmartPortMap extends HTMLElement
             this.get_mesures(5, code_station).then((data) =>
             {
                 if(data.length > 0)
-                {    
+                {  
+                    newDate.setDate((newDate.getDate()-5));
+
                     this.get_previsions(lon, lat, nom_polluant).then((PrevisionData) =>
                     {
                         PrevisionData.unshift(data[data.length-1]);
@@ -770,10 +708,10 @@ class SmartPortMap extends HTMLElement
                             PrevisionData.unshift(null);
                         }
                 
-                        for(let i = -5; i < 3; i++)
+                        for(let i = 0; i < 8; i++)
                         {  
-                            day = new Date().getDate();                            
-                            days.push((day+i) + '/' + this.monthNames[monthName] + '/' + year);
+                            const date = this.moment(newDate).add(i, 'days').format('DD/MM/YYYY');                         
+                            days.push(date);
                         }
                         
                         new Chart(ctx, {
@@ -810,19 +748,8 @@ class SmartPortMap extends HTMLElement
                                     display: true,
                                     text: 'Evolution des moyennes journalières en ' + nom_polluant
                                 },
-                                scales: {
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true,
-                                            suggestedMax: maxPoint
-                                        }
-                                    }]
-                                },
-                                legend: {
-                                    position: 'bottom',
-                                    display: true, 
-                                    labels: {fontSize: 10},                
-                                },
+                                scales: chartOptions.scales,
+                                legend: chartOptions.legend,
                             }
                         });
     
@@ -840,16 +767,28 @@ class SmartPortMap extends HTMLElement
     // fetching api_search with a body containing the value of the search input.
     // api_search php function will decode this string, try a SQL request with it, and returns results.
     // Here, we use the response results to display informations.
-    // Then 
+    // Then we add EventListener on click of each result, it will set the map view over the clicked station and open his pop up
     search_station()
     {
         let search = document.getElementById('search-tool-input');
         let resultsContainer = document.getElementById('container-results-search');
+        let baseTemplate = `
+            <div class="w-100 d-flex align-items-center justify-content-center" style="margin-top:25vh;">
+                <img src="/images/locationsearch.png" width="256px">
+            </div>
+            <div class=""w-100>
+                <p style="text-align: center;">Rechercher par stations ou code stations !</p>
+            </div>`;
+
+        resultsContainer.innerHTML = baseTemplate;
         
         const createRequests = (e) => {
-            if(e.target.value == "") {
-                return;
-            } else {
+
+             if(e.keyCode == 8 && e.target.value == "") {
+                 resultsContainer.innerHTML = baseTemplate;
+                 return;
+             }
+
                 let value = {};
                 value.content = e.target.value;
 
@@ -859,13 +798,14 @@ class SmartPortMap extends HTMLElement
                 }).then((response) => 
                 {
                     return response.json().then((data) => {
+                        
                         if(data.result) {
 
                             let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
 
                             JSON.parse(data.results).forEach(elm => {
                                
-                                childrenResults += `<div class="searchResults w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;" id="${elm.id}" station="${elm.nom}" lon="${elm.lon}" lat="${elm.lat}">${elm.nom}</div>`;
+                                childrenResults += `<div class="searchResults w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;" id="${elm.id}" station="${elm.nom}" lon="${elm.lon}" lat="${elm.lat}">${elm.nom} - ${elm.id}</div>`;
 
                             });
 
@@ -877,19 +817,15 @@ class SmartPortMap extends HTMLElement
                                 
                                 let lon = element.getAttribute('lon');
                                 let lat = element.getAttribute('lat');
-                                let nomStation = element.getAttribute('station');
-                                let id = element.getAttribute('id');
-                                let NO2trigger = document.getElementById('NO2-'+id);
+                                let NO2trigger = document.getElementById('NO2-'+element.getAttribute('id'));
                                 
-                                NO2trigger.click();
-                            
                                 element.addEventListener('click', () => {
                                     this.map.setView([lat, lon], 14);
-                                    
-                                    for (var i in this.markerObject)
-                                    {
+                                    NO2trigger.click();
+
+                                    for (var i in this.markerObject) {
                                         let markerID = this.markerObject[i].options.title;
-                                        if (markerID == nomStation){
+                                        if (markerID == element.getAttribute('station')) {
                                             this.markerObject[i].openPopup();
                                         };
                                     }
@@ -908,10 +844,39 @@ class SmartPortMap extends HTMLElement
                     })
                     
                 })
-            }
+            
         }
 
-        search.addEventListener('keypress', createRequests);
+        search.addEventListener('keyup', createRequests);
+    }
+
+    smoke_scenario()
+    {        
+        let boatMarker = L.boatMarker([43.343693, 5.335189], {
+            color: "#727272", 
+            idleCircle: false	        
+        }).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><button id="modalBtn-scenario-pollution" type="button" class="btn btn-success w-100" data-toggle="modal" data-target="#mod-scenario-pollution"><i class="fas fa-chart-line mr-2"></i>Scénario Pollution</button></div>').addTo(this.map);
+
+        boatMarker.setHeading(300);
+
+        let video = document.getElementById('scenario-video');
+
+        let playPauseBtn = document.getElementById('play-pause-scenario');
+
+        playPauseBtn.onclick = () => {
+    
+            let i = 0;
+
+            let test = setInterval(() => {
+                video.src = `images/scenario/Marseille-port-${i}.png`;
+                i++;
+                    
+                if(i == 12) {
+                    video.src = `images/scenario/Marseille-port-0.png`;
+                    clearInterval(test); 
+                }
+            }, 500);
+        }
     }
 
     // Just add EventListeners to the NO2, O3, SO2 buttons onclick. It will call the draw_graph() method
@@ -970,9 +935,8 @@ class SmartPortMap extends HTMLElement
         let controls = 
         {
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marker-alt fa-fw'></i></div> <p class='control-menu-text-content'>Station</p><div class='check'></div></span>": this.show_stations,
-            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-smog fa-fw'></i></div> <p class='control-menu-text-content'>Pollution</p><div class='check'></div></span>": this.azur_paca_multi,
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-smog fa-fw'></i></div> <p class='control-menu-text-content'>Pollution</p><div class='check'></div></span>": this.azurPacaMulti,
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-wind fa-fw'></i></div> <p class='control-menu-text-content'>Vent</p><div class='check'></div></span>": this.wind
-
         }
 
         L.control.layers(this.baseLayers, controls, {collapsed: false, position: 'topleft'}).addTo(this.map);
@@ -1041,6 +1005,8 @@ class SmartPortMap extends HTMLElement
 
             setTimeout(() =>{
                 searchContainer.setAttribute('class', 'not-loaded');
+                document.getElementById('search-tool-input').value = "";
+                document.getElementsByClassName('map-search-results')[0].innerHTML = "";
             }, 500);
         });
     }

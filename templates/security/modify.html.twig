@@ -1,23 +1,74 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('forms') }}
+{% endblock %}
+
 {% block body %}
 
-<div class="form-container w-100 d-flex justify-content-center align-items-center" style="height:100vh;">
-
-    <div class="form w-25 d-flex flex-column justify-content-center align-items-center" style="color:#fff;">
+<div id="form-login"  class="form-container w-25 d-flex justify-content-center align-items-center" style="height:100vh;">
+    
+    <div class="form w-100 d-flex flex-column justify-content-center align-items-center" style="color:#fff;">
   
   {{form_start(form, {'attr': {'class': 'w-100'}})}}
-        {{form_row(form.username, {'label': 'Nom d\'utilisateur', 'attr': {'placeholder': 'Entrez un nom d\'utilisateur'}})}}
-        {{form_row(form.old_password, {'label': 'Ancien mot de passe', 'attr': {'placeholder': 'Entrez un nom d\'utilisateur'}})}}
-        {{form_row(form.password, {'label': 'Mot de passe', 'attr': {'placeholder': 'Entrez un mot de passe'}})}}
-        {{form_row(form.confirm_password, {'label': 'Confirmez le mot de passe', 'attr': {'placeholder': 'Confirmez le mot de passe'}})}}
-        <button type="submit" class="btn btn-success rounded w-100 m-0"><i class="fas fa-user-edit mr-2"></i>
-            Modifier</button>
+
+            <div class="form-group w-100">
+                {{ form_errors(form.username) }}
+                <div class="group w-100"> 
+                    
+                    {{ form_widget(form.username) }}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-user mr-2"></i> Nom d'utilisateur</label>
+                </div>
+            </div>
+
+            <div class="form-group w-100">
+                {{ form_errors(form.old_password) }}
+                <div class="group w-100"> 
+                    
+                    {{ form_widget(form.old_password) }}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Ancien mot de passe</label>
+                </div>
+            </div>
+
+            <div class="form-group w-100">
+                {{ form_errors(form.password) }}
+                <div class="group w-100"> 
+                    
+                    {{ form_widget(form.password) }}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Nouveau mot de passe</label>
+                </div>
+            </div>
+
+            <div class="form-group w-100">
+                {{ form_errors(form.confirm_password) }}
+                <div class="group w-100"> 
+                    
+                    {{ form_widget(form.confirm_password) }}
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label for="login-input-email" class="required active"><i class="fas fa-unlock-alt mr-2"></i> Confirmer le mot de passe</label>
+                </div>
+            </div>
+
+
+
+        <button type="submit" class="btn btn-success rounded w-100 m-0"><i class="fas fa-user-edit mr-2"></i>Modifier</button>
         <a data-toggle="modal" data-target="#delete-account" class="btn btn-danger w-100 m-0 mt-2" href="{{ path('security_delete_user') }}"><i class="fas fa-trash-alt mr-2"></i>Supprimer</a>
 
     {{form_end(form)}}
 
-    <div>
+    </div>
+</div>
+
+<div id="form-image" class="w-75 d-flex flex-column justify-content-center align-items-center">
+    <img src="images/logo/logo_transparent.png" width="40%">
 </div>
 
 <div style="z-index: 7000;" class="modal fade" id="delete-account" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -48,51 +99,12 @@
     {
         background-image: linear-gradient(to bottom, #6bba62, #52ae6b, #3ea272, #2f9576, #2a8776, #248078, #247979, #287177, #266e7b, #296b7e, #306780, #386380);
     }
-
-    label, .form-group
-    {
-        color: #fff;
-    }
-
-    label[for="reset_password_username"]::before 
-    {
-        font-family: "Font Awesome 5 Free";
-        content: "\f007";
-        margin-right: 0.5rem;
-    }
 </style>
 
-<script>
-    divPassword = document.getElementsByClassName('form-group')[1];
-    var labelConfirmPassword = document.getElementsByClassName('required')[1];
-    
-    var iPassword = document.createElement('i');
-    var iConfirm = document.createElement('i');
-    iPassword.setAttribute('class', 'fas fa-unlock-alt mr-2');
-    iConfirm.setAttribute('class', 'fas fa-unlock-alt mr-2');
+{% endblock %}
 
-    divPassword.insertBefore(iConfirm, labelConfirmPassword);
-
-    divPassword = document.getElementsByClassName('form-group')[2];
-    var labelConfirmPassword = document.getElementsByClassName('required')[2];
-    
-    var iPassword = document.createElement('i');
-    var iConfirm = document.createElement('i');
-    iPassword.setAttribute('class', 'fas fa-unlock-alt mr-2');
-    iConfirm.setAttribute('class', 'fas fa-unlock-alt mr-2');
-
-    divPassword.insertBefore(iConfirm, labelConfirmPassword);
-
-    divPassword = document.getElementsByClassName('form-group')[3];
-    var labelConfirmPassword = document.getElementsByClassName('required')[3];
-    
-    var iPassword = document.createElement('i');
-    var iConfirm = document.createElement('i');
-    iPassword.setAttribute('class', 'fas fa-unlock-alt mr-2');
-    iConfirm.setAttribute('class', 'fas fa-unlock-alt mr-2');
-
-    divPassword.insertBefore(iConfirm, labelConfirmPassword);
-</script>
-
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('forms') }}
 {% endblock %}
 

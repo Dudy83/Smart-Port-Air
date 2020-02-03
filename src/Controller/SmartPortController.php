@@ -66,17 +66,26 @@ class SmartPortController extends AbstractController
 
             $content = $requestContent["content"];
 
-            $db = new \PDO('mysql:host=127.0.0.1;dbname=smartport', 'root', '');
-            $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $config = new \Doctrine\DBAL\Configuration();
+
+            $connectionParams = array(
+                'dbname' => 'smartport',
+                'user' => 'root',
+                'password' => '',
+                'host' => '127.0.0.1:3306',
+                'driver' => 'pdo_mysql',
+            );
+
+            $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
                     
             // Prepare the query
-            $sql = $db->prepare("SELECT nom, lon, lat, id FROM `chimie_stations2` WHERE nom LIKE '%$content%' AND aasqa = 'PACA'");
+            $sql = "SELECT nom, lon, lat, id FROM `chimie_stations2` WHERE nom LIKE '%$content%' OR id LIKE '%$content%' AND aasqa = 'PACA'";
             // Execute SQL query
-            $sql->execute();
+            $stmt = $conn->query($sql);
             //Prepare an array to push all the results from the query
             $results = array();
             // Processing...
-            while($data = $sql->fetch())
+            while($data = $stmt->fetch())
             {
                 $results[] = $data; 
             } 
