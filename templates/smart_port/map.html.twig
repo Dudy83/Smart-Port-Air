@@ -3,6 +3,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="https://unpkg.com/balloon-css/balloon.min.css">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.5.6/plyr.css" />
     {{ encore_entry_link_tags('map') }}
 {% endblock %}
 
@@ -52,10 +53,13 @@
                             </button>
                     </div>
                     <div id="scenario-modal-body" class="modal-body">
-                        <img id="scenario-video" src="images/scenario/Marseille-port-0.png" alt="scenario-video" width="100%">
+                        <video id="player" playsinline controls>
+                            <source src="videos/seq_emission_port.mp4" type="video/mp4" />
+                        
+                            <!-- Captions are optional -->
+                        </video>
                     </div>
-                    <div class="modal-footer d-flex justify-content-between align-items-center">   
-                        <button id="play-pause-scenario" class="btn btn-success"><i class="far fa-play-circle mr-2"></i>Démarrer</button>       
+                    <div class="modal-footer d-flex justify-content-end align-items-center">   
                         <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="far fa-times-circle mr-2"></i>Fermer</button>
                     </div>
                 </div>
@@ -71,5 +75,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
     <script src="cdn/js/jquery-3.4.1.min.js"></script>
     <script src="https://unpkg.com/leaflet.boatmarker/leaflet.boatmarker.min.js"></script>
+    <script src="https://cdn.plyr.io/3.5.6/plyr.polyfilled.js"></script>
     {{ encore_entry_script_tags('map') }}
+    {{ encore_entry_script_tags('chart') }}
 {% endblock %}
