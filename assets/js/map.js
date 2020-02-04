@@ -1,7 +1,5 @@
 require('../css/map.scss');
 import chartDrawing from './chart.js';
-import Plyr from 'plyr';
-
 // the class SmartPortMap which contain all the features of the mapn and extending HTMLElement to create a custom html tag
 class SmartPortMap extends HTMLElement 
 {
@@ -14,14 +12,13 @@ class SmartPortMap extends HTMLElement
         this.markerObject = new Array();
         this.moment = require('moment');
         this.iniZoom = 9;
-        this.attrib = '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2020 </a>| © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | © <a href="https://www.mapbox.com/">Mapbox</a>';
         
         this.darkMap = L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", { 
-            attribution: this.attrib 
+            attribution: '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2020 </a>| © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | © <a href="https://www.mapbox.com/">Mapbox</a>'
         });
         
         this.mapboxMap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-            attribution: this.attrib,
+            attribution: '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2020 </a>| © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | © <a href="https://www.mapbox.com/">Mapbox</a>',
             maxZoom: 18,
             id: 'mapbox/streets-v11',
             accessToken: 'pk.eyJ1IjoiZHVkeTgzIiwiYSI6ImNrNW1pbTA1djA4MHIzZGw1NTBjZHh5dW8ifQ.jJ8WpKmBG9WSoc5hWGALag'
@@ -57,24 +54,21 @@ class SmartPortMap extends HTMLElement
 
         this.boatMarker.setHeading(300);
     }
-    // this method is a specific function for the lifecycle of the component, and it's call when the custom element is inserted inside the DOM
-    // so we call all the function here
+
     connectedCallback()
     {
-        this.create_stations();
-        this.generate_wind();
-        this.modele_pollution();
+        this.createStations();
+        this.generateWind();
+        this.wmsMap();
     }
 
-    // This method fetch the php route /api/map which is returning a json object containing all the the stations informations
-    // You can see the php function at : /src/Controller/SmartPortController.php
-    create_stations()
+    createStations()
     {
         fetch('/api/map').then((response) => {
             
             return response.json().then((data) => {
                 
-                if(data.code == '200') {
+                if(response.ok) {
 
                     JSON.parse(data.results).forEach((station) => {
                         let feature = {
@@ -84,7 +78,7 @@ class SmartPortMap extends HTMLElement
                                 coordinates: [station.lon, station.lat],
                             },
                             nom: station.nom,
-                            station_id: station.id,
+                            stationId: station.id,
                         } 
 
                         this.stations.push(feature);
@@ -97,7 +91,6 @@ class SmartPortMap extends HTMLElement
             
                         pointToLayer: (feature, latlng) => 
                         {
-                            
                             let circle = new L.CircleMarker(latlng, {title: feature.nom});
                             this.markerObject.push(circle);
                             return circle;
@@ -106,16 +99,16 @@ class SmartPortMap extends HTMLElement
                         onEachFeature: (feature, layer) =>
                         {
                             // add a popup on every feature which contains a button bounded to a modal
-                            layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.nom +  '</h5><button id="modalBtn'+feature.station_id+'" code='+feature.station_id+' lon='+feature.geometry.coordinates[0]+' lat='+feature.geometry.coordinates[1]+' type="button" class="btn btn-success w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.station_id+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
+                            layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.nom +  '</h5><button id="modalBtn'+feature.stationId+'" code='+feature.stationId+' lon='+feature.geometry.coordinates[0]+' lat='+feature.geometry.coordinates[1]+' type="button" class="btn btn-success w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.stationId+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
                             
                             // add eventListener onclick of the popup button. It will open the modal and call getNO2() method to draw the graph in the modal
                             layer.on('click', () => {
-                                document.getElementById('NO-'+feature.station_id).click();
+                                document.getElementById('NO-'+feature.stationId).click();
                             });
                             
                             // Create a modal for each stations
                             document.getElementById('modals-container').innerHTML += `
-                            <div style="z-index: 7000;" class="modal fade right" id="mod-`+feature.station_id+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                            <div style="z-index: 7000;" class="modal fade right" id="mod-`+feature.stationId+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
                                 
                                 <div class="modal-dialog modal-full-height modal-right w-100" role="document" style="position: fixed !important;right: 0;height: 100%;top: 0;margin: 0;">
                                 
@@ -126,25 +119,28 @@ class SmartPortMap extends HTMLElement
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                             <h4 class="modal-title w-100" id="myModalLabel" style="text-align:center;">`+feature.nom+ `</h4>
-                                            <h4 id="`+feature.station_id+`">`+feature.station_id+`</h4>
+                                            <h4 id="`+feature.stationId+`">`+feature.stationId+`</h4>
                                         </div>
                                     
                                         <div class="modal-body">
-                                            <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.station_id+`">
+                                            <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.stationId+`">
                                                 <li class="nav-item">
-                                                    <a id="NO-`+feature.station_id+`" class="NO2graph nav-link active" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
+                                                    <a id="NO-`+feature.stationId+`" class="NO2graph nav-link active" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a id="O3-`+feature.station_id+`" class="O3graph nav-link" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
+                                                    <a id="O3-`+feature.stationId+`" class="O3graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a id="PM-`+feature.station_id+`" class="PM10graph nav-link" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
+                                                    <a id="PM-`+feature.stationId+`" class="PM10graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a id="SO-`+feature.station_id+`" class="SO2graph nav-link" href="#" code="`+feature.station_id+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
+                                                    <a id="SO-`+feature.stationId+`" class="SO2graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a id="MP-`+feature.stationId+`" class="PM25graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM2.5</a>
                                                 </li>
                                             </ul>
-                                            <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.station_id+`">
+                                            <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.stationId+`">
 
                                             </div>
                                         </div>
@@ -156,6 +152,8 @@ class SmartPortMap extends HTMLElement
                             </div>`;
                         } 
                     }).addTo(this.map);
+                } else {
+                    throw new Error(': Ajax Request failed... response status :' + response.status);
                 }
 
             }).then(() => {
@@ -166,10 +164,9 @@ class SmartPortMap extends HTMLElement
         });
     }
 
-    // This method fetch the azur-mutli wms map in the geoserver 
-    modele_pollution()
+    wmsMap()
     {
-        let wms_adress = 'https://geoservices.atmosud.org/geoserver/azurjour/wms?';
+        let wmsAdress = 'https://geoservices.atmosud.org/geoserver/azurjour/wms?';
         let result;
 
         if(new Date().getHours() >= "11") 
@@ -177,7 +174,7 @@ class SmartPortMap extends HTMLElement
         else 
             result = `paca-multi-${this.toTimestamp(this.moment().subtract(1, 'days').format('YYYY MM DD'))}-2`;
 
-        this.azurPacaMulti = L.tileLayer.wms(wms_adress, {
+        this.azurPacaMulti = L.tileLayer.wms(wmsAdress, {
             layers: result,
             format: 'image/png',
             transparent: true,
@@ -190,10 +187,8 @@ class SmartPortMap extends HTMLElement
         });
     }
 
-    // This method will fetch every hours a specific folder which contains all the json wind data for the next 24 hours
-    generate_wind()
+    generateWind()
     {
-        // Generate the url with the correct date time
         fetch(`cdn/js/wind_${this.moment().format('DDMMYYYY')}_${this.moment().format('HH')}.json`).then((response) => {
             
             return response.json().then((data) => {
@@ -214,7 +209,7 @@ class SmartPortMap extends HTMLElement
  
                 setInterval(() => {
                     if(new Date().getMinutes() == "00") {
-                        this.generate_wind();
+                        this.generateWind();
                         console.log("wind has been correctly generated");
                     } else {
                         console.log("wind will be generated at "+ (new Date().getHours()+1) + ":00");
@@ -222,6 +217,97 @@ class SmartPortMap extends HTMLElement
                 }, 60000);
             })
         });  
+    }
+
+    /**
+     * @param {number} codeStation 
+     * @param {string} nom_polluant 
+     * @param {number} code_polluant 
+     * @param {number} lon 
+     * @param {number} lat 
+     */
+    drawGraph(codeStation, nom_polluant, code_polluant, lon, lat)
+    {   
+        let image = document.getElementById('image-'+codeStation);
+        let spinner = document.getElementById('spinner-'+codeStation);
+        let modalBody = document.getElementById('modal-'+codeStation);
+        let ctx = document.getElementById('canvas-'+codeStation).getContext("2d");
+
+        if(nom_polluant == "NO2" || nom_polluant == "O3") {    
+            
+            this.getMesuresMaxJour(code_polluant, codeStation, 4).then((data) => { 
+                
+                for (const validator of data) {
+                    if(validator === -Infinity) {
+                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                        return;
+                    }
+                }   
+
+                this.getPrevisions(lon, lat, nom_polluant).then((PrevisionData) => {
+                    new chartDrawing(nom_polluant, ctx).drawMesureMaxAndPrevi(data, PrevisionData);
+                });
+
+                spinner.style.visibility = "hidden";
+                image.style.visibility = "visible";
+            });
+            
+        } else if (nom_polluant == "SO2") {
+
+            this.getMesuresMaxJour(code_polluant, codeStation, 7).then((data) => {
+            
+                for (const validator of data) {
+                    if(validator === -Infinity) {
+                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                        return;
+                    }
+                }  
+                    
+                new chartDrawing(nom_polluant, ctx).drawMesureMax(data);
+        
+                spinner.style.visibility = "hidden";
+                image.style.visibility = "visible";
+                                    
+            });
+
+        } else if (nom_polluant == "PM10"){
+
+            this.getMesures(5, codeStation).then((data) => {
+                
+                if(data.length == 0) {  
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                    return;
+                }
+
+                this.getPrevisions(lon, lat, nom_polluant).then((previsionData) =>
+                {
+                    new chartDrawing(nom_polluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
+                });
+
+                spinner.style.visibility = "hidden";
+                image.style.visibility = "visible";
+ 
+            });
+        } else if (nom_polluant == "PM25") {
+
+            this.getMesures(6001, codeStation).then((data) => {
+
+                if(data.length == 0) {  
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant:'+' '+nom_polluant+'</div>';
+                    return;
+                }
+
+                this.getPrevisions(lon, lat, nom_polluant).then((previsionData) =>
+                {
+                    console.log(previsionData);
+                    new chartDrawing(nom_polluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
+                });
+
+                spinner.style.visibility = "hidden";
+                image.style.visibility = "visible";
+ 
+            });
+        }
     }
 
     getGraph(e)
@@ -236,56 +322,58 @@ class SmartPortMap extends HTMLElement
 
         let lat = station.getAttribute('lat');
 
-        let code_station = station.getAttribute('code');
+        let codeStation = station.getAttribute('code');
 
-        let modal = document.getElementById('mod-'+code_station);
+        let modal = document.getElementById('mod-'+codeStation);
 
-        let nav = modal.querySelector('#nav-'+code_station);
+        let nav = modal.querySelector('#nav-'+codeStation);
 
-        let container = modal.querySelector('#modal-'+code_station);
+        let container = modal.querySelector('#modal-'+codeStation);
 
-        container.innerHTML = `<div id="spinner-${code_station}" class="loader spinner-border"></div>`;
+        container.innerHTML = `<div id="spinner-${codeStation}" class="loader spinner-border"></div>`;
 
-        nav.querySelector('#NO-'+code_station).classList.remove('active');
-        nav.querySelector('#O3-'+code_station).classList.remove('active');
-        nav.querySelector('#PM-'+code_station).classList.remove('active');
-        nav.querySelector('#SO-'+code_station).classList.remove('active');
-        nav.querySelector('#'+polluant+'-'+code_station).classList.add('active');
+        nav.querySelector('#NO-'+codeStation).classList.remove('active');
+        nav.querySelector('#O3-'+codeStation).classList.remove('active');
+        nav.querySelector('#PM-'+codeStation).classList.remove('active');
+        nav.querySelector('#SO-'+codeStation).classList.remove('active');
+        nav.querySelector('#MP-'+codeStation).classList.remove('active');
+        nav.querySelector('#'+polluant+'-'+codeStation).classList.add('active');
 
         container.innerHTML += `
-            <img class="charts-legend" id="image-${code_station}" src="images/legend_${polluant}.png">
-            <canvas class="chartjs-render-monitor" id="canvas-${code_station}" width="600" height="600"></canvas>`;
+        <img class="charts-legend" id="image-${codeStation}" src="images/legend_${polluant}.png">
+        <canvas class="chartjs-render-monitor" id="canvas-${codeStation}" width="600" height="600"></canvas>`;
        
-        let image = document.getElementById('image-'+code_station);
+        let image = document.getElementById('image-'+codeStation);
 
         image.style.visibility = "hidden";
 
         if(polluant == "SO") 
-            this.drawGraph(code_station, "SO2", 1);
+            this.drawGraph(codeStation, "SO2", 1);
         else if(polluant == "PM") {
-            this.drawGraph(code_station, "PM10", 5, lon, lat);
+            this.drawGraph(codeStation, "PM10", 5, lon, lat);
         }  else if(polluant == "O3") {
-            this.drawGraph(code_station, "O3", 7, lon, lat);
+            this.drawGraph(codeStation, "O3", 7, lon, lat);
         } else if(polluant == "NO") {
-            this.drawGraph(code_station, "NO2", 8, lon, lat);
-        }
+            this.drawGraph(codeStation, "NO2", 8, lon, lat);
+        }  else if(polluant == "MP") {
+            this.drawGraph(codeStation, "PM25", 6001, lon, lat);
+        } 
 
     }
 
     /**
      * @param {number} id_poll_ue 
-     * @param {string} code_station  
+     * @param {string} codeStation  
      */
-    async getMesures(id_poll_ue, code_station) 
+    getMesures(id_poll_ue, codeStation) 
     {
         const date = this.moment().subtract(5, 'days').format('YYYY/MM/DD');
 
-        return new Promise((resolve, reject) =>
-        {
-            const createRequests = () =>
-            {
-                const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+date+ "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27";
-
+        return new Promise((resolve, reject) => {
+            
+            const createRequests = () => {
+                const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+date+ "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+codeStation+"%27";
+                console.log(getURL);
                 const requestPoll = [];
 
                 const request = axios.get(getURL);
@@ -295,12 +383,11 @@ class SmartPortMap extends HTMLElement
                 return requestPoll;
             }
 
-            if(id_poll_ue && code_station)
-            {
+            if(id_poll_ue && codeStation) {
+
                 const requests = createRequests();
 
-                Promise.all(requests).then(responseS =>
-                {
+                Promise.all(requests).then(responseS => {
                     const data = responseS.map(response => response.data.features.map(feature => feature.properties.valeur));
 
                     const values = data[0];
@@ -316,10 +403,10 @@ class SmartPortMap extends HTMLElement
 
     /**
      * @param {number} id_poll_ue 
-     * @param {string} code_station 
+     * @param {string} codeStation 
      * @param {number} ech 
      */
-    getMesuresMaxJour(id_poll_ue, code_station, ech)
+    getMesuresMaxJour(id_poll_ue, codeStation, ech)
     {
         return new Promise((resolve, reject) => {
             
@@ -329,7 +416,7 @@ class SmartPortMap extends HTMLElement
 
                 for(let i = 0; i <= ech; i++) {
                     const date = this.moment().subtract(i, 'days').format('YYYY/MM/DD');
-                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + date + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+code_station+"%27%20AND%20date_fin<=%27"+ date +"%20" + "23:59" + "%27";
+                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + date + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+codeStation+"%27%20AND%20date_fin<=%27"+ date +"%20" + "23:59" + "%27";
                     const request = axios.get(url);
 
                     results.push(request);  
@@ -337,7 +424,7 @@ class SmartPortMap extends HTMLElement
                 return results;
             }
     
-            if(id_poll_ue && code_station && ech) {
+            if(id_poll_ue && codeStation && ech) {
 
                 const requests = createRequests();
     
@@ -379,77 +466,6 @@ class SmartPortMap extends HTMLElement
         }
     }
 
-    /**
-     * @param {number} code_station 
-     * @param {string} nom_polluant 
-     * @param {number} code_polluant 
-     * @param {number} lon 
-     * @param {number} lat 
-     */
-    drawGraph(code_station, nom_polluant, code_polluant, lon, lat)
-    {   
-        let image = document.getElementById('image-'+code_station);
-        let spinner = document.getElementById('spinner-'+code_station);
-        let modalBody = document.getElementById('modal-'+code_station);
-        let ctx = document.getElementById('canvas-'+code_station).getContext("2d");
-
-        if(nom_polluant == "NO2" || nom_polluant == "O3") {    
-            
-            this.getMesuresMaxJour(code_polluant, code_station, 4).then((data) => { 
-                
-                for (const validator of data) {
-                    if(validator === -Infinity) {
-                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
-                        return;
-                    }
-                }   
-
-                this.getPrevisions(lon, lat, nom_polluant).then((PrevisionData) => {
-                    new chartDrawing(nom_polluant, ctx).drawMesureMaxAndPrevi(data, PrevisionData);
-                });
-
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
-            });
-            
-        } else if (nom_polluant == "SO2") {
-
-            this.getMesuresMaxJour(code_polluant, code_station, 7).then((data) => {
-            
-                for (const validator of data) {
-                    if(validator === -Infinity) {
-                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
-                        return;
-                    }
-                }  
-                    
-                new chartDrawing(nom_polluant, ctx).drawMesureMax(data);
-        
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
-                                    
-            });
-
-        } else {
-
-            this.getMesures(5, code_station).then((data) =>
-            {
-                if(data.length == 0) {  
-                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
-                    return;
-                }
-
-                this.getPrevisions(lon, lat, nom_polluant).then((previsionData) =>
-                {
-                    new chartDrawing(nom_polluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
-                });
-
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
- 
-            });
-        }
-    }
 
     searchStations()
     {
@@ -467,11 +483,11 @@ class SmartPortMap extends HTMLElement
         
         const createRequests = (e) => {
 
-             if(e.keyCode == 8 || e.target.value.length <= 1) {
+             if(e.keyCode == 8 && e.target.value.length <= 1) {
                  resultsContainer.innerHTML = baseTemplate;
                  return;
              }
-
+                console.log(this.markerObject);
                 let value = {};
                 value.content = e.target.value;
 
@@ -480,6 +496,8 @@ class SmartPortMap extends HTMLElement
                     body: JSON.stringify(value)
                 }).then((response) => 
                 {
+                    if(!response.ok) return;
+                    
                     return response.json().then((data) => {
                         
                         if(data.result) {
@@ -498,15 +516,11 @@ class SmartPortMap extends HTMLElement
 
                             document.getElementsByClassName('searchResults').forEach((element) => {
                                 
-                                let lon = element.getAttribute('lon');
-                                let lat = element.getAttribute('lat');
-                                let NO2trigger = document.getElementById('NO2-'+element.getAttribute('id'));
-                                
                                 element.addEventListener('click', () => {
-                                    this.map.setView([lat, lon], 14);
-                                    NO2trigger.click();
+                                    this.map.setView([element.getAttribute('lat'), element.getAttribute('lon')], 14);
+                                    document.getElementById('NO-'+element.getAttribute('id')).click();
 
-                                    for (var i in this.markerObject) {
+                                    for (let i in this.markerObject) {
                                         let markerID = this.markerObject[i].options.title;
                                         if (markerID == element.getAttribute('station')) {
                                             this.markerObject[i].openPopup();
@@ -556,6 +570,12 @@ class SmartPortMap extends HTMLElement
         });
 
         document.getElementsByClassName('PM10graph').forEach((element) => {
+            element.addEventListener('click', (e) => {
+                self.getGraph(e);
+            });
+        });
+
+        document.getElementsByClassName('PM25graph').forEach((element) => {
             element.addEventListener('click', (e) => {
                 self.getGraph(e);
             });
