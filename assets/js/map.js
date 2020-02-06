@@ -16,6 +16,7 @@ class SmartPortMap extends HTMLElement
         this.createStations();
         this.wmsMap();
         this.generateWind();
+        this.addCustomMesures();
     }
 
     initiateMap()
@@ -568,6 +569,60 @@ class SmartPortMap extends HTMLElement
         search.addEventListener('keyup', createRequests);
     }
 
+    addCustomMesures()
+    {
+        let submitBtn = document.getElementById('add-mesures-submit-btn');
+        let inputSelect = document.getElementById('add-mesures-select');
+        let inputDate = document.getElementById('add-mesures-date');
+        let inputFile = document.getElementById('add-mesures-file');
+
+        const createRequests = () => {
+            
+            if(!inputDate.value.match( /\d{2}-\d{2}-\d{4}/ ) && !inputSelect.value == 0 && !inputFile.value.split('.').pop() == "json") 
+                return document.innerHTML += `
+                    <div class="alert alert-danger w-100" role="alert">
+                        Veuillez entrez des données valides.
+                    </div>`;
+
+            let data = {
+                values: {
+                    polluant: inputSelect.value,
+                    date: inputDate.value,
+                    file: inputFile.value,
+                }
+            }
+                fetch('api/add/mesures', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                }).then((response) => {
+                    if(!response.ok) throw new Error(': Ajax request failed... ');
+
+                    return response.json().then((result) => {
+                        if(!result.ok) return;
+                        
+                        let data  = JSON.parse(result.data);
+
+                        let circle = new CircleMarker([data.lat, data.lon], {
+                            radius: 25,
+                            fillColor: "#24D238",
+                            color: "#A9F6B2",
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 1,
+                          }).addTo(this.map);
+
+                        circle.bindPopup('<h1>test</h1>');
+
+                        circle.click();
+                    })
+                })
+            } 
+            
+            submitBtn.addEventListener('click', createRequests);
+        }
+
+        
+    
     /**
      * @param {date} strDate 
      */
@@ -615,6 +670,10 @@ class SmartPortMap extends HTMLElement
         let searchMenuBtn = document.getElementById('toggle-search');
         let searchMenuBtnLeaver = document.getElementById('search-leaver');
 
+        let addMenu = document.getElementById('add-mesures');
+        let addMenuBtn = document.getElementById('toggle-add');
+        let addMenuBtnLeaver = document.getElementById('add-mesures-leaver');
+
         let checkboxContainer = document.querySelector('.leaflet-control-layers-overlays');
         let wind = document.querySelector('.leaflet-top.leaflet-right');
         let logo = document.createElement('img');
@@ -632,10 +691,12 @@ class SmartPortMap extends HTMLElement
         controlMenu.appendChild(controlMenuBtnLeaver);
 
         controlMenuBtn.onclick = () => {
-            if(searchMenu.classList.contains('dropdown-loaded')) {
+            if(searchMenu.classList.contains('dropdown-loaded') || addMenu.classList.contains('dropdown-loaded')) {
                 searchMenu.classList.add('dropdown-not-loaded');
+                addMenu.classList.add('dropdown-not-loaded')
                 setTimeout(() => {
                     searchMenu.setAttribute('class', 'not-loaded');
+                    addMenu.setAttribute('class', 'not-loaded');
                 }, 500);
             }
             controlMenu.classList.remove('not-loaded');
@@ -653,7 +714,15 @@ class SmartPortMap extends HTMLElement
             }, 500);
         };
 
-        searchMenuBtn.onclick = () => { searchMenu.setAttribute('class', 'dropdown-loaded') };
+        searchMenuBtn.onclick = () => { 
+            if(addMenu.classList.contains('dropdown-loaded') ) {
+                addMenu.classList.add('dropdown-not-loaded');
+                setTimeout(() => {
+                    addMenu.setAttribute('class', 'not-loaded');
+                }, 500);
+            }
+            searchMenu.setAttribute('class', 'dropdown-loaded') 
+        };
 
         searchMenuBtnLeaver.onclick = () => {
             searchMenu.setAttribute('class', 'dropdown-not-loaded');
@@ -661,6 +730,25 @@ class SmartPortMap extends HTMLElement
             setTimeout(() => {
                 searchMenu.setAttribute('class', 'not-loaded');
                 document.getElementById('search-tool-input').value = "";
+            }, 500);
+        };
+
+        addMenuBtn.onclick = () => { 
+            if(searchMenu.classList.contains('dropdown-loaded') ) {
+                searchMenu.classList.add('dropdown-not-loaded');
+                setTimeout(() => {
+                    searchMenu.setAttribute('class', 'not-loaded');
+                }, 500);
+            }
+
+            addMenu.setAttribute('class', 'dropdown-loaded') 
+        };
+
+        addMenuBtnLeaver.onclick = () => {
+            addMenu.setAttribute('class', 'dropdown-not-loaded');
+
+            setTimeout(() => {
+                addMenu.setAttribute('class', 'not-loaded');
             }, 500);
         };
     }

@@ -1,0 +1,2 @@
+"https://{all}/": { type: upstream, upstream: "smart-port-air:http" }
+"http://{all}/": { type: redirect, to: "https://{all}/" }
