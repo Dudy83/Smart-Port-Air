@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
 
+    {% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('home') }}
+    {% endblock %}
+
 {% block body %}
 
 <header id="diams-port-container" class="d-flex justify-content-center align-items-stretch">
@@ -151,4 +156,11 @@
     <p style="text-align:center;align-self:start;color:#fff;border-top:1px solid #fff" class="m-2 p-2 w-100">2020 &copy; SmartPort | Tous droits réservés.</p>
 </footer>
 
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('home') }}
 {% endblock %}

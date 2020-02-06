@@ -8,15 +8,10 @@
     {% block stylesheets %}
     <!-- Font Awesome icons <i> -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-        crossorigin="" />
 
-    <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.11.0/css/mdb.min.css" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="images/logo/favicon.png" />
 
@@ -41,24 +36,18 @@
                 <p class="navbar-links-content" style="margin:0">Carte</p>
             </a>
 
-            <!-- Example single danger button -->
-            <div class="btn-group">
-                <button type="button" id="dropdown-trigger" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-user mr-2"></i>{% if app.user %} {{ app.user.getUsername }} {% else %}Profil {% endif %}
-                </button>
-                <div id="profil-dropdown-menu" class="profil-dropdown-hidden p-2">
-                   
-                {% if not app.user %}
-                        <a tabindex="4" href="/connexion" class="profil-dropdown-link btn btn-success w-100 m-0" style="color: #fff"><i
-                                class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
-                        <a tabindex="4" href="/inscription" class="profil-dropdown-link btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i
-                                class="fas fa-user-edit mr-2"></i> Inscription</a>
-                {% else %}
-                        <a class="w-100 btn btn-warning mb-2 profil-dropdown-link" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i>Profil</a>
-                        <a tabindex="4" href="{{ path('security_logout') }}" class="profil-dropdown-link btn btn-danger w-100 m-0 mt-3 d-flex align-items-center justify-content-center"
-                                style="color: #fff"><i class="fas fa-sign-out-alt mr-2"></i> Déconnexion</a>
-                {% endif %}
-                </div>
+            <a class="btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-user mr-2"></i>{% if app.user %} {{ app.user.getUsername }} {% else %} Profil {% endif %}
+            </a>
+
+            <div class="dropdown-menu" id="profil-dropdown-menu">
+             {% if not app.user %}
+                <a class="dropdown-item btn btn-success w-100 m-0" href="/connexion"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
+                <a class="dropdown-item btn btn-warning w-100 m-0 mt-3" href="/inscription"><i class="fas fa-user-edit mr-2"></i>Inscription</a>
+             {% else %}
+                <a class="w-100 btn btn-warning mb-2 dropdown-item" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i>Profil</a>
+                <a class="dropdown-item btn btn-danger w-100 m-0 mt-3" href="{{ path('security_logout') }}"><i class="fas fa-sign-out-alt mr-2"></i> Déconnexion</a>
+             {% endif %}
             </div>
 
             <svg id="nav-icon" class="ham hamRotate ham8" viewBox="0 0 100 100" width="40" onclick="this.classList.toggle('active')">
@@ -208,23 +197,15 @@
 
     {% block javascripts %}
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
-    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
-    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
-    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-        crossorigin=""></script>
-
-    <script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.11.0/js/mdb.min.js"></script>
+    
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
 
     <script type="text/javascript" src="cdn/js/leaflet-velocity.js"></script>
 

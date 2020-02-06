@@ -36,18 +36,26 @@ class SmartPortController extends AbstractController
     public function mapAPI(Request $request) : Response
     {  
         // Create connection
-        $db = new \PDO('mysql:host=127.0.0.1;dbname=smartport', 'root', '');
-        $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $config = new \Doctrine\DBAL\Configuration();
+
+        $connectionParams = [
+            'dbname' => 'smartport',
+            'user' => 'root',
+            'password' => '',
+            'host' => '127.0.0.1:3306',
+            'driver' => 'pdo_mysql',
+        ];
+
+        $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
                 
         // Prepare the query
-        $sql = $db->prepare("SELECT nom, lon, lat, id FROM `chimie_stations2` WHERE aasqa = 'PACA'");
+        $sql = "SELECT nom, lon, lat, id FROM `chimie_stations2`";
         // Execute SQL query
-        $sql->execute();
+        $stmt = $conn->query($sql);
         //Prepare an array to push all the results from the query
         $results = array();
         // Processing...
-        while($data = $sql->fetch())
-        {
+        while($data = $stmt->fetch()) {
             $results[] = $data; 
         } 
         // returns JSON object to javascript with our array
@@ -68,25 +76,24 @@ class SmartPortController extends AbstractController
 
             $config = new \Doctrine\DBAL\Configuration();
 
-            $connectionParams = array(
+            $connectionParams = [
                 'dbname' => 'smartport',
                 'user' => 'root',
                 'password' => '',
                 'host' => '127.0.0.1:3306',
                 'driver' => 'pdo_mysql',
-            );
+            ];
 
             $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
-                    
+
             // Prepare the query
-            $sql = "SELECT nom, lon, lat, id FROM `chimie_stations2` WHERE nom LIKE '%$content%' OR id LIKE '%$content%' AND aasqa = 'PACA'";
+            $sql = "SELECT nom, lon, lat, id FROM `chimie_stations2` WHERE nom LIKE '%$content%' OR id LIKE '%$content%'";
             // Execute SQL query
             $stmt = $conn->query($sql);
             //Prepare an array to push all the results from the query
             $results = array();
             // Processing...
-            while($data = $stmt->fetch())
-            {
+            while($data = $stmt->fetch()) {
                 $results[] = $data; 
             } 
 

@@ -2,8 +2,9 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+    <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/balloon-css/balloon.min.css">
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.5.6/plyr.css" />
     {{ encore_entry_link_tags('map') }}
 {% endblock %}
 
@@ -28,6 +29,19 @@
             </a>
         </div>
 
+        <div aria-label="Ajouter" data-balloon-pos="right" id="toggle-search">
+            <svg viewBox="0 0 612 612" >
+                    <g>
+                        <path d="M306,0C136.992,0,0,136.992,0,306s136.992,306,306,306s306-137.012,306-306S475.008,0,306,0z M306,573.75
+                            C158.125,573.75,38.25,453.875,38.25,306C38.25,158.125,158.125,38.25,306,38.25c147.875,0,267.75,119.875,267.75,267.75
+                            C573.75,453.875,453.875,573.75,306,573.75z M420.75,286.875h-95.625V191.25c0-10.557-8.568-19.125-19.125-19.125
+                            c-10.557,0-19.125,8.568-19.125,19.125v95.625H191.25c-10.557,0-19.125,8.568-19.125,19.125c0,10.557,8.568,19.125,19.125,19.125
+                            h95.625v95.625c0,10.557,8.568,19.125,19.125,19.125c10.557,0,19.125-8.568,19.125-19.125v-95.625h95.625
+                            c10.557,0,19.125-8.568,19.125-19.125C439.875,295.443,431.307,286.875,420.75,286.875z"/>
+                    </g>
+            </svg>
+        </div>
+
     </div>
 
     <div id="search-results" class="not-loaded">
@@ -37,6 +51,28 @@
                 <div id="search-leaver"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg></div>
             </div>
             <div id="container-results-search"></div>
+    </div>
+
+    <div id="add-mesures">
+        <select class="custom-select">
+            <option selected>Choisir un polluant</option>
+            <option value="1">NO2</option>
+            <option value="2">PM10</option>
+            <option value="3">O3</option>
+            <option value="3">PM25</option>
+            <option value="3">SO2</option>
+        </select>
+
+<div class="input-group">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+  </div>
+  <div class="custom-file">
+    <input type="file" class="custom-file-input" id="inputGroupFile01"
+      aria-describedby="inputGroupFileAddon01">
+    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+  </div>
+</div>
     </div>
 
     <smartport-map id="map"></smartport-map>
@@ -73,9 +109,9 @@
     {{ parent() }}
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
-    <script src="cdn/js/jquery-3.4.1.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+    <script type="text/javascript" src="cdn/js/leaflet-velocity.js"></script>
     <script src="https://unpkg.com/leaflet.boatmarker/leaflet.boatmarker.min.js"></script>
-    <script src="https://cdn.plyr.io/3.5.6/plyr.js"></script>
     {{ encore_entry_script_tags('map') }}
     {{ encore_entry_script_tags('chart') }}
 {% endblock %}

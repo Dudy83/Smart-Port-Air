@@ -154,8 +154,6 @@ class SecurityController extends AbstractController
     */
     public function change_user_password(ObjectManager $manager, Request $request, UserPasswordEncoderInterface $passwordEncoder) 
     {
-        
-        
         $user = $this->getUser();
 
         $password = $user->getPassword();

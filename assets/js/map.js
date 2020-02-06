@@ -3,16 +3,24 @@ import chartDrawing from './chart.js';
 // the class SmartPortMap which contain all the features of the mapn and extending HTMLElement to create a custom html tag
 class SmartPortMap extends HTMLElement 
 {
-    constructor()
-    {
-        // Call super() to use HTMLElement methods and create the custom element
+    constructor() {
         super();
         this.stations = new Array();
-        this.player = new Plyr('#player');
         this.markerObject = new Array();
         this.moment = require('moment');
+    }
+
+    connectedCallback()
+    {
+        this.initiateMap();
+        this.createStations();
+        this.wmsMap();
+        this.generateWind();
+    }
+
+    initiateMap()
+    {
         this.iniZoom = 9;
-        
         this.darkMap = L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", { 
             attribution: '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2020 </a>| © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | © <a href="https://www.mapbox.com/">Mapbox</a>'
         });
@@ -29,23 +37,18 @@ class SmartPortMap extends HTMLElement
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marked-alt fa-fw'></i></div> <p class='control-menu-text-content'>Noir</p><div class='radioCheck'></div></span></span>": this.darkMap,
         };
 
-        this.scaleZoom = () => {
-            if(window.screen.width < 1000) 
-                this.iniZoom -= 2;
-            else if(window.screen.width < 1400) 
-                this.iniZoom -= 1;
-            
-            return this.iniZoom;
-        }
-
         this.map = L.map('map', {
             layers: [ this.mapboxMap ],
             minZoom: 6,
             maxZoom: 20,
             zoomControl: false
         });
+       
+        if(window.screen.width < 1000) this.iniZoom -= 2;
+        
+        if(window.screen.width < 1400) this.iniZoom -= 1;
 
-        this.map.setView([43.7284, 5.9367], this.scaleZoom());
+        this.map.setView([43.7284, 5.9367], this.iniZoom);
 
         this.boatMarker = L.boatMarker([43.343693, 5.335189], {
             color: "#727272", 
@@ -53,13 +56,6 @@ class SmartPortMap extends HTMLElement
         }).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><button id="modalBtn-scenario-pollution" type="button" class="btn btn-success w-100" data-toggle="modal" data-target="#mod-scenario-pollution"><i class="fas fa-chart-line mr-2"></i>Scénario Pollution</button></div>').addTo(this.map);
 
         this.boatMarker.setHeading(300);
-    }
-
-    connectedCallback()
-    {
-        this.createStations();
-        this.generateWind();
-        this.wmsMap();
     }
 
     createStations()
@@ -221,86 +217,83 @@ class SmartPortMap extends HTMLElement
 
     /**
      * @param {number} codeStation 
-     * @param {string} nom_polluant 
-     * @param {number} code_polluant 
+     * @param {string} nomPolluant 
+     * @param {number} codePolluant 
      * @param {number} lon 
      * @param {number} lat 
      */
-    drawGraph(codeStation, nom_polluant, code_polluant, lon, lat)
+    drawGraph(codeStation, nomPolluant, codePolluant, lon, lat)
     {   
         let image = document.getElementById('image-'+codeStation);
         let spinner = document.getElementById('spinner-'+codeStation);
         let modalBody = document.getElementById('modal-'+codeStation);
         let ctx = document.getElementById('canvas-'+codeStation).getContext("2d");
 
-        if(nom_polluant == "NO2" || nom_polluant == "O3") {    
+        if(nomPolluant == "NO2" || nomPolluant == "O3") {    
             
-            this.getMesuresMaxJour(code_polluant, codeStation, 4).then((data) => { 
+            this.getMesuresMaxJour(codePolluant, codeStation, 4).then((data) => { 
                 
                 for (const validator of data) {
                     if(validator === -Infinity) {
-                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nomPolluant+'</div>';
                         return;
                     }
                 }   
 
-                this.getPrevisions(lon, lat, nom_polluant).then((PrevisionData) => {
-                    new chartDrawing(nom_polluant, ctx).drawMesureMaxAndPrevi(data, PrevisionData);
+                this.getPrevisions(lon, lat, nomPolluant).then((PrevisionData) => {
+                    new chartDrawing(nomPolluant, ctx).drawMesureMaxAndPrevi(data, PrevisionData);
                 });
 
                 spinner.style.visibility = "hidden";
                 image.style.visibility = "visible";
             });
             
-        } else if (nom_polluant == "SO2") {
+        } else if (nomPolluant == "SO2") {
 
-            this.getMesuresMaxJour(code_polluant, codeStation, 7).then((data) => {
+            this.getMesuresMaxJour(codePolluant, codeStation, 7).then((data) => {
             
                 for (const validator of data) {
                     if(validator === -Infinity) {
-                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nomPolluant+'</div>';
                         return;
                     }
                 }  
                     
-                new chartDrawing(nom_polluant, ctx).drawMesureMax(data);
+                new chartDrawing(nomPolluant, ctx).drawMesureMax(data);
         
                 spinner.style.visibility = "hidden";
                 image.style.visibility = "visible";
                                     
             });
 
-        } else if (nom_polluant == "PM10"){
+        } else if (nomPolluant == "PM10"){
 
             this.getMesures(5, codeStation).then((data) => {
                 
                 if(data.length == 0) {  
-                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nom_polluant+'</div>';
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nomPolluant+'</div>';
                     return;
                 }
 
-                this.getPrevisions(lon, lat, nom_polluant).then((previsionData) =>
-                {
-                    new chartDrawing(nom_polluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
+                this.getPrevisions(lon, lat, nomPolluant).then((previsionData) => {
+                    new chartDrawing(nomPolluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
                 });
 
                 spinner.style.visibility = "hidden";
                 image.style.visibility = "visible";
  
             });
-        } else if (nom_polluant == "PM25") {
+        } else if (nomPolluant == "PM25") {
 
             this.getMesures(6001, codeStation).then((data) => {
 
                 if(data.length == 0) {  
-                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant:'+' '+nom_polluant+'</div>';
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant:'+' '+nomPolluant+'</div>';
                     return;
                 }
 
-                this.getPrevisions(lon, lat, nom_polluant).then((previsionData) =>
-                {
-                    console.log(previsionData);
-                    new chartDrawing(nom_polluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
+                this.getPrevisions(lon, lat, nomPolluant).then((previsionData) => {
+                    new chartDrawing(nomPolluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
                 });
 
                 spinner.style.visibility = "hidden";
@@ -347,32 +340,41 @@ class SmartPortMap extends HTMLElement
 
         image.style.visibility = "hidden";
 
-        if(polluant == "SO") 
-            this.drawGraph(codeStation, "SO2", 1);
-        else if(polluant == "PM") {
-            this.drawGraph(codeStation, "PM10", 5, lon, lat);
-        }  else if(polluant == "O3") {
-            this.drawGraph(codeStation, "O3", 7, lon, lat);
-        } else if(polluant == "NO") {
-            this.drawGraph(codeStation, "NO2", 8, lon, lat);
-        }  else if(polluant == "MP") {
-            this.drawGraph(codeStation, "PM25", 6001, lon, lat);
-        } 
+        switch(polluant) {
+            case 'SO':
+                this.drawGraph(codeStation, "SO2", 1);
+                break;
+            
+            case 'PM':
+                this.drawGraph(codeStation, "PM10", 5, lon, lat);
+                break;
 
+            case 'O3':
+                this.drawGraph(codeStation, "O3", 7, lon, lat);
+                break;
+            
+            case 'NO':
+                this.drawGraph(codeStation, "NO2", 8, lon, lat);
+                break;
+
+            case 'MP':
+                this.drawGraph(codeStation, "PM25", 6001, lon, lat);
+                break;
+        }
     }
 
     /**
-     * @param {number} id_poll_ue 
+     * @param {number} polluantId 
      * @param {string} codeStation  
      */
-    getMesures(id_poll_ue, codeStation) 
+    getMesures(polluantId, codeStation) 
     {
         const date = this.moment().subtract(5, 'days').format('YYYY/MM/DD');
 
         return new Promise((resolve, reject) => {
             
             const createRequests = () => {
-                const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+date+ "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+codeStation+"%27";
+                const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+date+ "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+polluantId+"%20AND%20code_station%20=%20%27"+codeStation+"%27";
                 console.log(getURL);
                 const requestPoll = [];
 
@@ -383,7 +385,7 @@ class SmartPortMap extends HTMLElement
                 return requestPoll;
             }
 
-            if(id_poll_ue && codeStation) {
+            if(polluantId && codeStation) {
 
                 const requests = createRequests();
 
@@ -402,11 +404,11 @@ class SmartPortMap extends HTMLElement
 
 
     /**
-     * @param {number} id_poll_ue 
+     * @param {number} polluantId
      * @param {string} codeStation 
      * @param {number} ech 
      */
-    getMesuresMaxJour(id_poll_ue, codeStation, ech)
+    getMesuresMaxJour(polluantId, codeStation, ech)
     {
         return new Promise((resolve, reject) => {
             
@@ -416,7 +418,7 @@ class SmartPortMap extends HTMLElement
 
                 for(let i = 0; i <= ech; i++) {
                     const date = this.moment().subtract(i, 'days').format('YYYY/MM/DD');
-                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + date + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+id_poll_ue+"%20AND%20code_station%20=%20%27"+codeStation+"%27%20AND%20date_fin<=%27"+ date +"%20" + "23:59" + "%27";
+                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + date + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+polluantId+"%20AND%20code_station%20=%20%27"+codeStation+"%27%20AND%20date_fin<=%27"+ date +"%20" + "23:59" + "%27";
                     const request = axios.get(url);
 
                     results.push(request);  
@@ -424,7 +426,7 @@ class SmartPortMap extends HTMLElement
                 return results;
             }
     
-            if(id_poll_ue && codeStation && ech) {
+            if(polluantId && codeStation && ech) {
 
                 const requests = createRequests();
     
@@ -483,11 +485,10 @@ class SmartPortMap extends HTMLElement
         
         const createRequests = (e) => {
 
-             if(e.keyCode == 8 && e.target.value.length <= 1) {
-                 resultsContainer.innerHTML = baseTemplate;
-                 return;
-             }
-                console.log(this.markerObject);
+            if(e.keyCode == 8 && e.target.value.length <= 1) {
+                resultsContainer.innerHTML = baseTemplate;
+                return;
+            }
                 let value = {};
                 value.content = e.target.value;
 
@@ -499,7 +500,7 @@ class SmartPortMap extends HTMLElement
                     if(!response.ok) return;
                     
                     return response.json().then((data) => {
-                        
+
                         if(data.result) {
 
                             let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
@@ -517,7 +518,27 @@ class SmartPortMap extends HTMLElement
                             document.getElementsByClassName('searchResults').forEach((element) => {
                                 
                                 element.addEventListener('click', () => {
-                                    this.map.setView([element.getAttribute('lat'), element.getAttribute('lon')], 14);
+                                   
+                                    if(this.map.getZoom() >= 13) {
+                                        this.map.flyTo([43.7284, 5.9367], this.iniZoom, {
+                                            "animate": true,
+                                            "duration": 2 
+                                        });
+
+                                        setTimeout(() => {
+                                            this.map.flyTo([element.getAttribute('lat'), element.getAttribute('lon')], 14, {
+                                                "animate": true,
+                                                "duration": 2 
+                                            });
+                                        }, 2500);
+                                    } else {
+                                        this.map.flyTo([element.getAttribute('lat'), element.getAttribute('lon')], 14, {
+                                            "animate": true,
+                                            "duration": 2 
+                                        });
+                                    }
+
+
                                     document.getElementById('NO-'+element.getAttribute('id')).click();
 
                                     for (let i in this.markerObject) {
@@ -527,7 +548,7 @@ class SmartPortMap extends HTMLElement
                                         };
                                     }
                                 });
-                            })
+                            });
 
                         } else {
                             let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
@@ -547,52 +568,37 @@ class SmartPortMap extends HTMLElement
         search.addEventListener('keyup', createRequests);
     }
 
-    bindEvents()
-    {
-        let self = this;
-
-        document.getElementsByClassName('O3graph').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                self.getGraph(e);
-            });
-        });
-
-        document.getElementsByClassName('NO2graph').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                self.getGraph(e);
-            });
-        });
-
-        document.getElementsByClassName('SO2graph').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                self.getGraph(e);
-            });
-        });
-
-        document.getElementsByClassName('PM10graph').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                self.getGraph(e);
-            });
-        });
-
-        document.getElementsByClassName('PM25graph').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                self.getGraph(e);
-            });
-        });
-    }
-
     /**
      * @param {date} strDate 
      */
     toTimestamp(strDate) 
     {
-        let datum = Date.parse(strDate);
-        return datum/1000;
+        return (Date.parse(strDate)/1000);
+    }
+
+    bindEvents()
+    {
+        let self = this;
+
+        let elements = [
+            document.getElementsByClassName('O3graph'), 
+            document.getElementsByClassName('NO2graph'), 
+            document.getElementsByClassName('SO2graph'), 
+            document.getElementsByClassName('PM10graph'), 
+            document.getElementsByClassName('PM25graph') 
+        ];
+        
+        elements.forEach((element) => {
+            for(let index of element) {
+                index.addEventListener('click', (e) => {
+                    self.getGraph(e);
+                });
+            }
+        });
     }
 
     customMenu()
-    {     
+    {  
         let controls = {
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marker-alt fa-fw'></i></div> <p class='control-menu-text-content'>Station</p><div class='check'></div></span>": this.showStations,
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-smog fa-fw'></i></div> <p class='control-menu-text-content'>Pollution</p><div class='check'></div></span>": this.azurPacaMulti,
@@ -600,82 +606,70 @@ class SmartPortMap extends HTMLElement
         }
 
         L.control.layers(this.baseLayers, controls, {collapsed: false, position: 'topleft'}).addTo(this.map);
+        
+        let controlMenu = document.getElementsByClassName('leaflet-control-layers')[0];   
+        let controlMenuBtn = document.getElementById('toggle-btn-control-menu');
+        let controlMenuBtnLeaver = document.createElement('div');
 
-        let controlPanel = document.getElementsByClassName('leaflet-control-layers')[0];
+        let searchMenu = document.getElementById('search-results');
+        let searchMenuBtn = document.getElementById('toggle-search');
+        let searchMenuBtnLeaver = document.getElementById('search-leaver');
+
         let checkboxContainer = document.querySelector('.leaflet-control-layers-overlays');
-        let hamburger = document.getElementById('toggle-btn-control-menu');
-        let searchBtn = document.getElementById('toggle-search');
         let wind = document.querySelector('.leaflet-top.leaflet-right');
         let logo = document.createElement('img');
-        let hr = document.createElement('hr');
-        let dropdownLeaver = document.createElement('div');
-        let searchContainer = document.getElementById('search-results');
-        let searchLeaver = document.getElementById('search-leaver');
-        let resultsContainer = document.getElementById('container-results-search');
-        let baseTemplate = `
-            <div class="w-100 d-flex align-items-center justify-content-center" style="margin-top:25vh;">
-                <img src="/images/locationsearch.png" width="256px">
-            </div>
-            <div class=""w-100>
-                <p style="text-align: center;">Rechercher par stations ou code stations !</p>
-            </div>`;
 
+        controlMenu.classList.add('not-loaded');
         wind.setAttribute('id', 'wind-velocity-menu');
-        
+        controlMenuBtnLeaver.innerHTML = `<svg><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>`;
+        controlMenuBtnLeaver.setAttribute('id', 'dropdown-leaver');
         logo.setAttribute('id', 'control-menu-logo');
         logo.src = '/images/logo/facebook_cover_photo_1.png';
-        logo.style.setProperty('width', '95%');
-        logo.style.setProperty('margin', '10px 0px');
-        hr.style.setProperty('margin-top', '70px');
-      
-        dropdownLeaver.setAttribute('id', 'dropdown-leaver');
-        dropdownLeaver.innerHTML = `<svg><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>`;      
-        controlPanel.appendChild(dropdownLeaver);
+        logo.style.width = "95%";
+         
+        controlMenu.insertBefore(logo, document.getElementsByClassName('leaflet-control-layers-list')[0]);
         checkboxContainer.appendChild(wind);
-        controlPanel.insertBefore(logo, document.getElementsByClassName('leaflet-control-layers-list')[0]);
-        controlPanel.classList.add('not-loaded');
-        controlPanel.appendChild(hr);
+        controlMenu.appendChild(controlMenuBtnLeaver);
 
-        document.getElementById('dropdown-leaver').addEventListener('click', () => {
-            controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-not-loaded');
-            hamburger.removeAttribute('style');
-
-            setTimeout(() => {
-                controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control not-loaded');
-            }, 500);
-        });
-
-        hamburger.addEventListener('click', () => {
-            if(searchContainer.classList.contains('dropdown-loaded')) {
-                searchContainer.setAttribute('class', 'dropdown-not-loaded');
-                setTimeout(() =>{
-                    searchContainer.setAttribute('class', 'not-loaded');
+        controlMenuBtn.onclick = () => {
+            if(searchMenu.classList.contains('dropdown-loaded')) {
+                searchMenu.classList.add('dropdown-not-loaded');
+                setTimeout(() => {
+                    searchMenu.setAttribute('class', 'not-loaded');
                 }, 500);
             }
-            controlPanel.setAttribute('class', 'leaflet-control-layers leaflet-control-layers-expanded leaflet-control dropdown-loaded');
-            hamburger.setAttribute('style', 'border-color: grey');
-        });
+            controlMenu.classList.remove('not-loaded');
+            controlMenu.classList.add('dropdown-loaded');
+        };
 
-        searchBtn.addEventListener('click', () => {
-            searchContainer.setAttribute('class', 'dropdown-loaded');
-        });
-
-        searchLeaver.addEventListener('click', () => {
-            searchContainer.setAttribute('class', 'dropdown-not-loaded');
+        controlMenuBtnLeaver.onclick = () => {
+            controlMenu.classList.remove('dropdown-loaded');
+            controlMenu.classList.add('dropdown-not-loaded');
+            controlMenuBtn.removeAttribute('style');
 
             setTimeout(() => {
-                searchContainer.setAttribute('class', 'not-loaded');
-                document.getElementById('search-tool-input').value = "";
-                resultsContainer.innerHTML = baseTemplate;
+                controlMenu.classList.remove('dropdown-not-loaded');
+                controlMenu.classList.add('not-loaded');
             }, 500);
-        });
+        };
+
+        searchMenuBtn.onclick = () => { searchMenu.setAttribute('class', 'dropdown-loaded') };
+
+        searchMenuBtnLeaver.onclick = () => {
+            searchMenu.setAttribute('class', 'dropdown-not-loaded');
+
+            setTimeout(() => {
+                searchMenu.setAttribute('class', 'not-loaded');
+                document.getElementById('search-tool-input').value = "";
+            }, 500);
+        };
     }
 
-    static Register()
+    static get Register()
     {
         customElements.define('smartport-map', SmartPortMap);
     }
 }
 
-SmartPortMap.Register();
+SmartPortMap.Register;
 

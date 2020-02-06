@@ -8,6 +8,7 @@ export default class chartDrawing {
         this.days = new Array();
         this.vLimite;
         this.maxPoint;
+        this.width = this.canvas.canvas.offsetWidth;
         this.gradient = this.canvas.createLinearGradient(300, 250, 300, 600);        
         this.gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
         this.gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
@@ -16,6 +17,7 @@ export default class chartDrawing {
         this.gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
         this.gradient.addColorStop(1, 'rgb(0, 204, 170)');
         this.moment = require('moment');
+
     }
 
     drawMesureMaxAndPrevi(data, previsionData) {
@@ -211,3 +213,4 @@ export default class chartDrawing {
         });
     }
 }
+

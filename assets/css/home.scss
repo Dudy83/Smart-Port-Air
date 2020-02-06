@@ -1,0 +1,227 @@
+header {
+    background-image: linear-gradient(to bottom, #6bba62, #52ae6b, #3ea272, #2f9576, #2a8776, #248078, #247979, #287177, #266e7b, #296b7e, #306780, #386380);
+    padding: 5rem;
+    color:#fff;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 0, 100% 84%, 70% 100%, 30% 100%, 0 84%, 0 0);
+    
+    #header-container {  
+        animation: slideInFromLeft;
+        animation-duration: 1s; 
+
+        #preambule a {
+            color: #fff;
+        }
+    }
+}
+
+/* cards design */
+#cards-container {
+    width: 100%;
+    background-color: #fff;
+
+    #cards-info-container {
+        background-color:#f2f2f2;
+    }
+    
+    h1 {
+        text-align: center;
+        margin: 2rem;
+    }
+
+    #cards-left-container {
+        height: 40vh;
+        border-radius: 0.25rem;
+        margin-bottom: 5rem;
+        background: #ffff;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        margin-left: 5%;
+
+        #cards-left {
+            clip-path: polygon(0 0, 100% 0%, 75% 100%, 0% 100%);
+            background-color:#386380;
+            border-bottom-left-radius: 0.25rem;
+            border-top-left-radius: 0.25rem;
+    
+            h3 {
+                color:white;
+                padding-bottom:1rem;
+                width:100%;
+                border-bottom:1px solid white;
+            }
+    
+            h5 {
+                color:white; 
+                margin-right: 2rem;
+            }
+    
+            a {
+                color: #fff;
+                background-color:#6BBA62; 
+                align-self:start;
+            }
+        }
+    }
+
+    #cards-right-container {
+        height: 40vh;
+        border-radius: 0.25rem;
+        margin-left: 45%;
+        margin-bottom: 5rem;
+        background: #ffff;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+
+        #cards-right {
+            clip-path: polygon(0 0, 100% 0%, 75% 100%, 0% 100%);
+            background-color: #6bba62;
+            border-bottom-left-radius: 0.25rem;
+            border-top-left-radius: 0.25rem;
+    
+            h3 {
+                color:white;
+                padding-bottom:1rem;
+                width:100%;
+                border-bottom:1px solid white;
+            }
+    
+            h5 {
+                color:white; 
+                margin-right: 2rem;
+            }
+    
+            a {
+                color: #fff;
+                background-color:#386380; 
+                align-self:start;
+            }
+        }
+    }
+
+    #connexion-container {
+        h5 {
+            color:#95a5a6;
+            text-align: center;
+        }
+
+        div {
+            margin-left: 8rem;
+        }
+    }
+
+    #cards-left-container:hover, #cards-right-container:hover {
+        transform: scale(1.03);
+        transition-property: transform;
+        transition-duration: 0.6s;
+    }
+}
+
+/* footer */
+footer {
+    background-image: linear-gradient(to top, #6bba62, #52ae6b, #3ea272, #2f9576, #2a8776, #248078, #247979, #287177, #266e7b, #296b7e, #306780, #386380);
+}
+
+@media (max-width: 1600px) {
+    #cards-left-container, #cards-right-container {
+        flex-direction: column-reverse;
+        height: inherit;
+    } 
+ 
+    #cards-left-container div:last-child, #cards-right-container div:last-child {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 1rem;
+    }
+ 
+    #cards-left, #cards-right {
+        width: 100% !important;
+        clip-path: none !important;
+        border-bottom-right-radius: 0.25rem;
+         border-top-right-radius: 0.25rem;
+    }
+}
+
+@media (max-width: 1500px) {
+    #connexion-container {
+        align-items: center !important;
+    }
+
+    #connexion-container div {
+        margin: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #welcome-buttons {
+        padding: 5rem 0 5rem 0;
+    }
+
+    #welcome-buttons div {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 1300px) {
+    .row {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 1080px) {
+    #diams-port-container {
+        padding: 1rem;
+        padding-top: 75px;
+        padding-bottom: 75px;
+        clip-path: none;
+    }
+}
+
+
+@media (max-width: 767px) {
+    header img {
+        width: 256px;
+    }
+    
+    #atmosudLogo {
+        align-items: center !important;
+        justify-content: start !important;
+    }
+
+    .cards-images-isometric {
+        width: 256px;
+    }
+
+    #cards-left-container, #cards-right-container {
+        width: 80% !important;
+        margin-left: 0 !important;
+        margin-right: 0;
+        height: auto !important;
+    }
+
+    #cards-info-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 575px) {
+
+    #cards-left-container, #cards-right-container {
+        width: 100% !important;
+    }
+
+    #cards-info-container {
+        padding: 1rem !important;
+    }
+
+    #diams-port-container {
+        border-bottom-right-radius: 5rem;
+        border-bottom-left-radius: 5rem;
+    }
+
+    #cards-left, #cards-right {
+        padding: 1rem !important;
+    }
+}
+

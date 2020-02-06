@@ -7,7 +7,6 @@ body {
     visibility: hidden;
 }
 
-
 main {
     display: flex;
     align-items: center;
@@ -15,7 +14,6 @@ main {
     height: 100vh;
 
 }
-
 #form-login {
     background: #fff;
     padding: 3rem;
@@ -70,8 +68,7 @@ input:valid~label {
 }
 
 
-.btn-warning
-{
+.btn-warning {
     color: #fff;
 }
 
@@ -120,7 +117,7 @@ input:focus~.bar:after {
     width: 50%;
 }
 
-/* HIGHLIGHTER ================================== */
+
 .highlight {
     position: absolute;
     height: 60%;
@@ -138,24 +135,19 @@ input:focus~.highlight {
     animation: inputHighlighter 0.3s ease;
 }
 
-
-
-ul
-{
+ul {
     padding: 0;
     margin-bottom: 1.25rem;
 }
 
-li
-{
+li {
     color: red;
     list-style-type: none;
     font-size: 80%;
     margin-bottom: 1rem;
 }
 
-li::before
-{
+li::before {
     background-color: rgb(219, 67, 67);
     content: "ERREUR";
     color: #fff;
@@ -200,47 +192,39 @@ li::before
     }
 }
 
-@media(max-width: 1500px)
-{
-    #form-image
-    {
+@media(max-width: 1500px) {
+    #form-image {
         visibility: hidden;
         width: 0% !important;
     }
 
-    #form-login
-    {
+    #form-login {
         width: 100% !important;
         background-color: transparent !important;
     }
 
-    input
-    {
+    input {
         background-color: transparent;
         border-bottom: 1px solid #fff;
         color: #fff;
     }
 
-    label
-    {
+    label {
         color: #fff;
     }
 
-    .bar:before, .bar:after
-    {
+    .bar:before,
+    .bar:after {
         background-color: #fff;
     }
 
     input:focus~label,
-    input:valid~label 
-    {
+    input:valid~label {
         color: #fff;
     }
 
-    #form-title
-    {
+    #form-title {
         visibility: hidden;
         margin: 0;
     }
 }
-
