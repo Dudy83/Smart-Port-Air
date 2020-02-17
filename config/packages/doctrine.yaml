@@ -2,14 +2,13 @@ doctrine:
     dbal:
         # configure these for your database server
         driver: 'pdo_pgsql'
-        # server_version: '9.3'
+        server_version: '9.6'
         charset: utf8
         # default_table_options:
         #     charset: utf8mb4
         #     collate: utf8mb4_unicode_ci
 
         url: '%env(resolve:DATABASE_URL)%'
-        # url: pgsql://smartportadm:hjnfdk!ze@78.153.226.3:5432/smartport
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore

@@ -18,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * message = "Nom d'utilisateur déjà utilisé"
  * )
  */
-class User implements UserInterface
+class SmartPortUser implements UserInterface
 {
     /**
      * @ORM\Id()

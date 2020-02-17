@@ -8,6 +8,8 @@
     {{ encore_entry_link_tags('map') }}
 {% endblock %}
 
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
 {% block body %}
 
     <div id="toggle-control-map" class="d-flex flex-column justify-content-start align-items-center">
@@ -53,34 +55,90 @@
             <div id="container-results-search"></div>
     </div>
 
-    <div id="add-mesures" class="not-loaded">
+    <div class="modal fade left" id="sideModalTLInfoDemo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="true" data-gtm-vis-first-on-screen-2340190_1302="34856" data-gtm-vis-total-visible-time-2340190_1302="100" data-gtm-vis-has-fired-2340190_1302="1" aria-modal="true" style="z-index: 9999 !important">
+    <div class="modal-dialog modal-side modal-top-left modal-notify modal-info" role="document">
+      
+      <div class="modal-content">
 
-        <div id="add-mesures-leaver"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg></div>
+        <div class="modal-header">
+          <p class="heading lead">Fichier JSON</p>
 
-        <h5 style="text-align: center;"> Ajouter ses propres mesures : </h5>
-
-        <select id="add-mesures-select" class="custom-select">
-            <option selected>Choisir un polluant</option>
-            <option value="1">NO2</option>
-            <option value="2">PM10</option>
-            <option value="3">O3</option>
-            <option value="3">PM25</option>
-            <option value="3">SO2</option>
-        </select>
-
-          <div class="form-group w-100 m-0">
-            <input type="text" class="form-control w-100" id="add-mesures-date" placeholder="dd/mm/yyyy">
-          </div>
-
-        <div class="form-group m-0">
-
-            <div class="custom-file">
-                <input type="file" class="custom-file-input" id="add-mesures-file" aria-describedby="inputGroupFileAddon01">
-                <label class="custom-file-label" for="inputGroupFile01">fichier .JSON</label>
-            </div>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" class="white-text">×</span>
+          </button>
         </div>
 
-        <button type="submit" id="add-mesures-submit-btn" class="w-100 btn btn-success">Importer</button>
+        <div class="modal-body">
+            Veuillez éditer vos données JSON de la façon suivante :
+            <pre>
+                <code>
+{
+    "values": ["3.1", "16.5", "14.5", "34.6", "25.2", "40.5", "19.6"]
+}
+                </code>
+            </pre>
+        </div>
+
+        <div class="modal-footer justify-content-center">
+
+          <a type="button" class="btn btn-danger-info waves-effect" data-dismiss="modal">Fermer</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div id="add-mesures" name="add-mesures-form" class="not-loaded">
+         <div id="add-mesures-leaver"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" style="pointer-events: none; display: block;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg></div>
+
+        {{form_start(form, {'attr': {'class': 'w-100','id': 'form-add-mesures'}})}}
+            <div class="w-100 d-flex justify-content-center align-items-center mb-3">
+                <button data-toggle="modal" data-target="#sideModalTLInfoDemo" type="button" style="padding: 0.25rem; font-size: 110%;" class="btn btn-warning rounded mr-3"><i class="fas fa-info-circle"></i></button>
+                <h3 id="form-title" style="text-align: center; margin-bottom: 0rem;">
+                 Ajout de mesures :
+                </h3>
+            </div>
+            <div class="form-group w-100">
+                {{ form_errors(form.polluant) }}
+                <div class="group w-100">                   
+                    {{ form_widget(form.polluant) }}
+                </div>
+            </div>
+
+            <div class="form-group w-100">
+                    {{ form_errors(form.date) }}
+                <div class="group w-100"> 
+                    {{form_widget(form.date)}}
+                </div>
+            </div>
+
+            <div class="form-group w-100">
+                    {{ form_errors(form.lon) }}
+                <div class="group w-100"> 
+                    {{form_widget(form.lon, {'attr': {'placeholder': 'Longitude'}})}}
+                </div>
+            </div>
+
+            <div class="form-group w-100">
+                    {{ form_errors(form.lat) }}
+                <div class="group w-100"> 
+                    {{form_widget(form.lat, {'attr': {'placeholder': 'Latitude'}})}}
+                </div>
+            </div>
+
+            <div class="form-group w-100">
+                    {{ form_errors(form.file_adress) }}
+                <div class="group w-100"> 
+                    {{form_widget(form.file_adress, {'attr': {'name': 'file'}})}}
+                </div>
+            </div>
+            
+            <button style="color: #fff;background-color:#6BBA62" type="submit" id="add-mesures-submit" class="btn w-100 m-0"><i class="fas fa-user-edit mr-2"></i>Importer</button>
+       
+            <div id="spinner-add-mesures" class="w-100 d-flex align-items-center justify-content-center mt-3 not-loaded">
+                <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            </div>
+
+        {{form_end(form)}}
     </div>
 
     <smartport-map id="map"></smartport-map>
@@ -91,7 +149,7 @@
             <div id="scenario-modal-dialog" class="modal-dialog modal-full-height modal-right w-100" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title w-100" style="text-align: center;">Modélisation d'un pic de pollution</h5>
+                        <h5 class="modal-title w-100" style="text-align: center;">Modélisation d'une dispersion de fumée de bateau par Mistral</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -122,4 +180,5 @@
     <script src="https://unpkg.com/leaflet.boatmarker/leaflet.boatmarker.min.js"></script>
     {{ encore_entry_script_tags('map') }}
     {{ encore_entry_script_tags('chart') }}
+    {{ encore_entry_script_tags('mapAPI') }}
 {% endblock %}

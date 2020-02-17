@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\SmartPortUser;
 use ReCaptcha\ReCaptcha;
 use App\Form\RegistrationType;
 use App\Service\MailerService;
@@ -10,6 +10,7 @@ use App\Form\ResetPasswordType;
 use App\Repository\UserRepository;
 use App\Form\ForgottenPasswordType;
 use Symfony\Component\Form\FormError;
+use App\Repository\UserMesuresRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,7 +29,7 @@ class SecurityController extends AbstractController
      */
     public function registration(ObjectManager $manager, Request $request, UserPasswordEncoderInterface $encoder, MailerService $mailerService, \Swift_Mailer $mailer)
     {
-        $user = new User;
+        $user = new SmartPortUser;
 
         $form = $this->createForm(RegistrationType::class, $user);
        
@@ -56,7 +57,7 @@ class SecurityController extends AbstractController
     
                 $user->setConfirmationToken($this->generateToken());
     
-                $user->setAccountActivated(false);
+                $user->setAccountActivated('false');
     
                 $manager->persist($user);
     
@@ -108,15 +109,15 @@ class SecurityController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
         
-        $user = $em->getRepository(User::class)->findOneBy(['username' => $username]);
+        $user = $em->getRepository(SmartPortUser::class)->findOneBy(['username' => $username]);
         
         $tokenExist = $user->getConfirmationToken();
         
         if($token === $tokenExist) 
         {
-            $user->setConfirmationToken("NULL");
+          $user->setConfirmationToken("NULL");
            
-           $user->setAccountActivated(true);
+           $user->setAccountActivated('true');
            
            $em->persist($user);
            
@@ -205,13 +206,17 @@ class SecurityController extends AbstractController
     /**
     * @Route("/delete-user", name="security_delete_user") 
     */
-    public function deleteUser(UserRepository $repo, ObjectManager $manager)
+    public function deleteUser(UserRepository $repo, ObjectManager $manager, UserMesuresRepository $mesureRepo)
     {
         $user = $this->getUser();
         
         $userId = $user->getId();
 
+        $username = $user->getUsername();
+
         $deleteUser = $repo->find($userId);
+
+        $userMesure = $mesureRepo->findOneBy(['username' => $username]);
 
         $session = $this->get('session');
 
@@ -220,6 +225,10 @@ class SecurityController extends AbstractController
         $session->invalidate();
         
         $manager->remove($deleteUser);
+        
+        if($userMesure) {
+            $manager->remove($userMesure);
+        }
         
         $manager->flush();
 

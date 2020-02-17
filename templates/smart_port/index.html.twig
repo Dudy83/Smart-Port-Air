@@ -38,10 +38,8 @@
 
     <div id="cards-container" class="w-100 d-flex flex-column align-items-center justify-content-center">
 
-
       {% if not app.user %}
         
-
       {% endif %}
 
         <div id="welcome-buttons" class="w-100 d-flex align-items-center justify-content-center mt-2">
@@ -54,7 +52,7 @@
                         <div class="mt-3">
                             <a href="{{ path('security_registration') }}" class="btn btn-warning mr-1"><i class="fas fa-user-edit mr-2"></i>Inscription</a>
                             
-                            <a href="{{ path('security_login') }}" class="btn btn-success ml-1"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
+                            <a href="{{ path('security_login') }}" class="btn ml-1" style="color: #fff;background-color:#6BBA62"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
                         </div>
                     </div>
                 </div>

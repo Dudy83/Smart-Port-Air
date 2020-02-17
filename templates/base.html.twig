@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Access-Control-Allow-Origin" content="*">
     <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="description" content="Smart Port App, application sur la pollution de l'air">
+    <meta name="author" content="AtmoSud">
+    <meta property="og:title" content="Smart Port App, application sur la pollution de l'air">
     {% block stylesheets %}
     <!-- Font Awesome icons <i> -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
@@ -115,9 +118,9 @@
     
     {% for message in app.flashes('modify_error') %}
 
-        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position:static;margin-top:50px;">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="top:50px">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>

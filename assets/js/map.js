@@ -1,8 +1,9 @@
 require('../css/map.scss');
 import chartDrawing from './chart.js';
-// the class SmartPortMap which contain all the features of the mapn and extending HTMLElement to create a custom html tag
-class SmartPortMap extends HTMLElement 
-{
+import { MapAPI } from './mapAPI.js';
+// the class SmartPortMap which contain all the features of the map and extending HTMLElement to create a custom html tag
+class SmartPortMap extends HTMLElement {
+    
     constructor() {
         super();
         this.stations = new Array();
@@ -10,17 +11,16 @@ class SmartPortMap extends HTMLElement
         this.moment = require('moment');
     }
 
-    connectedCallback()
-    {
+    connectedCallback() {
         this.initiateMap();
         this.createStations();
         this.wmsMap();
         this.generateWind();
-        this.addCustomMesures();
+        this.addMesureXHR();
+        this.createUserMesures();
     }
 
-    initiateMap()
-    {
+    initiateMap() {
         this.iniZoom = 9;
         this.darkMap = L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", { 
             attribution: '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2020 </a>| © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | © <a href="https://www.mapbox.com/">Mapbox</a>'
@@ -59,248 +59,222 @@ class SmartPortMap extends HTMLElement
         this.boatMarker.setHeading(300);
     }
 
-    createStations()
-    {
-        fetch('/api/map').then((response) => {
-            
-            return response.json().then((data) => {
+    async createStations() { 
+        let geoJson = await new MapAPI().getStations(this.stations);
+        
+        this.showStations = await L.geoJSON(geoJson, {
+
+            pointToLayer: (feature, latlng) => {
+                let circle = new L.CircleMarker(latlng, {title: feature.nom});
+                this.markerObject.push(circle);
+                return circle;
+            },
+        
+            onEachFeature: (feature, layer) => {
                 
-                if(response.ok) {
-
-                    JSON.parse(data.results).forEach((station) => {
-                        let feature = {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [station.lon, station.lat],
-                            },
-                            nom: station.nom,
-                            stationId: station.id,
-                        } 
-
-                        this.stations.push(feature);
-                    });
-
-                    let geoJson = { type: 'FeatureCollection', features: this.stations };
-                           
-                    // use result array with the leaflet geoJSON function to show all the stations.
-                    this.showStations = L.geoJSON(geoJson, {
-            
-                        pointToLayer: (feature, latlng) => 
-                        {
-                            let circle = new L.CircleMarker(latlng, {title: feature.nom});
-                            this.markerObject.push(circle);
-                            return circle;
-                        },
-                    
-                        onEachFeature: (feature, layer) =>
-                        {
-                            // add a popup on every feature which contains a button bounded to a modal
-                            layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.nom +  '</h5><button id="modalBtn'+feature.stationId+'" code='+feature.stationId+' lon='+feature.geometry.coordinates[0]+' lat='+feature.geometry.coordinates[1]+' type="button" class="btn btn-success w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.stationId+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
-                            
-                            // add eventListener onclick of the popup button. It will open the modal and call getNO2() method to draw the graph in the modal
-                            layer.on('click', () => {
-                                document.getElementById('NO-'+feature.stationId).click();
-                            });
-                            
-                            // Create a modal for each stations
-                            document.getElementById('modals-container').innerHTML += `
-                            <div style="z-index: 7000;" class="modal fade right" id="mod-`+feature.stationId+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
-                                
-                                <div class="modal-dialog modal-full-height modal-right w-100" role="document" style="position: fixed !important;right: 0;height: 100%;top: 0;margin: 0;">
-                                
-                                    <div class="modal-content" style="height:100%">
-                                        
-                                        <div class="modal-header d-flex flex-column justify-content-center align-items-center">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            <h4 class="modal-title w-100" id="myModalLabel" style="text-align:center;">`+feature.nom+ `</h4>
-                                            <h4 id="`+feature.stationId+`">`+feature.stationId+`</h4>
-                                        </div>
-                                    
-                                        <div class="modal-body">
-                                            <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.stationId+`">
-                                                <li class="nav-item">
-                                                    <a id="NO-`+feature.stationId+`" class="NO2graph nav-link active" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a id="O3-`+feature.stationId+`" class="O3graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a id="PM-`+feature.stationId+`" class="PM10graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a id="SO-`+feature.stationId+`" class="SO2graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a id="MP-`+feature.stationId+`" class="PM25graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM2.5</a>
-                                                </li>
-                                            </ul>
-                                            <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.stationId+`">
-
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                    
+                layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.nom +  '</h5><button style="color: #fff;background-color:#6BBA62" id="modalBtn'+feature.stationId+'" code='+feature.stationId+' lon='+feature.geometry.coordinates[0]+' lat='+feature.geometry.coordinates[1]+' type="button" class="btn w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.stationId+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
+                
+                layer.on('click', () => {
+                    document.getElementById('NO-'+feature.stationId).click();
+                });
+                
+                document.getElementById('modals-container').innerHTML += `
+                <div style="z-index: 7000;" class="modal fade right" id="mod-`+feature.stationId+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                    <div class="modal-dialog modal-full-height modal-right w-100" role="document" style="position: fixed !important;right: 0;height: 100%;top: 0;margin: 0;">
+                        <div class="modal-content" style="height:100%">        
+                            <div class="modal-header d-flex flex-column justify-content-center align-items-center">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title w-100" id="myModalLabel" style="text-align:center;">`+feature.nom+ `</h4>
+                                <h4 id="`+feature.stationId+`">`+feature.stationId+`</h4>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.stationId+`">
+                                    <li class="nav-item">
+                                        <a id="NO-`+feature.stationId+`" class="NO2graph nav-link active" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="O3-`+feature.stationId+`" class="O3graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="PM-`+feature.stationId+`" class="PM10graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="SO-`+feature.stationId+`" class="SO2graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="MP-`+feature.stationId+`" class="PM25graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM2.5</a>
+                                    </li>
+                                </ul>
+                                <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.stationId+`">
                                 </div>
-                    
-                            </div>`;
-                        } 
-                    }).addTo(this.map);
-                } else {
-                    throw new Error(': Ajax Request failed... response status :' + response.status);
-                }
+                            </div>                          
+                        </div>      
+                    </div>     
+                </div>`;
+            } 
+        }).addTo(this.map);
 
-            }).then(() => {
-                this.bindEvents();
-                this.searchStations();
-            });
-
-        });
+        this.bindEvents();
+        this.searchStations();
     }
 
-    wmsMap()
-    {
-        let wmsAdress = 'https://geoservices.atmosud.org/geoserver/azurjour/wms?';
-        let result;
+    async createUserMesures() {
+        let data = await new MapAPI().getUserMesures();
 
-        if(new Date().getHours() >= "11") 
-            result = `paca-multi-${this.toTimestamp(this.moment().format('YYYY MM DD'))}-1`;
-        else 
-            result = `paca-multi-${this.toTimestamp(this.moment().subtract(1, 'days').format('YYYY MM DD'))}-2`;
+        if(data == 500) return;
 
-        this.azurPacaMulti = L.tileLayer.wms(wmsAdress, {
-            layers: result,
+        for(let idx of data) {
+
+            const [lon, lat, polluant, username, date] = idx;
+
+            new L.circleMarker([lat, lon], {
+                fillColor: "#B45151",
+                color: "#B45151", 
+            }).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636"> Mesures : ' + polluant +  '</h5><button style="color: #fff;background-color:#6BBA62" id="modalBtn'+username+'" type="button" class="btn w-100 dataNO2" data-toggle="modal" data-target=#mod-'+username+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>')
+              .addTo(this.map);
+
+            let getImgPolluant = polluant.substring(0, 2);
+
+            if(polluant == 'PM25') getImgPolluant = 'MP';
+
+            document.getElementById('modals-container').innerHTML += `
+            <div style="z-index: 7000;" class="modal fade right" id="mod-`+username+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                <div class="modal-dialog modal-full-height modal-right w-100" role="document" style="position: fixed !important;right: 0;height: 100%;top: 0;margin: 0;">
+                    <div class="modal-content" style="height:100%"> 
+                        <div class="modal-header d-flex flex-column justify-content-center align-items-center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title w-100"  style="text-align:center;" id="`+username+`">Mesures personnelles de `+username+` en `+polluant+`</h4>
+                        </div>                 
+                        <div class="modal-body">
+                            <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+username+`">
+                                <img class="charts-legend" id="image-${username}" src="images/legend_${getImgPolluant}.png">
+                                <canvas class="chartjs-render-monitor" id="canvas-${username}" width="600" height="600"></canvas>
+                            </div>
+                        </div>   
+                    </div>
+                </div>
+            </div>`;
+
+            this.bindEvents();
+        }
+
+        for(let idx of data) {
+          const [lon, lat, polluant, username, date] = idx;
+          await new chartDrawing(polluant, document.getElementById('canvas-'+username).getContext('2d')).drawUsersMesures(username, date.date);
+        }
+    }
+
+    async wmsMap() {
+        let data = await new MapAPI().getWmsMap();
+        let flag = 0;
+
+        this.azurPacaMulti = L.tileLayer.wms(data.url, {
+            layers: data.result,
             format: 'image/png',
             transparent: true,
             opacity: 0.6
         }).addTo(this.map);
 
-        this.azurPacaMulti.on('tileerror', (error, tile) => {
-            console.log(error);
-            console.log(tile);
+        this.azurPacaMulti.on('tileerror', () => {
+            if(flag == 1) return;
+            flag = 1;
+            alert('Problème lors de l\'insertion de la carte de pollution. Veuillez réessayer.');
         });
-    }
+    } 
 
-    generateWind()
-    {
-        fetch(`cdn/js/wind_${this.moment().format('DDMMYYYY')}_${this.moment().format('HH')}.json`).then((response) => {
-            
-            return response.json().then((data) => {
-                
-                this.wind = L.velocityLayer({
-                    displayValues: true,
-                    displayOptions: {
-                        velocityType: 'Global Wind',
-                        displayPosition: 'bottomleftleft',
-                        displayEmptyString: 'No wind data',
-                        position: 'topright',
-                        speedUnit: 'kt'
-                    },
-                    data: data,
-                }).addTo(this.map);
+    async generateWind() {
+        let data = await new MapAPI().getWind();
 
-                this.customMenu();
- 
-                setInterval(() => {
-                    if(new Date().getMinutes() == "00") {
-                        this.generateWind();
-                        console.log("wind has been correctly generated");
-                    } else {
-                        console.log("wind will be generated at "+ (new Date().getHours()+1) + ":00");
-                    }
-                }, 60000);
-            })
-        });  
+        this.wind = L.velocityLayer({
+            displayValues: true,
+            displayOptions: {
+                velocityType: 'Global Wind',
+                displayPosition: 'bottomleftleft',
+                displayEmptyString: 'No wind data',
+                position: 'topright',
+                speedUnit: 'kt'
+            },
+            data: data,
+        }).addTo(this.map);
+
+        this.customMenu();
+
+        setInterval(() => {
+            if(new Date().getMinutes() == "00") location.reload();  
+        }, 60000);
     }
 
     /**
-     * @param {number} codeStation 
+     * @param {string} codeStation 
      * @param {string} nomPolluant 
-     * @param {number} codePolluant 
-     * @param {number} lon 
-     * @param {number} lat 
+     * @param {integer} codePolluant 
+     * @param {float} lon 
+     * @param {float} lat 
      */
-    drawGraph(codeStation, nomPolluant, codePolluant, lon, lat)
-    {   
+    async drawGraph(codeStation, nomPolluant, codePolluant, lon, lat) {   
         let image = document.getElementById('image-'+codeStation);
         let spinner = document.getElementById('spinner-'+codeStation);
         let modalBody = document.getElementById('modal-'+codeStation);
         let ctx = document.getElementById('canvas-'+codeStation).getContext("2d");
 
-        if(nomPolluant == "NO2" || nomPolluant == "O3") {    
+        if (nomPolluant == "NO2" || nomPolluant == "O3") {    
+            let data  = await new MapAPI().getMesuresMaxJour(codePolluant, codeStation, 4);
+            let previsionData = await new MapAPI().getPrevisions(lon, lat, nomPolluant); 
             
-            this.getMesuresMaxJour(codePolluant, codeStation, 4).then((data) => { 
+            for (const validator of data) {
+                if(validator === -Infinity) {
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+nomPolluant+'</div>';
+                    return;
+                }
+            }   
+            new chartDrawing(nomPolluant, ctx).drawMesureMaxAndPrevi(data, previsionData);
                 
-                for (const validator of data) {
-                    if(validator === -Infinity) {
-                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nomPolluant+'</div>';
-                        return;
-                    }
-                }   
-
-                this.getPrevisions(lon, lat, nomPolluant).then((PrevisionData) => {
-                    new chartDrawing(nomPolluant, ctx).drawMesureMaxAndPrevi(data, PrevisionData);
-                });
-
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
-            });
+            spinner.style.visibility = "hidden";
+            image.style.visibility = "visible";
             
         } else if (nomPolluant == "SO2") {
-
-            this.getMesuresMaxJour(codePolluant, codeStation, 7).then((data) => {
+            let data = await new MapAPI().getMesuresMaxJour(codePolluant, codeStation, 7);
             
-                for (const validator of data) {
-                    if(validator === -Infinity) {
-                        modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nomPolluant+'</div>';
-                        return;
-                    }
-                }  
-                    
-                new chartDrawing(nomPolluant, ctx).drawMesureMax(data);
-        
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
-                                    
-            });
-
+            for (const validator of data) {
+                if(validator === -Infinity) {
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+nomPolluant+'</div>';
+                    return;
+                }
+            }  
+            new chartDrawing(nomPolluant, ctx).drawMesureMax(data);
+    
+            spinner.style.visibility = "hidden";
+            image.style.visibility = "visible";
+            
         } else if (nomPolluant == "PM10"){
-
-            this.getMesures(5, codeStation).then((data) => {
+            let data = await new MapAPI().getMesures(5, codeStation);
+            let previsionData = await new MapAPI().getPrevisions(lon, lat, nomPolluant);
                 
-                if(data.length == 0) {  
-                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant :'+' '+nomPolluant+'</div>';
-                    return;
-                }
-
-                this.getPrevisions(lon, lat, nomPolluant).then((previsionData) => {
-                    new chartDrawing(nomPolluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
-                });
-
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
+            if(data.length == 0) {  
+                modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+nomPolluant+'</div>';
+                return;
+            }
+            new chartDrawing(nomPolluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
+        
+            spinner.style.visibility = "hidden";
+            image.style.visibility = "visible";
  
-            });
         } else if (nomPolluant == "PM25") {
+            let data = await new MapAPI().getMesures(6001, codeStation);
+            let previsionData = await new MapAPI().getPrevisions(lon, lat, nomPolluant);
 
-            this.getMesures(6001, codeStation).then((data) => {
-
-                if(data.length == 0) {  
-                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i> Cette station ne mesure pas le polluant:'+' '+nomPolluant+'</div>';
-                    return;
-                }
-
-                this.getPrevisions(lon, lat, nomPolluant).then((previsionData) => {
-                    new chartDrawing(nomPolluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
-                });
-
-                spinner.style.visibility = "hidden";
-                image.style.visibility = "visible";
- 
-            });
+            if(data.length == 0) {  
+                modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+nomPolluant+'</div>';
+                return;
+            }
+            new chartDrawing(nomPolluant, ctx).drawMesureMoyAndPrevi(data, previsionData);
+        
+            spinner.style.visibility = "hidden";
+            image.style.visibility = "visible";
         }
     }
 
@@ -309,19 +283,12 @@ class SmartPortMap extends HTMLElement
         e.preventDefault();
 
         let station = document.getElementById(e.target.id);
-
         let polluant = station.id.substring(0, 2);
-
         let lon = station.getAttribute('lon');
-
         let lat = station.getAttribute('lat');
-
         let codeStation = station.getAttribute('code');
-
         let modal = document.getElementById('mod-'+codeStation);
-
         let nav = modal.querySelector('#nav-'+codeStation);
-
         let container = modal.querySelector('#modal-'+codeStation);
 
         container.innerHTML = `<div id="spinner-${codeStation}" class="loader spinner-border"></div>`;
@@ -364,275 +331,60 @@ class SmartPortMap extends HTMLElement
         }
     }
 
-    /**
-     * @param {number} polluantId 
-     * @param {string} codeStation  
-     */
-    getMesures(polluantId, codeStation) 
-    {
-        const date = this.moment().subtract(5, 'days').format('YYYY/MM/DD');
 
-        return new Promise((resolve, reject) => {
-            
-            const createRequests = () => {
-                const getURL = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_journalier_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typeName=mes_sudpaca_journalier_poll_princ:mes_sudpaca_journalier&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27"+date+ "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+polluantId+"%20AND%20code_station%20=%20%27"+codeStation+"%27";
-                console.log(getURL);
-                const requestPoll = [];
-
-                const request = axios.get(getURL);
-
-                requestPoll.push(request);
-
-                return requestPoll;
-            }
-
-            if(polluantId && codeStation) {
-
-                const requests = createRequests();
-
-                Promise.all(requests).then(responseS => {
-                    const data = responseS.map(response => response.data.features.map(feature => feature.properties.valeur));
-
-                    const values = data[0];
-
-                    resolve(values);
-                })
-            } else {
-                reject();
-            }
-        })        
-    }
-
-
-    /**
-     * @param {number} polluantId
-     * @param {string} codeStation 
-     * @param {number} ech 
-     */
-    getMesuresMaxJour(polluantId, codeStation, ech)
-    {
-        return new Promise((resolve, reject) => {
-            
-            const createRequests = () => {
-                
-                const results = [];                
-
-                for(let i = 0; i <= ech; i++) {
-                    const date = this.moment().subtract(i, 'days').format('YYYY/MM/DD');
-                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + date + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+polluantId+"%20AND%20code_station%20=%20%27"+codeStation+"%27%20AND%20date_fin<=%27"+ date +"%20" + "23:59" + "%27";
-                    const request = axios.get(url);
-
-                    results.push(request);  
-                }
-                return results;
-            }
-    
-            if(polluantId && codeStation && ech) {
-
-                const requests = createRequests();
-    
-                Promise.all(requests).then(responseS => {
-                    const data = responseS.map(response => response.data.features.map(feature => feature.properties.valeur));
-
-                    const maxValue = [];
-    
-                    for(let idx = 0; idx < data.length; idx++) {
-                        maxValue.push(Math.max.apply(null, data[idx]));
-                    }
-    
-                    resolve(maxValue);
-                })
-            } else {
-                reject();
-            }
-        })
-    }
-
-    /**
-     * @param {number} lon 
-     * @param {nuber} lat 
-     * @param {string} pol
-     */
-    async getPrevisions(lon, lat, pol)
-    {
-        if(lon && lat) {
-            const getURL = (ech) => `https://apigeoloc.atmosud.org/getpollution?pol=${pol}&lon=${lon}&lat=${lat}&ech=p${ech}`;
-            
-            const requestsNO2 = new Array(3)
-                                .fill(null)
-                                .map((_, i) => axios.get(getURL(i)));
-            
-            return (await Promise.all(requestsNO2))
-                    .map(response => response.data.data.valeur);
-        } else {
-            throw new Error("Previsions fetching needs lon and lat parameters.")
-        }
-    }
-
-
-    searchStations()
-    {
+    async searchStations() {
         let search = document.getElementById('search-tool-input');
-        let resultsContainer = document.getElementById('container-results-search');
-        let baseTemplate = `
-            <div class="w-100 d-flex align-items-center justify-content-center" style="margin-top:25vh;">
-                <img src="/images/locationsearch.png" width="256px">
-            </div>
-            <div class=""w-100>
-                <p style="text-align: center;">Rechercher par stations ou code stations !</p>
-            </div>`;
 
-        resultsContainer.innerHTML = baseTemplate;
-        
-        const createRequests = (e) => {
-
-            if(e.keyCode == 8 && e.target.value.length <= 1) {
-                resultsContainer.innerHTML = baseTemplate;
-                return;
-            }
-                let value = {};
-                value.content = e.target.value;
-
-                fetch('/api/search', {
-                    method: 'POST',
-                    body: JSON.stringify(value)
-                }).then((response) => 
-                {
-                    if(!response.ok) return;
-                    
-                    return response.json().then((data) => {
-
-                        if(data.result) {
-
-                            let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
-
-                            JSON.parse(data.results).forEach(elm => {
-                               
-                                childrenResults += `<div class="searchResults w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;" id="${elm.id}" station="${elm.nom}" lon="${elm.lon}" lat="${elm.lat}">${elm.nom} - ${elm.id}</div>`;
-
-                            });
-
-                            childrenResults += '</div>';
-
-                            resultsContainer.innerHTML = childrenResults;
-
-                            document.getElementsByClassName('searchResults').forEach((element) => {
-                                
-                                element.addEventListener('click', () => {
-                                   
-                                    if(this.map.getZoom() >= 13) {
-                                        this.map.flyTo([43.7284, 5.9367], this.iniZoom, {
-                                            "animate": true,
-                                            "duration": 2 
-                                        });
-
-                                        setTimeout(() => {
-                                            this.map.flyTo([element.getAttribute('lat'), element.getAttribute('lon')], 14, {
-                                                "animate": true,
-                                                "duration": 2 
-                                            });
-                                        }, 2500);
-                                    } else {
-                                        this.map.flyTo([element.getAttribute('lat'), element.getAttribute('lon')], 14, {
-                                            "animate": true,
-                                            "duration": 2 
-                                        });
-                                    }
-
-
-                                    document.getElementById('NO-'+element.getAttribute('id')).click();
-
-                                    for (let i in this.markerObject) {
-                                        let markerID = this.markerObject[i].options.title;
-                                        if (markerID == element.getAttribute('station')) {
-                                            this.markerObject[i].openPopup();
-                                        };
-                                    }
-                                });
-                            });
-
-                        } else {
-                            let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
-                           
-                            childrenResults += `<div id="error-search-results" class="w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;"><i class="fas fa-exclamation-circle mr-2"></i>Aucun résultat !</div>`;
-
-                            childrenResults += '</div>';
-
-                            resultsContainer.innerHTML = childrenResults;
-                        }
-                    })
-                    
-                })
-            
-        }
-
-        search.addEventListener('keyup', createRequests);
+        search.addEventListener('keyup', await new MapAPI().searchStationsXHR(this.markerObject, this.map, this.iniZoom));
     }
 
-    addCustomMesures()
-    {
-        let submitBtn = document.getElementById('add-mesures-submit-btn');
-        let inputSelect = document.getElementById('add-mesures-select');
-        let inputDate = document.getElementById('add-mesures-date');
-        let inputFile = document.getElementById('add-mesures-file');
+    addMesureXHR() {
 
-        const createRequests = () => {
+        let form = document.getElementById('form-add-mesures');
+
+        let spinner = document.getElementById('spinner-add-mesures');
+
+        const sendRequest = async (e) => {
+
+            e.preventDefault();
+
+            spinner.classList.remove('not-loaded');
+
+            let data = await new MapAPI().sendMesuresForm();
+
+            spinner.classList.add('not-loaded');
             
-            if(!inputDate.value.match( /\d{2}-\d{2}-\d{4}/ ) && !inputSelect.value == 0 && !inputFile.value.split('.').pop() == "json") 
-                return document.innerHTML += `
-                    <div class="alert alert-danger w-100" role="alert">
-                        Veuillez entrez des données valides.
-                    </div>`;
+            if (data.status == 300) return alert('Veuillez renseigner des coordonnées au format WGS84');
 
-            let data = {
-                values: {
-                    polluant: inputSelect.value,
-                    date: inputDate.value,
-                    file: inputFile.value,
+            if (data.status == 450) return alert('Vous avez déjà envoyé vos données');
+
+            if (data.status == 500) {
+                let messageError = [];
+
+                for(let message in data.error) {
+                    messageError.push(data.error[message][0]);
                 }
+
+                let getMessage = "Erreur(s) : ";
+
+                for(let idx of messageError) {
+                    getMessage += idx + ", ";
+                }
+                getMessage = getMessage.substring(0, getMessage.length - 2);
+                getMessage += " invalide(s)";
+
+                return alert(getMessage);
             }
-                fetch('api/add/mesures', {
-                    method: 'POST',
-                    body: JSON.stringify(data),
-                }).then((response) => {
-                    if(!response.ok) throw new Error(': Ajax request failed... ');
 
-                    return response.json().then((result) => {
-                        if(!result.ok) return;
-                        
-                        let data  = JSON.parse(result.data);
+            alert('Vos données ont correctement été téléversées sur nos serveurs');
 
-                        let circle = new CircleMarker([data.lat, data.lon], {
-                            radius: 25,
-                            fillColor: "#24D238",
-                            color: "#A9F6B2",
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 1,
-                          }).addTo(this.map);
-
-                        circle.bindPopup('<h1>test</h1>');
-
-                        circle.click();
-                    })
-                })
-            } 
-            
-            submitBtn.addEventListener('click', createRequests);
+            this.createUserMesures();
         }
 
-        
-    
-    /**
-     * @param {date} strDate 
-     */
-    toTimestamp(strDate) 
-    {
-        return (Date.parse(strDate)/1000);
+        form.addEventListener('submit', sendRequest);
     }
 
-    bindEvents()
-    {
+    bindEvents() {
         let self = this;
 
         let elements = [
@@ -645,15 +397,12 @@ class SmartPortMap extends HTMLElement
         
         elements.forEach((element) => {
             for(let index of element) {
-                index.addEventListener('click', (e) => {
-                    self.getGraph(e);
-                });
+                index.addEventListener('click', e => self.getGraph(e));
             }
         });
     }
 
-    customMenu()
-    {  
+    customMenu() {  
         let controls = {
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marker-alt fa-fw'></i></div> <p class='control-menu-text-content'>Station</p><div class='check'></div></span>": this.showStations,
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-smog fa-fw'></i></div> <p class='control-menu-text-content'>Pollution</p><div class='check'></div></span>": this.azurPacaMulti,
@@ -665,15 +414,12 @@ class SmartPortMap extends HTMLElement
         let controlMenu = document.getElementsByClassName('leaflet-control-layers')[0];   
         let controlMenuBtn = document.getElementById('toggle-btn-control-menu');
         let controlMenuBtnLeaver = document.createElement('div');
-
         let searchMenu = document.getElementById('search-results');
         let searchMenuBtn = document.getElementById('toggle-search');
         let searchMenuBtnLeaver = document.getElementById('search-leaver');
-
         let addMenu = document.getElementById('add-mesures');
         let addMenuBtn = document.getElementById('toggle-add');
         let addMenuBtnLeaver = document.getElementById('add-mesures-leaver');
-
         let checkboxContainer = document.querySelector('.leaflet-control-layers-overlays');
         let wind = document.querySelector('.leaflet-top.leaflet-right');
         let logo = document.createElement('img');

@@ -7,7 +7,7 @@ use App\Security\User as AppUser;
 use Symfony\Component\Security\Core\Exception\AccountExpiredException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use App\Entity\User;
+use App\Entity\SmartPortUser;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 
 class UserChecker implements UserCheckerInterface
@@ -17,7 +17,7 @@ class UserChecker implements UserCheckerInterface
      */
     public function checkPreAuth(UserInterface $user)
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof SmartPortUser) {
             return;
         }
 
@@ -33,7 +33,7 @@ class UserChecker implements UserCheckerInterface
      */
     public function checkPostAuth(UserInterface $user)
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof SmartPortUser) {
             return;
         }
 

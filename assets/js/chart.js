@@ -4,10 +4,6 @@ export default class chartDrawing {
 
         this.polluant = polluant;
         this.canvas = canvas;
-        this.newDate = new Date();                
-        this.days = new Array();
-        this.vLimite;
-        this.maxPoint;
         this.width = this.canvas.canvas.offsetWidth;
         this.gradient = this.canvas.createLinearGradient(300, 250, 300, 600);        
         this.gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
@@ -17,7 +13,11 @@ export default class chartDrawing {
         this.gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
         this.gradient.addColorStop(1, 'rgb(0, 204, 170)');
         this.moment = require('moment');
-
+        
+        this.newDate = new Date();                
+        this.days = new Array();
+        this.vLimite;
+        this.maxPoint;
     }
 
     drawMesureMaxAndPrevi(data, previsionData) {
@@ -212,5 +212,77 @@ export default class chartDrawing {
             }
         });
     }
+
+    async drawUsersMesures(username, date) {
+        
+        if(this.polluant == "O3") {
+            this.vLimite = [180, 180, 180, 180, 180, 180, 180, 180];
+            this.maxPoint = 360;
+        } else if(this.polluant == "NO2") {
+            this.vLimite = [200, 200, 200, 200, 200, 200, 200, 200];
+            this.maxPoint = 400;
+        } else if(this.polluant == "PM10") {
+            this.vLimite = [50, 50, 50, 50, 50, 50, 50, 50];
+            this.maxPoint = 100;
+        } else if(this.polluant == "PM25"){
+            this.vLimite = [25, 25, 25, 25, 25, 25, 25, 25];
+            this.maxPoint = 50;
+        } else {
+            this.vLimite = [350, 350, 350, 350, 350, 350, 350, 350];
+            this.maxPoint = 700;
+        }
+        
+        let response = await fetch(`uploads/users_mesures/${username}_mesures.json`);
+    
+        let data = await response.json();
+
+        for(let i in data.values) {
+            const newDate = this.moment(new Date(date)).add(i, 'days').format('DD/MM/YYYY'); 
+            this.days.push(newDate);
+        }
+
+        new Chart(this.canvas, {
+            type: 'line',
+            data: {
+                labels: this.days,
+                datasets: [
+                    {
+                        label: this.polluant + " Mesures",
+                        borderColor: this.gradient,
+                        fill: false,
+                        data: data.values,
+                    },
+                    {
+                        label: this.polluant + " Valeur limite",
+                        fill: false,
+                        backgroundColor: "red",
+                        borderColor: "red",
+                        data: this.vLimite,
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    fontSize: 20,
+                    display: true,
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            suggestedMax: this.maxPoint
+                        }
+                    }]
+                },
+                legend: {
+                    position: 'bottom',
+                    display: true, 
+                    labels: {fontSize: 10},                
+                },
+            }
+        });
+    }
 }
+
 
