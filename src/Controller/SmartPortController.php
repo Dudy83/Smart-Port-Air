@@ -139,79 +139,53 @@ class SmartPortController extends AbstractController
     */
     public function mapAPI(Request $request) : Response
     {  
-        // Create connection
-        $config = new \Doctrine\DBAL\Configuration();
-
-        $connectionParams = [
-            'dbname' => 'smartport',
-            'user' => 'root',
-            'password' => '',
-            'host' => '127.0.0.1:3306',
-            'driver' => 'pdo_mysql',
-        ];
-
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+        $connexionParams = "host=78.153.226.3 port=5432 dbname=smartport user=smartportuser password=smartport";
+        $db = pg_connect($connexionParams);
                 
-        // Prepare the query
-        $sql = "SELECT nom, lon, lat, id FROM `chimie_stations2`";
-        // Execute SQL query
-        $stmt = $conn->query($sql);
-        //Prepare an array to push all the results from the query
+        $sql = pg_query($db, "SELECT nom, lon, lat, id FROM site");
+
         $results = array();
-        // Processing...
-        while($data = $stmt->fetch()) {
-            $results[] = $data; 
+
+        while($row = pg_fetch_row($sql)) {
+            $results[] = $row; 
         } 
-        // returns JSON object to javascript with our array
+
         return $this->json(['code' => 200, 'results' => json_encode($results)], 200);
-    
     }
 
     /**
-     * @Route("/api/search", name="map_api_search")
+     * @Route("/map/ihs/api", name="map_api_ihs")
      */
-    public function search(Connection $connection, Request $request, ObjectManager $manager) : Response {
+    public function getIHSdata() : Response {
 
-        if($ajaxRequest = $request->getContent())
-        {
-            $requestContent = json_decode($ajaxRequest, true);
+      $connexionParams = "host=78.153.226.3 port=5432 dbname=ihs user=readonly password=GNQ4$3";
+      
+      $db = pg_connect($connexionParams);
 
-            $content = $requestContent["content"];
+      $date = new \DateTime();
+      $date->modify('-1 hour');
+      $formatDate = $date->format("Y-m-d H:00:00");
 
-            $config = new \Doctrine\DBAL\Configuration();
+      $sql = "SELECT \"Name\", \"Lon\", \"Lat\", \"VesselType\", \"Destination\", \"Status\", \"Heading\", \"Width\" FROM loc.horaire WHERE upload_hour >= '$formatDate' AND \"VesselType\" != 'Vessel'";
+              
+      $sql = pg_query($db, $sql);
 
-            $connectionParams = [
-                'dbname' => 'smartport',
-                'user' => 'root',
-                'password' => '',
-                'host' => '127.0.0.1:3306',
-                'driver' => 'pdo_mysql',
-            ];
+      $results = array();
 
-            $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+      while($row = pg_fetch_row($sql)) {
+          $results[] = $row; 
+      } 
 
-            // Prepare the query
-            $sql = "SELECT nom, lon, lat, id FROM `chimie_stations2` WHERE nom LIKE '%$content%' OR id LIKE '%$content%'";
-            // Execute SQL query
-            $stmt = $conn->query($sql);
-            //Prepare an array to push all the results from the query
-            $results = array();
-            // Processing...
-            while($data = $stmt->fetch()) {
-                $results[] = $data; 
-            } 
-
-            if(($results)) {
-                return new JsonResponse([
-                    'result' => true,
-                    'results' => json_encode($results),
-                    ]);
-            } else {
-                return new JsonResponse([
-                    'result' => false,
-                ]);
-            }
-        }
+      if(($results)) {
+          return new JsonResponse([
+              'code' => 200,
+              'results' => json_encode($results),
+          ]);
+      } else {
+          return new JsonResponse([
+              'code' => 500,
+          ]);
+      }
     }
 
 

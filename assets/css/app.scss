@@ -200,17 +200,6 @@ body {
     }
 }
 
-@keyframes slideInFromLeft {
-    0% {
-      transform: translatey(100%);
-      opacity: 0;
-    }
-    100% {
-      transform: translateX(0);
-      opacity: 0.9;
-    }
-}
-
 /* media queries */
 @media (max-width: 1500px) {
     #personnal-infos-container {
@@ -241,6 +230,10 @@ body {
 @media (max-width: 575px) {
     .modal-dialog {
         margin: 0;
+    }
+
+    #user-connexion-image {
+      width: 100% !important;
     }
 }
 

@@ -59,7 +59,7 @@
 
 
 
-        <button type="submit" class="btn btn-success rounded w-100 m-0"><i class="fas fa-user-edit mr-2"></i>Modifier</button>
+        <button type="submit" class="btn w-100 m-0" style="color: #fff; background-color:#6BBA62"><i class="fas fa-user-edit mr-2"></i>Modifier</button>
         <a data-toggle="modal" data-target="#delete-account" class="btn btn-danger w-100 m-0 mt-2" href="{{ path('security_delete_user') }}"><i class="fas fa-trash-alt mr-2"></i>Supprimer</a>
 
     {{form_end(form)}}
@@ -68,7 +68,7 @@
 </div>
 
 <div id="form-image" class="w-75 d-flex flex-column justify-content-center align-items-center">
-    <img src="images/logo/logo_transparent.png" width="40%">
+    <img src="images/logo/logo_transparent.png" title="form logo smartport" alt="form logo smartport" width="40%">
 </div>
 
 <div style="z-index: 7000;" class="modal fade" id="delete-account" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -79,7 +79,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <img src="images/logo/logo_transparent.png" width="256px" class="mb-4">
+        <img src="images/logo/logo_transparent.png" title="modal delete account logo smartport" alt="modal delete account logo smartport" width="256px" class="mb-4">
         
         <div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Vous êtes sur le point de supprimer votre compte SmartPort &copy;</div>
 
@@ -88,7 +88,12 @@
       <div class="modal-footer d-flex flex-wrap justify-content-between align-items-center">
         <div id="modal-delete-account" class="modal-title alert alert-danger w-100" style="text-align:center;margin:0 0 1rem 0;">êtes vous sur de vouloir continuer ?</div>
         <button type="button" class="btn btn-warning" data-dismiss="modal" style="color:#fff;"><i class="fas fa-times-circle mr-2"></i>Fermer</button>
-        <a href="{{ path('security_delete_user') }}" class="btn btn-danger"><i class="fas fa-trash-alt mr-2"></i>Supprimer</a>
+        
+        <form action="{{ url('security_delete_user') }}" method="post">
+          <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt mr-2"></i>Supprimer</button>
+          <input type="hidden" name="token" value="{{ csrf_token('delete-account') }}"/>
+        </form>
+
       </div>
     </div>
   </div>

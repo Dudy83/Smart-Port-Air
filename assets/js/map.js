@@ -8,16 +8,18 @@ class SmartPortMap extends HTMLElement {
         super();
         this.stations = new Array();
         this.markerObject = new Array();
-        this.moment = require('moment');
+        this.moment = require('moment'); 
     }
 
-    connectedCallback() {
-        this.initiateMap();
-        this.createStations();
-        this.wmsMap();
-        this.generateWind();
-        this.addMesureXHR();
-        this.createUserMesures();
+    async connectedCallback() {
+        await this.initiateMap();
+        await this.createStations();
+        await this.wmsMap();
+        await this.generateWind();
+        await this.addMesureXHR();
+        await this.createUserMesures();
+        this.boat = await new MapAPI().getIHS(this.map);
+        this.customMenu();
     }
 
     initiateMap() {
@@ -40,7 +42,7 @@ class SmartPortMap extends HTMLElement {
 
         this.map = L.map('map', {
             layers: [ this.mapboxMap ],
-            minZoom: 6,
+            minZoom: 8,
             maxZoom: 20,
             zoomControl: false
         });
@@ -60,54 +62,64 @@ class SmartPortMap extends HTMLElement {
     }
 
     async createStations() { 
+        
         let geoJson = await new MapAPI().getStations(this.stations);
         
         this.showStations = await L.geoJSON(geoJson, {
 
             pointToLayer: (feature, latlng) => {
-                let circle = new L.CircleMarker(latlng, {title: feature.nom});
-                this.markerObject.push(circle);
-                return circle;
+
+              let customIcon = L.icon({
+                iconUrl: 'images/Templatic-map-icons/science.png',
+                iconSize:     [22, 33], 
+                iconAnchor:   [11, 33],
+                popupAnchor:  [0, -33] 
+              });
+
+              let circle =  new L.marker(latlng, { icon: customIcon, title: feature.properties.nom_station })
+              this.markerObject.push(circle);
+
+              return circle;
             },
         
             onEachFeature: (feature, layer) => {
                 
-                layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.nom +  '</h5><button style="color: #fff;background-color:#6BBA62" id="modalBtn'+feature.stationId+'" code='+feature.stationId+' lon='+feature.geometry.coordinates[0]+' lat='+feature.geometry.coordinates[1]+' type="button" class="btn w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.stationId+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
+                layer.bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><h5 style="color:#363636">' + feature.properties.nom_station +  '</h5><button style="color: #fff;background-color:#6BBA62" id="modalBtn'+feature.properties.code_station+'" code='+feature.properties.code_station+' lon='+feature.geometry.coordinates[0]+' lat='+feature.geometry.coordinates[1]+' type="button" class="btn w-100 dataNO2" data-toggle="modal" data-target=#mod-'+feature.properties.code_station+'><i class="fas fa-chart-line mr-2"></i>Graphique des polluants</button></div>');
                 
                 layer.on('click', () => {
-                    document.getElementById('NO-'+feature.stationId).click();
+                    document.getElementById('NO-'+feature.properties.code_station).click();
                 });
                 
                 document.getElementById('modals-container').innerHTML += `
-                <div style="z-index: 7000;" class="modal fade right" id="mod-`+feature.stationId+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                <div style="z-index: 7000;" class="modal fade right" id="mod-`+feature.properties.code_station+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
                     <div class="modal-dialog modal-full-height modal-right w-100" role="document" style="position: fixed !important;right: 0;height: 100%;top: 0;margin: 0;">
                         <div class="modal-content" style="height:100%">        
                             <div class="modal-header d-flex flex-column justify-content-center align-items-center">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
-                                <h4 class="modal-title w-100" id="myModalLabel" style="text-align:center;">`+feature.nom+ `</h4>
-                                <h4 id="`+feature.stationId+`">`+feature.stationId+`</h4>
+                                <h4 class="modal-title w-100" id="myModalLabel" style="text-align:center;">`+feature.properties.nom_station+ `</h4>
+                                <h4 id="`+feature.properties.code_station+`">`+feature.properties.code_station+`</h4>
                             </div>
                             <div class="modal-body">
-                                <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.stationId+`">
+                                <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.properties.code_station+`">
                                     <li class="nav-item">
-                                        <a id="NO-`+feature.stationId+`" class="NO2graph nav-link active" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
+                                        <a id="NO-`+feature.properties.code_station+`" class="NO2graph nav-link active" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="O3-`+feature.stationId+`" class="O3graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
+                                        <a id="O3-`+feature.properties.code_station+`" class="O3graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="PM-`+feature.stationId+`" class="PM10graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
+                                        <a id="PM-`+feature.properties.code_station+`" class="PM10graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="SO-`+feature.stationId+`" class="SO2graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
+                                        <a id="SO-`+feature.properties.code_station+`" class="SO2graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="MP-`+feature.stationId+`" class="PM25graph nav-link" href="#" code="`+feature.stationId+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM2.5</a>
+                                        <a id="MP-`+feature.properties.code_station+`" class="PM25graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM2.5</a>
                                     </li>
                                 </ul>
-                                <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.stationId+`">
+                                <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.properties.code_station+`">
                                 </div>
                             </div>                          
                         </div>      
@@ -117,11 +129,25 @@ class SmartPortMap extends HTMLElement {
         }).addTo(this.map);
 
         this.bindEvents();
-        this.searchStations();
+
+        let resultsContainer = document.getElementById('container-results-search');
+
+        let baseTemplate = `
+            <div class="w-100 d-flex align-items-center justify-content-center" style="margin-top:25vh;">
+                <img src="/images/locationsearch.png" width="256px">
+            </div>
+            <div class=""w-100>
+                <p style="text-align: center;">Rechercher par stations ou code stations !</p>
+            </div>`;
+        
+        resultsContainer.innerHTML = baseTemplate;
+
+        document.getElementById('search-tool-input').addEventListener('keyup', this.searchStations.bind(this));
     }
 
     async createUserMesures() {
-        let data = await new MapAPI().getUserMesures();
+        
+      let data = await new MapAPI().getUserMesures();
 
         if(data == 500) return;
 
@@ -201,8 +227,6 @@ class SmartPortMap extends HTMLElement {
             data: data,
         }).addTo(this.map);
 
-        this.customMenu();
-
         setInterval(() => {
             if(new Date().getMinutes() == "00") location.reload();  
         }, 60000);
@@ -280,6 +304,7 @@ class SmartPortMap extends HTMLElement {
 
     getGraph(e)
     {
+        // if(e.target.classList.contains('active')) return;
         e.preventDefault();
 
         let station = document.getElementById(e.target.id);
@@ -332,10 +357,90 @@ class SmartPortMap extends HTMLElement {
     }
 
 
-    async searchStations() {
-        let search = document.getElementById('search-tool-input');
+    async searchStations(e) {
 
-        search.addEventListener('keyup', await new MapAPI().searchStationsXHR(this.markerObject, this.map, this.iniZoom));
+        let resultsContainer = document.getElementById('container-results-search');
+
+        let baseTemplate = `<div class="w-100 d-flex align-items-center justify-content-center" style="margin-top:25vh;">
+          <img src="/images/locationsearch.png" width="256px"></div>
+        <div class=""w-100><p style="text-align: center;">Rechercher par stations ou code stations !</p></div>`;
+
+        if(e.keyCode == 8 && e.target.value.length <= 0) {
+          resultsContainer.innerHTML = baseTemplate;
+          return;
+        }
+
+        if ((e.keyCode < 65 || e.keyCode > 90) && (e.keyCode < 97 || e.keyCode > 123) && e.keyCode != 32) {
+          return;
+        }
+    
+        document.getElementById('search-leaver').addEventListener('click', () => resultsContainer.innerHTML = baseTemplate);
+
+        let searchResults = new Array();
+        
+        let stations = JSON.parse(localStorage.getItem('sites'));
+
+        let childrenResults = '<div class="map-search-results w-100 d-flex flex-column align-items-center justify-content-center">';
+
+        for(let i in stations) {
+          if(stations[i].properties.nom_station.toLowerCase().match(e.target.value.toLowerCase()) || stations[i].properties.code_station.toLowerCase().match(e.target.value.toLowerCase())) {
+            searchResults.push(stations[i]);
+          }
+        }
+
+        if(searchResults.length <= 0) searchResults.push('null');
+        
+        for(let data in searchResults) {
+
+          if(searchResults[data] == "null") {
+
+            childrenResults += `<div id="error-search-results" class="w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;"><i class="fas fa-exclamation-circle mr-2"></i>Aucun résultat !</div>`;
+            resultsContainer.innerHTML = childrenResults;
+
+          } else {
+    
+            childrenResults += `<div class="searchResults w-100" style="border-bottom: 1px solid #dbdbdb; padding: 1rem;" id="${searchResults[data].properties.code_station}" station="${searchResults[data].properties.nom_station}" lon="${searchResults[data].geometry.coordinates[0]}" lat="${searchResults[data].geometry.coordinates[1]}">${searchResults[data].properties.nom_station} - ${searchResults[data].properties.code_station}</div>`;                
+      
+          }
+        }
+
+        childrenResults += '</div>';
+
+        resultsContainer.innerHTML = childrenResults;
+
+        document.getElementsByClassName('searchResults').forEach((element) => {
+            
+            element.addEventListener('click', () => {
+            
+                if(this.map.getZoom() >= 13) {
+                    this.map.flyTo([43.7284, 5.9367], this.iniZoom, {
+                        "animate": true,
+                        "duration": 2 
+                    });
+
+                    setTimeout(() => {
+                      this.map.flyTo([element.getAttribute('lat'), element.getAttribute('lon')], 14, {
+                            "animate": true,
+                            "duration": 2 
+                        });
+                    }, 2000);
+                } else {
+                    this.map.flyTo([element.getAttribute('lat'), element.getAttribute('lon')], 14, {
+                        "animate": true,
+                        "duration": 2 
+                    });
+                }
+                
+                document.getElementById('NO-'+element.getAttribute('id')).click();
+
+                for (let i in this.markerObject) {
+                    let markerID = this.markerObject[i].options.title;
+                    if (markerID == element.getAttribute('station')) {
+                        this.markerObject[i].openPopup();
+                    };
+                }
+            });
+        });
     }
 
     addMesureXHR() {
@@ -406,10 +511,14 @@ class SmartPortMap extends HTMLElement {
         let controls = {
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-map-marker-alt fa-fw'></i></div> <p class='control-menu-text-content'>Station</p><div class='check'></div></span>": this.showStations,
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-smog fa-fw'></i></div> <p class='control-menu-text-content'>Pollution</p><div class='check'></div></span>": this.azurPacaMulti,
-            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-wind fa-fw'></i></div> <p class='control-menu-text-content'>Vent</p><div class='check'></div></span>": this.wind
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-ship'></i></div> <p class='control-menu-text-content'>Bateaux</p><div class='check'></div></span>": this.boat,
+            "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-wind fa-fw'></i></div> <p class='control-menu-text-content'>Vent</p><div class='check'></div></span>": this.wind,
         }
 
         L.control.layers(this.baseLayers, controls, {collapsed: false, position: 'topleft'}).addTo(this.map);
+
+        document.getElementsByClassName('leaflet-control-layers-selector')[4].click();
+        document.getElementsByClassName('leaflet-control-layers-selector')[4].setAttribute('checked', 'true');
         
         let controlMenu = document.getElementsByClassName('leaflet-control-layers')[0];   
         let controlMenuBtn = document.getElementById('toggle-btn-control-menu');

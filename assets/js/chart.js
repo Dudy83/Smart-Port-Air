@@ -1,23 +1,25 @@
 export default class chartDrawing {
 
     constructor(polluant, canvas) {
-
         this.polluant = polluant;
         this.canvas = canvas;
-        this.width = this.canvas.canvas.offsetWidth;
-        this.gradient = this.canvas.createLinearGradient(300, 250, 300, 600);        
-        this.gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
-        this.gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
-        this.gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
-        this.gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
-        this.gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
-        this.gradient.addColorStop(1, 'rgb(0, 204, 170)');
         this.moment = require('moment');
-        
         this.newDate = new Date();                
         this.days = new Array();
         this.vLimite;
         this.maxPoint;
+
+        if(window.innerWidth <= 1200) {
+          this.gradient = 'rgb(0, 204, 170)';
+        } else {
+          this.gradient = this.canvas.createLinearGradient(300, 250, 300, 600);        
+          this.gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
+          this.gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
+          this.gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
+          this.gradient.addColorStop(0.6, 'rgb(153, 230, 0)');
+          this.gradient.addColorStop(0.8, 'rgb(0, 204, 170)');
+          this.gradient.addColorStop(1, 'rgb(0, 204, 170)');
+        }
     }
 
     drawMesureMaxAndPrevi(data, previsionData) {

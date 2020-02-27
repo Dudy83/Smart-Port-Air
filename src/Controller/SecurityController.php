@@ -37,6 +37,7 @@ class SecurityController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
+            // var_dump($_POST);die;
             $regex = '/^[^0-9][_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
 
             if (!preg_match($regex, $user->getEmail())) 
@@ -46,7 +47,7 @@ class SecurityController extends AbstractController
                 return $this->redirectToRoute('security_registration');
             }
 
-            $recaptcha = new \ReCaptcha\ReCaptcha('6Lc4LdMUAAAAAGj3RIgCebGn2JpVmiaHt45Jrzem');
+            $recaptcha = new \ReCaptcha\ReCaptcha('6Le2fdwUAAAAAD0YFG-nt1H5fhv8ogFDoo1sC50X');
             $resp = $recaptcha->verify($_POST['g-recaptcha-response']);
 
             if ($resp->isSuccess()) 
@@ -68,7 +69,7 @@ class SecurityController extends AbstractController
                 $username = $user->getUsername();
     
                 $message = (new \Swift_Message('Smart Port | Lien de confirmation'))
-                    ->setFrom('hello@smartport.com')
+                    ->setFrom('guillaume.zehren@atmosud.org')
                     ->setTo($email)
                     ->setBody(
                         $this->renderView(
@@ -199,40 +200,46 @@ class SecurityController extends AbstractController
        return $this->render('security/modify.html.twig', [
            'form' => $form->createView()
        ]);
-     }
-
+    }
 
 
     /**
     * @Route("/delete-user", name="security_delete_user") 
     */
-    public function deleteUser(UserRepository $repo, ObjectManager $manager, UserMesuresRepository $mesureRepo)
+    public function deleteUser(UserRepository $repo, ObjectManager $manager, UserMesuresRepository $mesureRepo, Request $request)
     {
-        $user = $this->getUser();
+        $submittedToken = $request->request->get('token');
+
+        if ($this->isCsrfTokenValid('delete-account', $submittedToken)) {
+          
+          $user = $this->getUser();
         
-        $userId = $user->getId();
+          $userId = $user->getId();
+  
+          $username = $user->getUsername();
+  
+          $deleteUser = $repo->find($userId);
+  
+          $userMesure = $mesureRepo->findOneBy(['username' => $username]);
+  
+          $session = $this->get('session');
+  
+          $session = new Session();
+  
+          $session->invalidate();
+          
+          $manager->remove($deleteUser);
+          
+          if($userMesure) {
+              $manager->remove($userMesure);
+          }
+          
+          $manager->flush();
+  
+          return $this->redirectToRoute('smart_port');
+        } 
 
-        $username = $user->getUsername();
-
-        $deleteUser = $repo->find($userId);
-
-        $userMesure = $mesureRepo->findOneBy(['username' => $username]);
-
-        $session = $this->get('session');
-
-        $session = new Session();
-
-        $session->invalidate();
-        
-        $manager->remove($deleteUser);
-        
-        if($userMesure) {
-            $manager->remove($userMesure);
-        }
-        
-        $manager->flush();
-
-        return $this->redirectToRoute('smart_port');
+        return $this->render('error/token-expire.html.twig');
     }
 
 
@@ -265,7 +272,7 @@ class SecurityController extends AbstractController
             $manager->flush();
 
             $message = (new \Swift_Message('Smart Port | Réinitialisation du votre mot de passe'))
-            ->setFrom('hello@smartport.com')
+            ->setFrom('guillaume.zehren@atmosud.org')
             ->setTo($email)
             ->setBody(
                 $this->renderView(

@@ -12,7 +12,7 @@
     <div class="row w-75" id="header-container">
         <div class="col-md-6 col-xl-6 col-lg-6 col-sm-12 d-flex flex-column align-items-start justify-content-center">
 
-            <img src="images/logo/logo_transparent.png" class="mt-4" alt="SmartPort Logo" width="356px">
+            <img src="images/logo/logo_transparent.png" class="mt-4" title="header smartport logo" alt="header smartport logo" width="356px">
 
             <a href="{{ path('map') }}" class="btn btn-warning ml-2 mb-3"><i class="fas fa-door-open"></i> C'est parti !</a>
 
@@ -27,7 +27,7 @@
 
         <div id="atmosudLogo"
             class="col-md-6 col-xl-6 col-lg-6 col-sm-12 d-flex flex-column align-items-end justify-content-center">
-            <img src="images/factory.png" width="356px" class="mt-3">
+            <img src="images/factory.png" width="356px" title="header factory" alt="header factory" class="mt-3">
         </div>
     </div>
 
@@ -45,7 +45,7 @@
         <div id="welcome-buttons" class="w-100 d-flex align-items-center justify-content-center mt-2">
             {% if not app.user %}
                 <div class="w-75 d-flex justify-content-around align-items-center">
-                        <img id="user-connexion-image" src="images/user_register.jpg" width="512px">
+                        <img id="user-connexion-image" src="images/user_register.jpg" title="register image" alt="register image" width="512px">
                     <div id="connexion-container" class="w-75 d-flex flex-column justify-content-center align-items-start">
                         <h5>Connectez-vous ou inscrivez-vous pour accéder à la carte</h5>
                         
@@ -71,14 +71,16 @@
         </div>
 
         <div id="cards-info-container" class="w-100 p-5">
+            
             <div id="cards-left-container" class="w-50 d-flex">
                 <div id="cards-left" class="w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
-                        <h3><i class="fas fa-anchor"></i> Position des navires</h3>
-                        <h5><br>Smart Port affiche sur sa carte,<br> le postionnement des bâteaux naviguant autour du port de Marseille en temps réel</h5>
+                  <h3><i class="fas fa-anchor"></i> Position des navires</h3>
+                    <h5><br>Smart Port affiche sur sa carte,<br> le postionnement des bâteaux naviguant autour du port de Marseille en temps réel</h5>
+                  <button id="mod-info-boat" class="btn mt-3" style="color: #fff; background-color:#6BBA62; align-self: baseline; font-size: 100%;"><i class="far fa-play-circle mr-2"></i>Démo</button>
                 </div>
     
                 <div class="w-50 d-flex justify-content-start align-items-center">
-                    <img class="cards-images-isometric" src="images/cardBoat.png" width ="300px">
+                    <img class="cards-images-isometric" src="images/cardBoat.png" title="cards image boat" alt="cards image boat" width ="300px">
                 </div>
             </div>
 
@@ -87,21 +89,23 @@
                     class="w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
                     <h3><i class="fas fa-wind"></i> Prévision du vent</h3>
                     <h5><br>Smart Port affiche aussi sur sa carte,<br> les prévisions du vent selon les modèles d'AtmoSud</h5>
+                    <button id="mod-info-wind" class="btn mt-3" style="color: #fff; background-color:#386380; align-self: baseline; font-size: 100%;"><i class="far fa-play-circle mr-2"></i>Démo</button>
                 </div>
 
                 <div class="w-50 d-flex justify-content-start align-items-center">
-                    <img class="cards-images-isometric" src="images/wind_isometric.png" width="300px">
+                    <img class="cards-images-isometric" src="images/wind_isometric.png" title="cards image wind" alt="cards image wind" width="300px">
                 </div>
             </div>
 
             <div id="cards-left-container" class="w-50 d-flex">
                 <div id="cards-left" class="w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
-                        <h3><i class="fas fa-smog"></i> Modélisation de la pollution</h3>
-                        <h5><br>Modélisation haute résolution de la pollution de l'air selon les modèles d'AtmoSud</h5>
+                  <h3><i class="fas fa-smog"></i> Modélisation de la pollution</h3>
+                  <h5><br>Modélisation haute résolution de la pollution de l'air selon les modèles d'AtmoSud</h5>
+                  <button id="mod-info-poll" class="btn mt-3" style="color: #fff; background-color:#6BBA62; align-self: baseline; font-size: 100%;"><i class="far fa-play-circle mr-2"></i>Démo</button>
                 </div>
     
                 <div class="w-50 d-flex justify-content-start align-items-center">
-                    <img class="cards-images-isometric" src="images/pollution_isometric2.png" width ="300px">
+                    <img class="cards-images-isometric" src="images/pollution_isometric2.png" title="cards image pollution" alt="cards image pollution" width ="300px">
                 </div>
             </div>
 
@@ -110,21 +114,23 @@
                     class="w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
                     <h3><i class="fas fa-map-marker-alt"></i> Stations de mesures</h3>
                     <h5><br>Smart Port recense les stations de mesures d'AtmoSud<br></h5>
+                    <button id="mod-info-stations" class="btn mt-3" style="color: #fff; background-color:#386380; align-self: baseline; font-size: 100%;"><i class="far fa-play-circle mr-2"></i>Démo</button>
                 </div>
 
                 <div class="w-50 d-flex justify-content-start align-items-center">
-                    <img class="cards-images-isometric" src="images/maps.png" width="300px">
+                    <img class="cards-images-isometric" src="images/maps.png" title="cards image map" alt="cards image map" width="300px">
                 </div>
             </div>
 
             <div id="cards-left-container" class="w-50 d-flex">
                 <div id="cards-left" class="w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
-                        <h3><i class="fas fa-chart-line"></i> Graphiques mesures/prévisions</h3>
-                        <h5><br>Affichage de courbes de relevés et prévisions des polluants sur chaque stations de mesures</h5>
+                  <h3><i class="fas fa-chart-line"></i> Graphiques mesures/prévisions</h3>
+                  <h5><br>Affichage de courbes de relevés et prévisions des polluants sur chaque stations de mesures</h5>
+                  <button id="mod-info-mesures" class="btn mt-3" style="color: #fff; background-color:#6BBA62; align-self: baseline; font-size: 100%;"><i class="far fa-play-circle mr-2"></i>Démo</button>               
                 </div>
     
                 <div class="w-50 d-flex justify-content-start align-items-center">
-                    <img class="cards-images-isometric" src="images/chart_isometric.png" width ="300px">
+                    <img class="cards-images-isometric" src="images/chart_isometric.png" title="cards image chart" alt="cards image chart" width ="300px">
                 </div>
             </div>
         </div>
@@ -136,20 +142,20 @@
 <footer class="d-flex flex-wrap justify-content-around align-items-center">
     <div class="w-100 pb-2 d-flex flex-wrap justify-content-around align-items-center">
         
-        <img src="images/logo/logo_transparent.png" width="256px">
+        <img src="images/logo/logo_transparent.png" title="footer smartport logo" alt="footer smartport logo" width="256px">
         
         <div class="w-100 d-flex justify-content-center align-items-center">
-            <a href="https://www.facebook.com/AtmoSud" class="m-3"><img src="images/reseaux/facebook.png"
-                    width="48px"></a>
-            <a href="https://www.linkedin.com/company/atmosud/" class="m-3"><img src="images/reseaux/linkedin.png"
-                    width="48px"></a>
-            <a href="https://twitter.com/AtmoSud" class="m-3"><img src="images/reseaux/twitter.png" width="48px"></a>
-            <a href="https://www.youtube.com/c/AtmoSud" class="m-3"><img src="images/reseaux/youtube.png"
-                    width="48px"></a>
+          <a href="https://www.facebook.com/AtmoSud" class="m-3"><img src="images/reseaux/facebook.png" title="footer atmosud facebook link" alt="footer atmosud facebook link" width="48px"></a>
+            
+          <a href="https://www.linkedin.com/company/atmosud/" class="m-3"><img src="images/reseaux/linkedin.png" title="footer atmosud linkedin link" alt="footer atmosud linkedin link" width="48px"></a>
+            
+          <a href="https://twitter.com/AtmoSud" class="m-3"><img src="images/reseaux/twitter.png" title="footer atmosud twitter link" alt="footer atmosud twitter link" width="48px"></a>
+            
+          <a href="https://www.youtube.com/c/AtmoSud" class="m-3"><img src="images/reseaux/youtube.png" title="footer atmosud youtube link" alt="footer atmosud youtube link" width="48px"></a>
         </div>
-            <a href="http://www.airpaca.org/" class="m-2">
-                <img src="images/logo/atmosud.png" width="256px" style="margin-top:5rem;">
-            </a>
+          <a href="http://www.airpaca.org/" class="m-2">
+              <img src="images/logo/atmosud.png" width="256px" title="logo atmosud" alt="logo atmosud" style="margin-top:5rem;">
+          </a>
     </div>
     <p style="text-align:center;align-self:start;color:#fff;border-top:1px solid #fff" class="m-2 p-2 w-100">2020 &copy; SmartPort | Tous droits réservés.</p>
 </footer>

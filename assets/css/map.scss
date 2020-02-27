@@ -5,6 +5,10 @@ body {
     height: 100vh;
 }
 
+main {
+  height: 100vh;
+}
+
 #map {
     position: absolute;
     bottom: 0;
@@ -20,6 +24,9 @@ body {
 div[aria-haspopup="true"] {
     background: #fff;
     box-shadow: 0 .125rem .25rem rgb(102, 102, 102) !important;
+    position: fixed !important;
+    top: 0;
+    height: 100vh;
 }
 
 .leaflet-control-layers-expanded {
@@ -247,7 +254,7 @@ div[aria-haspopup="true"] {
 }
 
 
-path {
+path:not(.leaflet-interactive) {
     fill: #fff;
 }
 
@@ -414,11 +421,10 @@ path {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: center;
     z-index: 1500;
     box-shadow: 0 0.125rem 0.25rem #666666 !important;
     padding: 2rem;
-    padding-bottom: 25rem;
 
 }
 
@@ -458,6 +464,8 @@ path {
         position: absolute;
         top: 64px;
         width: 100%;
+        max-height: 93%;
+        overflow-y: scroll;
     }
 
     #search-block {
@@ -518,6 +526,10 @@ path {
     }
 }
 
+.modal-dialog.modal-notify.modal-info .modal-header {
+  background-color: #6bba6b !important;
+}
+
 .map-search-results div:hover:not(#error-search-results) {
     cursor: pointer;
     color: #3498db;
@@ -534,7 +546,7 @@ path {
 }
 
 .custom-file-label::after {
-    content: "Fichier JSON";
+    content: "Fichier JSON" !important;
 }
 
 .form-inline {
@@ -722,6 +734,10 @@ path {
 }
 
 @media (max-width: 750px) {
+
+    #add-mesures {
+      width: 75%;
+    }
 
     .modal-dialog,
     .modal-body {

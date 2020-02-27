@@ -8,6 +8,7 @@
     <meta name="description" content="Smart Port App, application sur la pollution de l'air">
     <meta name="author" content="AtmoSud">
     <meta property="og:title" content="Smart Port App, application sur la pollution de l'air">
+    <title>SmartPort | Pollution de l'air</title>
     {% block stylesheets %}
     <!-- Font Awesome icons <i> -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
@@ -27,7 +28,7 @@
 
     <nav id="navbar" class="d-flex justify-content-start align-items-center">
 
-        <img src="../../images/logo/logo-removebg-preview.png" width="128px">
+        <img src="../../images/logo/logo-removebg-preview.png" title="navbar smartport logo" alt="navbar smartport logo" width="128px">
 
         <div id="list-container" class="d-flex justify-content-around align-items-center mx-auto float-right">
 
@@ -45,7 +46,7 @@
 
             <div class="dropdown-menu" id="profil-dropdown-menu">
              {% if not app.user %}
-                <a class="dropdown-item btn btn-success w-100 m-0" href="/connexion"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
+                <a class="dropdown-item btn w-100 m-0" href="/connexion" style="color: #fff;background-color:#6BBA62"><i class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
                 <a class="dropdown-item btn btn-warning w-100 m-0 mt-3" href="/inscription"><i class="fas fa-user-edit mr-2"></i>Inscription</a>
              {% else %}
                 <a class="w-100 btn btn-warning mb-2 dropdown-item" href="{{ path('profil') }}"><i class="fas fa-user mr-2"></i>Profil</a>
@@ -68,13 +69,13 @@
     <aside id="nav-dropdown" class="not-loaded">
 
         <div class="d-flex flex-column justify-content-center align-items-center border-bottom">
-            <img src="images/logo/logo_transparent.png" width="256px">
+            <img src="images/logo/logo_transparent.png" title="aside smartport logo" alt="aside smartport logo" width="256px">
 
         </div>
 
         <div>
             {% if not app.user %}
-            <a tabindex="4" href="/connexion" class="btn btn-success w-100 m-0 mt-3" style="color: #fff"><i
+            <a tabindex="4" href="/connexion" class="btn w-100 m-0 mt-3" style="color: #fff;background-color:#6BBA62"><i
                     class="fas fa-sign-in-alt mr-2"></i>Connexion</a>
             <a tabindex="4" href="/inscription" class="btn btn-warning w-100 m-0 mt-3" style="color: #fff"><i
                     class="fas fa-user-edit mr-2"></i> Créer un compte</a>

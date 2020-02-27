@@ -192,7 +192,16 @@ li::before {
     }
 }
 
-@media(max-width: 1500px) {
+@media(max-width: 1200px) {
+
+    body {
+      overflow-y: scroll;
+    }
+
+    main, #form-login {
+      height: unset !important;
+    }
+
     #form-image {
         visibility: hidden;
         width: 0% !important;
@@ -231,4 +240,10 @@ li::before {
         visibility: hidden;
         margin: 0;
     }
+}
+
+@media(min-width: 576px) and (max-width: 1199px) {
+  #form-login form {
+    width: 50% !important;
+  }
 }
