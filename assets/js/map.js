@@ -230,7 +230,6 @@ class SmartPortMap extends HTMLElement {
         });
 
         this.azurPacaMulti.on('add', () => {
-            console.log('test');
             
             let layersContainer = document.querySelector('.leaflet-control-layers-overlays');
 
