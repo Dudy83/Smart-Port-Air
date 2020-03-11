@@ -1,7 +1,11 @@
+/**
+ * Classe principale pour la map
+ * Elle utilise la classe MapAPI qui effectue les requêtes et la classe chartDrawing qui trace les courbes.
+ */
 require('../css/map.scss');
 import chartDrawing from './chart.js';
 import { MapAPI } from './mapAPI.js';
-// the class SmartPortMap which contain all the features of the map and extending HTMLElement to create a custom html tag
+
 class SmartPortMap extends HTMLElement {
     
     constructor() {
@@ -9,21 +13,42 @@ class SmartPortMap extends HTMLElement {
         this.stations = new Array();
         this.markerObject = new Array();
         this.moment = require('moment'); 
+        new Plyr('#player', {
+            controls: [
+                'play',
+                'progress',
+                'mute',
+                'volume',
+                'play-large',
+                'current-time',
+                'fullscreen',
+            ]
+        });
     }
 
     async connectedCallback() {
-        await this.initiateMap();
+        this.initiateMap();
         await this.createStations();
-        await this.wmsMap();
+        await this.wmsMap('multi');
         await this.generateWind();
-        await this.addMesureXHR();
         await this.createUserMesures();
-        this.boat = await new MapAPI().getIHS(this.map);
+        await this.generateBoats();
         this.customMenu();
+        this.addMesureXHR();
+        this.refreshWmsMap();
+        // remove the laoding animation when everything is loaded on the map
+        document.getElementById('map__loader').classList.add('anim-not-loaded');
+
+        setTimeout(function() {
+            document.getElementById('map__loader').classList.remove('anim-not-loaded');
+            document.getElementById('map__loader').classList.add('not-loaded');
+        }, 1000)
+        
     }
 
     initiateMap() {
         this.iniZoom = 9;
+
         this.darkMap = L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", { 
             attribution: '&copy;<a href="http://www.airpaca.org/"> ATMOSUD - 2020 </a>| © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | © <a href="https://www.mapbox.com/">Mapbox</a>'
         });
@@ -52,13 +77,6 @@ class SmartPortMap extends HTMLElement {
         if(window.screen.width < 1400) this.iniZoom -= 1;
 
         this.map.setView([43.7284, 5.9367], this.iniZoom);
-
-        this.boatMarker = L.boatMarker([43.343693, 5.335189], {
-            color: "#727272", 
-            idleCircle: false	        
-        }).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><button id="modalBtn-scenario-pollution" type="button" class="btn btn-success w-100" data-toggle="modal" data-target="#mod-scenario-pollution"><i class="fas fa-chart-line mr-2"></i>Scénario Pollution</button></div>').addTo(this.map);
-
-        this.boatMarker.setHeading(300);
     }
 
     async createStations() { 
@@ -104,19 +122,19 @@ class SmartPortMap extends HTMLElement {
                             <div class="modal-body">
                                 <ul class="nav nav-tabs d-flex justify-content-center align-items-center mb-5" id="nav-`+feature.properties.code_station+`">
                                     <li class="nav-item">
-                                        <a id="NO-`+feature.properties.code_station+`" class="NO2graph nav-link active" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO2</a>
+                                        <a id="NO-`+feature.properties.code_station+`" class="NO2graph nav-link" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">NO<sub>2</sub></a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="O3-`+feature.properties.code_station+`" class="O3graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O3</a>
+                                        <a id="O3-`+feature.properties.code_station+`" class="O3graph nav-link" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">O<sub>3</sub></a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="PM-`+feature.properties.code_station+`" class="PM10graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
+                                        <a id="PM-`+feature.properties.code_station+`" class="PM10graph nav-link" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM10</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="SO-`+feature.properties.code_station+`" class="SO2graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO2</a>
+                                        <a id="SO-`+feature.properties.code_station+`" class="SO2graph nav-link" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">SO<sub>2</sub></a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="MP-`+feature.properties.code_station+`" class="PM25graph nav-link" href="#" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM2.5</a>
+                                        <a id="MP-`+feature.properties.code_station+`" class="PM25graph nav-link" code="`+feature.properties.code_station+`" lon="`+feature.geometry.coordinates[0]+`" lat="`+feature.geometry.coordinates[1]+`">PM2.5</a>
                                     </li>
                                 </ul>
                                 <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+feature.properties.code_station+`">
@@ -194,11 +212,11 @@ class SmartPortMap extends HTMLElement {
         }
     }
 
-    async wmsMap() {
-        let data = await new MapAPI().getWmsMap();
+    async wmsMap(polluant) {
+        let data = new MapAPI().getWmsMap(polluant);
         let flag = 0;
 
-        this.azurPacaMulti = L.tileLayer.wms(data.url, {
+        this.azurPacaMulti = await L.tileLayer.wms(data.url, {
             layers: data.result,
             format: 'image/png',
             transparent: true,
@@ -210,7 +228,164 @@ class SmartPortMap extends HTMLElement {
             flag = 1;
             alert('Problème lors de l\'insertion de la carte de pollution. Veuillez réessayer.');
         });
+
+        this.azurPacaMulti.on('add', () => {
+            console.log('test');
+            
+            let layersContainer = document.querySelector('.leaflet-control-layers-overlays');
+
+            let polluantChoices = document.createElement('div');
+
+            polluantChoices.setAttribute('id', 'polluant__choices');
+
+            polluantChoices.innerHTML = `
+     
+            <div class="form-group w-100 mb-0">
+                <select id="select-polluant-wms" class="form-control">
+                    <option value="multi">Multi Polluant</option>
+                    <option value="no2">NO2</option>
+                    <option value="pm10">PM10</option>
+                    <option value="pm2_5">PM25</option>
+                </select>
+            </div>`;
+
+           setTimeout(() => {
+            layersContainer.insertBefore(polluantChoices, layersContainer.querySelectorAll('label')[2]);
+            document.querySelector('#select-polluant-wms').selectedIndex = JSON.parse(sessionStorage.getItem('selectedIndex'));
+            sessionStorage.clear();
+            this.refreshWmsMap();
+           }, 1);
+        })
     } 
+
+    refreshWmsMap() {
+        document.querySelector('#select-polluant-wms').addEventListener('change', async (event) => {   
+            sessionStorage.setItem('selectedIndex', JSON.stringify(document.querySelector('#select-polluant-wms').selectedIndex))
+            let data = new MapAPI().getWmsMap(event.target.value);
+            this.azurPacaMulti.wmsParams.layers = data.result;
+            this.map.removeLayer(this.azurPacaMulti);
+            this.map.addLayer(this.azurPacaMulti);
+        })
+    }
+
+    async generateBoats() {
+
+        let markers = new Array();
+        let color;
+        
+        const svg = (color) => {
+            return encodeURIComponent(`<svg width="100%" height="100%" viewBox="0 0 201.26 201.26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="margin-top: 0px;margin-left: 0px;margin-right: 0px;fill: ${color};">
+              <path d="M105.019 84.875c5.668 1.855 9.785 7.129 9.785 13.412 0 7.826-6.348 14.18-14.174 14.18-7.825 0-14.173-6.354-14.173-14.18 0-6.438 4.315-11.807 10.189-13.541V27.118l-31.449 75.55v81.517l36.371-31.353 34.496 31.353V98.589l-31.045-71.812v58.098z"></path>
+              <path fill="rgba(0, 0, 0, .2)" d="M100.864.366L58.11 103.076v97.819l43.646-37.624 41.394 37.624V98.182L100.864.366zm35.199 183.818l-34.496-31.353-36.371 31.353v-81.517l31.449-75.55v57.628c-5.874 1.734-10.189 7.104-10.189 13.541 0 7.826 6.348 14.18 14.173 14.18 7.827 0 14.174-6.354 14.174-14.18 0-6.283-4.117-11.557-9.785-13.412V26.778l31.045 71.812v85.594z"></path>
+            </svg>`);
+        }
+          
+        const MARKER_URL = (color) => `data:image/svg+xml,${svg(color)}`;
+
+        const BoatIcon = (color) => {
+            return L.icon({
+                iconUrl: MARKER_URL(color),
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                popupAnchor: [0, 0],
+            });
+        }
+
+        let boatData = await new MapAPI().getIHS();
+
+        const updateIconStyle = () => {        
+            for(let i in markers) {
+                markers[i]._icon.style.transform = `${markers[i]._icon.style.transform} rotateZ(${JSON.parse(boatData.results)[i][6] || 0}deg)`;
+                markers[i]._icon.style.transformOrigin = 'center';
+            }
+        }
+    
+        for(let data of JSON.parse(boatData.results)) {
+        
+            const [name, lon, lat, vesselType, destination, status, heading, width] = data;
+
+            switch (vesselType) {
+                
+                case 'Cargo':
+                color = 'lightgreen';
+                break;
+
+                case 'Tanker':
+                color = 'red';
+                break;
+
+                case 'Passenger':
+                color = 'blue';
+                break;
+                
+                case 'High Speed Craft':
+                color = 'yellow';
+                break;
+
+                case 'Tug':
+                color = 'cyan';
+                break;
+
+                case 'Fishing':
+                color = 'rgb(255, 160, 122)';
+                break;
+
+                case 'Pilot Boat':
+                color = 'green';
+                break;
+
+                case 'Search And Rescue':
+                color = 'lightblue';
+                break;
+
+                default: 
+                color = 'grey';
+                break;
+            }
+        
+            let long = lon.substring(3, lon.length);
+            let lati = lat.substring(3, lat.length);
+            
+            const marker =  L.marker([lat, lon], {
+            icon: BoatIcon(color),
+            }).bindPopup('<div class="d-flex flex-column align-items-center justify-content-center w-100"><button style="color: #fff;background-color:#6BBA62" type="button" class="modal-btn-boat btn w-100" data-toggle="modal" data-target=#mod-'+long+lati+'><i class="fas fa-chart-line mr-2"></i>Graphique des émissions</button></div>')
+            .addTo(this.map);
+
+            document.getElementById('modals-boats-container').innerHTML += `
+            <div style="z-index: 7000;" class="modal fade right" id="mod-`+long+lati+`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+                <div class="modal-dialog modal-full-height modal-right w-100" role="document" style="position: fixed !important;right: 0;height: 100%;top: 0;margin: 0;">
+                    <div class="modal-content" style="height:100%">        
+                        <div class="modal-header d-flex flex-column justify-content-center align-items-center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <p style="margin:0">Nom : ${name}</p><br><p style="margin:0">Type : ${vesselType}</p><br>
+                            <p style="margin:0">Destination : ${destination}</p><br><p style="margin:0">Status : ${status}</p>
+                        </div>
+                        <div class="modal-body">
+                            <div class="w-100 d-flex justify-content-center align-items-center" id="modal-`+long+lati+`">
+                            <canvas class="chartjs-render-monitor chart-boat" id="canvas-${long}${lati}" width="600" height="600"></canvas>
+                            </div>
+                        </div>                          
+                    </div>      
+                </div>     
+            </div>`;
+
+            marker.on('click', () => {
+                new chartDrawing('null', document.getElementById('canvas-'+long+lati).getContext('2d')).drawBoatEmissions()
+            });
+            
+            markers.push(marker);
+
+            marker._icon.setAttribute('data-heading', heading);
+    
+        }
+          
+        this.map.on('zoomend', updateIconStyle);
+        this.map.on('viewreset', updateIconStyle);
+        this.boat = L.layerGroup(markers);
+        this.boat.on("add", updateIconStyle);
+    }
 
     async generateWind() {
         let data = await new MapAPI().getWind();
@@ -228,7 +403,7 @@ class SmartPortMap extends HTMLElement {
         }).addTo(this.map);
 
         setInterval(() => {
-            if(new Date().getMinutes() == "00") location.reload();  
+            if(new Date().getMinutes() == "01") location.reload();  
         }, 60000);
     }
 
@@ -245,13 +420,29 @@ class SmartPortMap extends HTMLElement {
         let modalBody = document.getElementById('modal-'+codeStation);
         let ctx = document.getElementById('canvas-'+codeStation).getContext("2d");
 
+        let chemicalNotation;
+
+        switch (nomPolluant) {
+            case 'NO2':
+                chemicalNotation = `<p class="m-0">NO<sub>2</sub></p>`;
+                break;
+            
+            case 'O3': 
+                chemicalNotation = `<p class="m-0">O<sub>3</sub></p>`;
+                break;
+
+            case 'SO2':
+                chemicalNotation = `<p class="m-0">SO<sub>2</sub></p>`; 
+                break;
+        }
+
         if (nomPolluant == "NO2" || nomPolluant == "O3") {    
             let data  = await new MapAPI().getMesuresMaxJour(codePolluant, codeStation, 4);
             let previsionData = await new MapAPI().getPrevisions(lon, lat, nomPolluant); 
             
             for (const validator of data) {
                 if(validator === -Infinity) {
-                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+nomPolluant+'</div>';
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+chemicalNotation+'</div>';
                     return;
                 }
             }   
@@ -265,7 +456,7 @@ class SmartPortMap extends HTMLElement {
             
             for (const validator of data) {
                 if(validator === -Infinity) {
-                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+nomPolluant+'</div>';
+                    modalBody.innerHTML = '<div class="modal-title alert alert-warning w-100" style="text-align:center;"><i class="fas fa-exclamation-triangle mr-2"></i>Données momentanément indisponibles pour le polluant :'+' '+chemicalNotation+'</div>';
                     return;
                 }
             }  
@@ -304,7 +495,7 @@ class SmartPortMap extends HTMLElement {
 
     getGraph(e)
     {
-        // if(e.target.classList.contains('active')) return;
+        if(e.target.classList.contains('active')) return;
         e.preventDefault();
 
         let station = document.getElementById(e.target.id);
@@ -515,7 +706,7 @@ class SmartPortMap extends HTMLElement {
             "<span class='base-layers-choices'><div class='icons-container'><i class='fas fa-wind fa-fw'></i></div> <p class='control-menu-text-content'>Vent</p><div class='check'></div></span>": this.wind,
         }
 
-        L.control.layers(this.baseLayers, controls, {collapsed: false, position: 'topleft'}).addTo(this.map);
+        this.control = L.control.layers(this.baseLayers, controls, {collapsed: false, position: 'topleft'}).addTo(this.map);
 
         document.getElementsByClassName('leaflet-control-layers-selector')[4].click();
         document.getElementsByClassName('leaflet-control-layers-selector')[4].setAttribute('checked', 'true');
@@ -524,15 +715,31 @@ class SmartPortMap extends HTMLElement {
         let controlMenuBtn = document.getElementById('toggle-btn-control-menu');
         let controlMenuBtnLeaver = document.createElement('div');
         let searchMenu = document.getElementById('search-results');
+        let layersContainer = document.querySelector('.leaflet-control-layers-overlays');
         let searchMenuBtn = document.getElementById('toggle-search');
         let searchMenuBtnLeaver = document.getElementById('search-leaver');
         let addMenu = document.getElementById('add-mesures');
         let addMenuBtn = document.getElementById('toggle-add');
         let addMenuBtnLeaver = document.getElementById('add-mesures-leaver');
-        let checkboxContainer = document.querySelector('.leaflet-control-layers-overlays');
         let wind = document.querySelector('.leaflet-top.leaflet-right');
         let logo = document.createElement('img');
+        let btnScenario = document.createElement('div');
+        let polluantChoices = document.createElement('div');
+        polluantChoices.setAttribute('id', 'polluant__choices');
+        polluantChoices.innerHTML = `
+        <div class="form-group w-100 mb-0">
+            <select id="select-polluant-wms" class="form-control">
+                <option value="multi">Multi Polluant</option>
+                <option value="no2">NO2</option>
+                <option value="pm10">PM10</option>
+                <option value="pm2_5">PM25</option>
+            </select>
+        </div>`;
 
+        layersContainer.insertBefore(polluantChoices, layersContainer.querySelectorAll('label')[2])
+        // controlMenu.appendChild(polluantChoices);
+
+        btnScenario.innerHTML = `<button style="color:#fff;background-color:#6BBA62;margin-left:12.5%;margin-top:5rem" id="modalBtn-scenario-pollution" type="button" class="btn w-75" data-toggle="modal" data-target="#mod-scenario-pollution"><i class="fas fa-chart-line mr-2"></i>Scénario Pollution</button>`;
         controlMenu.classList.add('not-loaded');
         wind.setAttribute('id', 'wind-velocity-menu');
         controlMenuBtnLeaver.innerHTML = `<svg><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>`;
@@ -542,8 +749,9 @@ class SmartPortMap extends HTMLElement {
         logo.style.width = "95%";
          
         controlMenu.insertBefore(logo, document.getElementsByClassName('leaflet-control-layers-list')[0]);
-        checkboxContainer.appendChild(wind);
+        controlMenu.appendChild(wind);
         controlMenu.appendChild(controlMenuBtnLeaver);
+        controlMenu.appendChild(btnScenario);
 
         controlMenuBtn.onclick = () => {
             if(searchMenu.classList.contains('dropdown-loaded') || addMenu.classList.contains('dropdown-loaded')) {
@@ -595,16 +803,14 @@ class SmartPortMap extends HTMLElement {
                     searchMenu.setAttribute('class', 'not-loaded');
                 }, 500);
             }
-
             addMenu.setAttribute('class', 'dropdown-loaded') 
         };
 
         addMenuBtnLeaver.onclick = () => {
             addMenu.setAttribute('class', 'dropdown-not-loaded');
-
             setTimeout(() => {
-                addMenu.setAttribute('class', 'not-loaded');
-            }, 500);
+              addMenu.setAttribute('class', 'not-loaded');
+            }, 400);
         };
     }
 

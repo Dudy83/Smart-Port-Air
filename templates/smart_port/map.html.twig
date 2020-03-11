@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
     <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/balloon-css/balloon.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.10/plyr.css">
     {{ encore_entry_link_tags('map') }}
 {% endblock %}
 
@@ -145,6 +146,8 @@
     
     <div id="modals-container"></div> 
 
+    <div id="modals-boats-container"></div> 
+
         <div class="modal fade right" id="mod-scenario-pollution" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div id="scenario-modal-dialog" class="modal-dialog modal-full-height modal-right w-100" role="document">
                 <div class="modal-content">
@@ -155,10 +158,9 @@
                             </button>
                     </div>
                     <div id="scenario-modal-body" class="modal-body">
-                        <video id="player" playsinline controls>
+                        <video poster="images/logo/logo_transparent.png" id="player" playsinline controls>
                             <source src="videos/seq_emission_port.mp4" type="video/mp4" />
-                        
-                            <!-- Captions are optional -->
+
                         </video>
                     </div>
                     <div class="modal-footer d-flex justify-content-end align-items-center">   
@@ -168,6 +170,13 @@
             </div>
         </div>
 
+        <div id="map__loader" class="d-flex flex-column align-items-center justify-content-start">
+              <img src="images/logo/logo_transparent.png" title="form logo smartport" alt="form logo smartport" width="35%">
+            <div class="lds-roller mt-4"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+         
+                <h5 style="text-align:center; color: #7d7d7d" class="mt-3">Chargement en cours...</h5>
+            
+        </div>
 
 {% endblock %}
 
@@ -177,7 +186,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
     <script type="text/javascript" src="cdn/js/leaflet-velocity.js"></script>
-    <script src="https://unpkg.com/leaflet.boatmarker/leaflet.boatmarker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.10/plyr.min.js"></script>
     {{ encore_entry_script_tags('map') }}
     {{ encore_entry_script_tags('chart') }}
     {{ encore_entry_script_tags('mapAPI') }}

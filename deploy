@@ -1,3 +1,3 @@
 #!/bin/sh
-rsync -av ./ it-airpaca@78.153.226.3:~/webapps/smartports.atmosud.org --include=public/build --exclude-from=.gitignore --exclude=vendor --exclude=".*" --exclude=.env --exclude=public/uploads
+rsync -av ./ it-airpaca@78.153.226.3:~/webapps/smartports.atmosud.org --include=public/build --exclude-from=.gitignore --exclude=vendor --exclude=".*" --exclude=.env --exclude=./public/uploads
 ssh it-airpaca@78.153.226.3 'cd ~/webapps/smartports.atmosud.org && php bin/console cache:clear'

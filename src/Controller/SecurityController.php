@@ -37,7 +37,6 @@ class SecurityController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            // var_dump($_POST);die;
             $regex = '/^[^0-9][_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
 
             if (!preg_match($regex, $user->getEmail())) 
@@ -69,7 +68,7 @@ class SecurityController extends AbstractController
                 $username = $user->getUsername();
     
                 $message = (new \Swift_Message('Smart Port | Lien de confirmation'))
-                    ->setFrom('guillaume.zehren@atmosud.org')
+                    ->setFrom('noreply@smartport.atmosud.org')
                     ->setTo($email)
                     ->setBody(
                         $this->renderView(
@@ -272,7 +271,7 @@ class SecurityController extends AbstractController
             $manager->flush();
 
             $message = (new \Swift_Message('Smart Port | Réinitialisation du votre mot de passe'))
-            ->setFrom('guillaume.zehren@atmosud.org')
+            ->setFrom('noreply@smartport.atmosud.org')
             ->setTo($email)
             ->setBody(
                 $this->renderView(

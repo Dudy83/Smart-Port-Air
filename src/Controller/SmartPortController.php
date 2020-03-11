@@ -89,68 +89,51 @@ class SmartPortController extends AbstractController
                 $mesures->setUsername($this->getUser()->getUsername());
 
                 if(!$this->validateLatLong($lat, $lon)) {
-                    return new JsonResponse(['status' => 300]);
+                  return new JsonResponse(['status' => 300]);
                 }
                
                 try {
-                    $file = $_FILES['file'];
-    
-                    $file = new UploadedFile($file['tmp_name'], $file['name'], $file['type']);
-        
-                    $filename = $this->getUser()->getUsername() . '_mesures' .'.' . 'json';
+                  $file = $_FILES['file'];
+  
+                  $file = new UploadedFile($file['tmp_name'], $file['name'], $file['type']);
+      
+                  $filename = $this->getUser()->getUsername() . '_mesures' .'.' . 'json';
 
-                    if($userMesRepo->findOneBy(['file_adress' => $filename])) {
-                        return $this->json(['status' => 450]);
-                    }
+                  if($userMesRepo->findOneBy(['file_adress' => $filename])) {
+                      return $this->json(['status' => 450]);
+                  }
 
-                    $file->move(
-                        $this->getParameter('mesures_directory'),
-                        $filename
-                    );
-    
-                    $mesures->setFileAdress($filename);
-    
-                    $manager->persist($mesures);
-    
-                    $manager->flush();
+                  $file->move(
+                      $this->getParameter('mesures_directory'),
+                      $filename
+                  );
+  
+                  $mesures->setFileAdress($filename);
+  
+                  $manager->persist($mesures);
+  
+                  $manager->flush();
         
                 } catch(FileException $e) {
                     $e->getMessage();
                 }
 
                 return $this->json([
-                    'status' => 200,
-                    'lon' => $mesures->getLon(),
-                    'lat' => $mesures->getLat(),
-                    'file_address' => $mesures->getFileAdress(),
-                    'user' => $this->getUser()->getUsername(),
-                    'polluant' => $mesures->getPolluant(),
-                    'date' => $mesures->getDate()
+                  'status' => 200,
+                  'lon' => $mesures->getLon(),
+                  'lat' => $mesures->getLat(),
+                  'file_address' => $mesures->getFileAdress(),
+                  'user' => $this->getUser()->getUsername(),
+                  'polluant' => $mesures->getPolluant(),
+                  'date' => $mesures->getDate()
                 ]);
             }
+
             return $this->json([
-                'status' => 500,
-                'error' => $this->getErrorMessages($form)]);
+              'status' => 500,
+              'error' => $this->getErrorMessages($form)
+            ]);
         }
-    }
-
-    /**
-    *@Route("/api/map", name="mapAPI")
-    */
-    public function mapAPI(Request $request) : Response
-    {  
-        $connexionParams = "host=78.153.226.3 port=5432 dbname=smartport user=smartportuser password=smartport";
-        $db = pg_connect($connexionParams);
-                
-        $sql = pg_query($db, "SELECT nom, lon, lat, id FROM site");
-
-        $results = array();
-
-        while($row = pg_fetch_row($sql)) {
-            $results[] = $row; 
-        } 
-
-        return $this->json(['code' => 200, 'results' => json_encode($results)], 200);
     }
 
     /**
@@ -166,7 +149,7 @@ class SmartPortController extends AbstractController
       $date->modify('-1 hour');
       $formatDate = $date->format("Y-m-d H:00:00");
 
-      $sql = "SELECT \"Name\", \"Lon\", \"Lat\", \"VesselType\", \"Destination\", \"Status\", \"Heading\", \"Width\" FROM loc.horaire WHERE upload_hour >= '$formatDate' AND \"VesselType\" != 'Vessel'";
+      $sql = "SELECT \"Name\", \"Lon\", \"Lat\", \"VesselType\", \"Destination\", \"Status\", \"Heading\", \"Width\" FROM loc.horaire WHERE upload_hour > '$formatDate' AND \"VesselType\" != 'Vessel'";
               
       $sql = pg_query($db, $sql);
 

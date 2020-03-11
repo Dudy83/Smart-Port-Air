@@ -285,6 +285,48 @@ export default class chartDrawing {
             }
         });
     }
+
+    drawBoatEmissions() {
+        new Chart(this.canvas, {
+            type: 'bar',
+            data: {
+                labels: ['h-2', 'h-1', 'h-0'],
+                datasets: [
+                    {
+                        label: "émissions",
+                        fill: true,
+                        borderColor: 'rgb(107, 186, 98)',
+                        borderWidth: 1,
+                        hoverBorderWidth: 2,
+                        hoverBackgroundColor: 'rgba(107, 186, 98, 0.4)',
+                        backgroundColor: 'rgba(107, 186, 98, 0.3)',
+                        data: [75.2, 48.6, 20.8],
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    fontSize: 20,
+                    display: true,
+                    text: 'Evolution des émissions :'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            suggestedMax: 150
+                        }
+                    }]
+                },
+                legend: {
+                    position: 'bottom',
+                    display: true, 
+                    labels: {fontSize: 10},                
+                },
+            }
+        });
+    }
 }
 
 
