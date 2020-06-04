@@ -1,28 +1,5 @@
 require('../css/app.scss');
 
-function dropdown_menu() {
-    let $dropdown = document.getElementById('nav-dropdown');
-    let $hamburger = document.getElementById('nav-icon');
-    let $dropdownContent = document.getElementById('dropdown-content');
-    let $body = document.getElementById('main');
-
-    $hamburger.addEventListener('click', () => {
-        if ($dropdown.classList.contains('dropdown-loaded')) {
-            $dropdown.setAttribute('class', 'dropdown-not-loaded');
-            $body.removeAttribute('style');
-
-            setTimeout(() => {
-                $dropdownContent.style.visibility = "hidden";
-                $dropdown.setAttribute('class', 'not-loaded');
-            }, 500)
-        } else {
-            $dropdown.setAttribute('class', 'dropdown-loaded');
-            $dropdownContent.style.visibility = "visible";
-            $body.style.setProperty('filter', 'blur(4px)');
-        }
-    });
-}
-
 function navIcons() {
     if (window.innerWidth <= 1300) {
         let navLinks = document.getElementsByClassName('navbar-links-content');
@@ -42,7 +19,6 @@ function navbarAnim() {
     let nav = document.getElementById('navbar');
     let navLinks = document.getElementsByClassName('navbar-links');
     let spans = document.getElementsByClassName('line');
-    let dropdown = document.getElementsByClassName('dropdown-toggle')[0];
 
     if (window.scrollY !== 0) {
         nav.style.setProperty('box-shadow', '0 .125rem .25rem rgba(0,0,0,.075)');
@@ -51,7 +27,6 @@ function navbarAnim() {
         navLinks.forEach(element => {
             element.style.setProperty('color', '#6BBA62')
         })
-        dropdown.setAttribute('style', 'color: #6BBA62 !important')
 
         spans.forEach(element => {
             element.style.setProperty('stroke', '#6BBA62')
@@ -61,7 +36,6 @@ function navbarAnim() {
         navLinks.forEach(element => {
             element.removeAttribute('style');
         })
-        dropdown.removeAttribute('style');
         spans.forEach(element => {
             element.removeAttribute('style');
         })
@@ -69,9 +43,7 @@ function navbarAnim() {
     }
 }
 
-dropdown_menu();
 navIcons();
-
 window.addEventListener('resize', navIcons);
 document.addEventListener('scroll', navbarAnim);
 

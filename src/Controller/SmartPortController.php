@@ -27,6 +27,14 @@ class SmartPortController extends AbstractController
     }
 
     /**
+    *@Route("/contact", name="contact")
+    */
+    public function contact()
+    {
+        return $this->render('smart_port/contact.html.twig');
+    }
+
+    /**
     *@Route("/map", name="map")
     */
     public function map(Request $request, ObjectManager $manager)
@@ -139,38 +147,40 @@ class SmartPortController extends AbstractController
     /**
      * @Route("/map/ihs/api", name="map_api_ihs")
      */
-    public function getIHSdata() : Response {
+    public function getIHSdata(Request $request) : Response {
 
-      $connexionParams = "host=78.153.226.3 port=5432 dbname=ihs user=readonly password=GNQ4$3";
+        if($content = $request->getContent()) {
+
+            $parametersAsArray = json_decode($content, true);
+           
+            $date = $parametersAsArray["value"];
+
+            $connexionParams = "host=78.153.226.3 port=5432 dbname=ihs user=readonly password=GNQ4$3";
       
-      $db = pg_connect($connexionParams);
+            $db = pg_connect($connexionParams);
+    
+      
+            $sql = "SELECT \"Name\", \"Lon\", \"Lat\", \"VesselType\", \"Destination\", \"Status\", \"Heading\", \"Width\" FROM loc.horaire WHERE upload_hour = '$date' AND \"VesselType\" != 'Vessel'";
+                    
+            $sql = pg_query($db, $sql);
+      
+            $results = array();
+      
+            while($row = pg_fetch_row($sql)) {
+                $results[] = $row; 
+            } 
+      
+            return new JsonResponse([
+                'code' => 200,
+                'results' => json_encode($results),
+            ]);
+        }
 
-      $date = new \DateTime();
-      $date->modify('-1 hour');
-      $formatDate = $date->format("Y-m-d H:00:00");
-
-      $sql = "SELECT \"Name\", \"Lon\", \"Lat\", \"VesselType\", \"Destination\", \"Status\", \"Heading\", \"Width\" FROM loc.horaire WHERE upload_hour > '$formatDate' AND \"VesselType\" != 'Vessel'";
-              
-      $sql = pg_query($db, $sql);
-
-      $results = array();
-
-      while($row = pg_fetch_row($sql)) {
-          $results[] = $row; 
-      } 
-
-      if(($results)) {
-          return new JsonResponse([
-              'code' => 200,
-              'results' => json_encode($results),
-          ]);
-      } else {
-          return new JsonResponse([
-              'code' => 500,
-          ]);
-      }
+        return new JsonResponse([
+            'code' => 500,
+        ]);
+           
     }
-
 
     /**
     *@Route("/profil", name="profil")
@@ -187,28 +197,6 @@ class SmartPortController extends AbstractController
             'username' => $username,
             'email' => $email,
         ]);
-    }
-
-    private function validateLatLong($lat, $long) 
-    {
-        return preg_match('/^[-]?((([0-8]?[0-9])(\.(\d+))?)|(90(\.0+)?)),[-]?((((1[0-7][0-9])|([0-9]?[0-9]))(\.(\d+))?)|180(\.0+)?)$/', $lat.','.$long);
-    }
-
-    protected function getErrorMessages(\Symfony\Component\Form\Form $form) 
-    {
-        $errors = array();
-
-        foreach ($form->getErrors() as $key => $error) {
-            $errors[] = $error->getMessage();
-        }
-
-        foreach ($form->all() as $child) {
-            if (!$child->isValid()) {
-                $errors[$child->getName()] = $this->getErrorMessages($child);
-            }
-        }
-
-        return $errors;
     }
 }
 

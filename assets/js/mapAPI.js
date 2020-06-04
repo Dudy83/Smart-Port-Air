@@ -49,7 +49,7 @@ export class MapAPI {
      * @param {string} codeStation 
      * @param {integer} ech 
      */
-    getMesuresMaxJour(polluantId, codeStation, ech)
+    getMesuresHoraireJour(polluantId, codeStation, date)
     {
         return new Promise((resolve, reject) => {
             
@@ -57,30 +57,23 @@ export class MapAPI {
                 
                 const results = [];                
 
-                for(let i = 0; i <= ech; i++) {
-                    const date = this.moment().subtract(i, 'days').format('YYYY/MM/DD');
-                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + date + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+polluantId+"%20AND%20code_station%20=%20%27"+codeStation+"%27%20AND%20date_fin<=%27"+ date +"%20" + "23:59" + "%27";
+                    const dateDebut = this.moment(date).format('YYYY/MM/DD');
+                    const dateFin = this.moment(date).format('YYYY/MM/DD');
+                    let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + dateDebut + "%20" + "00:00" + "%27%20AND%20id_poll_ue%20=%20"+polluantId+"%20AND%20code_station%20=%20%27"+codeStation+"%27%20AND%20date_fin<=%27"+ dateFin +"%20" + "23:59" + "%27";
                     const request = axios.get(url);
-
                     results.push(request);  
-                }
+
                 return results;
             }
     
-            if(polluantId && codeStation && ech) {
+            if(polluantId && codeStation && date) {
 
                 const requests = createRequests();
     
                 Promise.all(requests).then(responseS => {
                     const data = responseS.map(response => response.data.features.map(feature => feature.properties.valeur));
-
-                    const maxValue = [];
     
-                    for(let idx = 0; idx < data.length; idx++) {
-                        maxValue.push(Math.max.apply(null, data[idx]));
-                    }
-    
-                    resolve(maxValue);
+                    resolve(data);
                 })
             } else {
                 reject();
@@ -109,24 +102,6 @@ export class MapAPI {
         }
     }
 
-    async getWind() {
-        let response = await fetch(`uploads/wind/vent_json/wind_field_${this.moment().format('HH')}.json`, {cache: "no-store"});
-            
-        let data = await response.json();
-
-        return data;
-    }
-
-    async getIHS() {
-
-        let response = await fetch('/map/ihs/api');
-    
-        let data = await response.json();
-  
-        if(data.code == 400) throw new Error('An error occured during the XHR');
-
-        return data;
-    }
 
     async getUserMesures() 
     {
@@ -158,29 +133,29 @@ export class MapAPI {
 
         stations = stations.filter(elm => elm != "");
 
-        localStorage.setItem('sites', JSON.stringify(stations));
-
         let geoJson = { type: 'FeatureCollection', features: stations };
 
         return geoJson;
     }
 
-    getWmsMap(polluant)
+    getWmsMap(polluant, ech)
     {
         let wmsAdress = 'https://geoservices.atmosud.org/geoserver/azurjour/wms?';
         let result;
 
-        if(new Date().getHours() >= "11") 
+        if(new Date().getHours() >= "11" && ech == undefined) 
             result = `paca-${polluant}-${this.toTimestamp(this.moment().format('YYYY MM DD'))}-1`;
-        else 
+        else if(new Date().getHours() < "11" && ech == undefined) 
             result = `paca-${polluant}-${this.toTimestamp(this.moment().subtract(1, 'days').format('YYYY MM DD'))}-2`;
+        else if(new Date().getHours() >= "11" && ech) 
+            result = `paca-${polluant}-${this.toTimestamp(this.moment().format('YYYY MM DD'))}-${ech}`;
+        else if(new Date().getHours() < "11" && ech) 
+            result = `paca-${polluant}-${this.toTimestamp(this.moment().subtract(1, 'days').format('YYYY MM DD'))}-${ech}`;
 
-        let data = {
+        return {
             "url": wmsAdress,
             "result": result
         }
-
-        return data;
     }
 
     /**

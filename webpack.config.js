@@ -25,7 +25,6 @@ Encore
      */
     .addEntry('app', './assets/js/app.js')
     .addEntry('map', './assets/js/map.js')
-    .addEntry('forms', './assets/js/forms.js')
     .addEntry('chart', './assets/js/chart.js')
     .addEntry('mapAPI', './assets/js/mapAPI.js')
     .addEntry('home', './assets/js/home.js')

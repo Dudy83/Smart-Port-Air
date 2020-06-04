@@ -4,15 +4,16 @@ export default class chartDrawing {
         this.polluant = polluant;
         this.canvas = canvas;
         this.moment = require('moment');
-        this.newDate = new Date();                
+        this.newDate = new Date(); 
+        this.newDate.setMinutes('0');               
         this.days = new Array();
         this.vLimite;
         this.maxPoint;
-
+    
         if(window.innerWidth <= 1200) {
           this.gradient = 'rgb(0, 204, 170)';
         } else {
-          this.gradient = this.canvas.createLinearGradient(300, 250, 300, 600);        
+          this.gradient = this.canvas.createLinearGradient(234, 200, 234, 468);        
           this.gradient.addColorStop(0, 'rgb(255, 0, 0)'); 
           this.gradient.addColorStop(0.2, 'rgb(255, 170, 0)');
           this.gradient.addColorStop(0.4, 'rgb(255, 255, 0)');   
@@ -22,28 +23,34 @@ export default class chartDrawing {
         }
     }
 
-    drawMesureMaxAndPrevi(data, previsionData) {
-
+    drawMesureHoraire(data, hours) {
         if(this.polluant == "O3") {
-            this.vLimite = [180, 180, 180, 180, 180, 180, 180, 180];
-            this.maxPoint = 360;
+            this.vLimite = new Array(data.length).fill(180);
+            this.maxPoint = 360; // 180
+        } else if(this.polluant == "NO2"){
+            this.vLimite = new Array(data.length).fill(200);
+            this.maxPoint = 400; // 200
         } else {
-            this.vLimite = [200, 200, 200, 200, 200, 200, 200, 200];
-            this.maxPoint = 400;
-        }
-            
-        previsionData.unshift(data[data.length-1]);
-    
-        for(let u = 0; u < 4; u++) {
-            previsionData.unshift(null);
+            this.vLimite = new Array(data.length).fill(100);
+            this.maxPoint = 200; // 50
         }
 
-        for(let i = -5; i < 3; i++) {   
-            const date = this.moment(this.newDate).add(i, 'days').format('DD/MM/YYYY'); 
-            this.days.push(date);
+        let _hours = hours
+       
+        hours = this.moment(new Date().setHours(hours)).subtract(12, 'hours').format('HH'); 
+
+        for (let i = 0; i < data.length; i++) {
+            this.days.push(this.moment(new Date().setHours(hours)).add(i, 'hours').format('HH')+':00')
         }
-        
-        new Chart(this.canvas, {
+
+        let today;
+        if(this.days.length < parseInt(_hours)) {
+            today = this.days[this.days.length-1];
+        } else {
+            today = `${this.moment(new Date().setHours(hours)).subtract(12, 'hours').format('HH')}:00`;
+        }
+
+        let chart = new Chart(this.canvas, {
             type: 'line',
             data: {
                 labels: this.days,
@@ -55,13 +62,6 @@ export default class chartDrawing {
                         data: data,
                     },
                     {
-                        label: this.polluant + " Prévisions",
-                        borderColor: this.gradient,
-                        borderDash: [10,5],
-                        fill: false,
-                        data:  previsionData,
-                    },
-                    {
                         label: this.polluant + " Valeur limite",
                         fill: false,
                         backgroundColor: "red",
@@ -71,6 +71,24 @@ export default class chartDrawing {
                 ]
             },
             options: {
+                annotation: {
+                    annotations: [
+                        {
+                            drawTime: "afterDatasetsDraw",
+                            type: "line",
+                            mode: "vertical",
+                            scaleID: "x-axis-0",
+                            value: today,
+                            borderWidth: 5,
+                            borderColor: "red",
+                            label: {
+                              content: today,
+                              enabled: true,
+                              position: "top"
+                            }
+                        }
+                    ]
+                  },
                 responsive: true,
                 title: {
                     fontSize: 20,
@@ -83,6 +101,11 @@ export default class chartDrawing {
                             beginAtZero: true,
                             suggestedMax: this.maxPoint
                         }
+                    }],
+                    xAxes: [{
+                        gridLines: {
+                            color: "rgba(0, 0, 0, 0)",
+                        }
                     }]
                 },
                 legend: {
@@ -91,7 +114,7 @@ export default class chartDrawing {
                     labels: {fontSize: 10},                
                 },
             }
-        });
+        });      
     }
 
     drawMesureMax(data) {
@@ -326,6 +349,10 @@ export default class chartDrawing {
                 },
             }
         });
+    }
+
+    toTimestamp(strDate) {
+        return (Date.parse(strDate)/1000);
     }
 }
 

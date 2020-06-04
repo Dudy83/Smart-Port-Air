@@ -6,7 +6,6 @@
  originally created and motivated by L.CanvasOverlay  available here: https://gist.github.com/Sumbera/11114288
 
  */
-
 // -- L.DomUtil.setTransform from leaflet 1.0.0 to work on 0.0.7
 //------------------------------------------------------------------------------
 if (!L.DomUtil.setTransform) {
@@ -166,9 +165,9 @@ L.Control.Velocity = L.Control.extend({
 		emptyString: 'Données indisponibles',
 		// Could be any combination of 'bearing' (angle toward which the flow goes) or 'meteo' (angle from which the flow comes)
 		// and 'CW' (angle value increases clock-wise) or 'CCW' (angle value increases counter clock-wise)
-		angleConvention: 'bearingCCW',
+		angleConvention: 'meteoCCW',
 		// Could be 'm/s' for meter per second, 'k/h' for kilometer per hour or 'kt' for knots
-		speedUnit: 'm/s'
+		speedUnit: 'k/h'
 	},
 
 	onAdd: function onAdd(map) {
