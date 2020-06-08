@@ -27,10 +27,6 @@ class SmartPortMap extends HTMLElement {
             [43.269552680310994,5.451457380859406],
         ];
 
-        // '&bbox=4.718628,43.315936,5.145721,43.506978,urn:ogc:def:crs:EPSG:4326'
-
-
-        // 4.718628,43.315936,5.145721,43.506978
         let coordFos = [
             [43.44578690866529,4.8413728471679995],
             [43.350993565930644,5.042216658203156],
@@ -141,7 +137,10 @@ class SmartPortMap extends HTMLElement {
             let month = date.substring('2', '4');
             let year = date.substring('4', '8');
             let hours =  this.sliderDate.noUiSlider.get().substring('11', '13');
-            
+            document.querySelectorAll('.nav-graph').forEach(elm => {
+                console.log(elm)
+                if(elm.classList.contains('active')) elm.click();
+            })
             if(!document.body.getAttribute('harbor-selected')) 
                 return alert('Veuillez séléctionner un port');
             if(document.body.getAttribute('station-selected')) 
@@ -149,18 +148,18 @@ class SmartPortMap extends HTMLElement {
             self.selectPort(document.body.getAttribute('harbor-selected'), this.moment(`${year}${month}${day} ${hours}`).format(this.moment.defaultFormat));
         });
 
+        let actualScroll = 1;
+
         document.getElementById('slider__next').addEventListener('click', () => {
-            
-            if(this.sliderDate.classList.contains('slider-translate-1')) {
-                this.sliderDate.classList.remove('slider-translate-1')
-                this.sliderDate.classList.add('slider-translate-2')
-            } else if(this.sliderDate.classList.contains('slider-translate-2')) {
-                this.sliderDate.classList.remove('slider-translate-2')
-            } else {
-                this.sliderDate.classList.add('slider-translate-1')
-            }
-            
-        })
+            if(actualScroll == 5) actualScroll = 0;
+            this.sliderDate.style = `    
+            transform: translateX(-${this.sliderDate.offsetWidth/5 * actualScroll}px);
+            transition-property: transform;
+            transition-duration: 0.6s;` 
+            actualScroll++;
+        });
+        
+
     }
 
     /**
@@ -176,10 +175,13 @@ class SmartPortMap extends HTMLElement {
             }
         }
 
-        removePortLayers()
+        removePortLayers();
     
         document.querySelector('.slider__container').classList.remove('hidden');
         document.querySelector('.slider__container').classList.add('visible');
+
+        document.querySelector('#wind-echelle').classList.remove('hidden');
+        document.querySelector('#wind-echelle').classList.add('visible');
 
         let coord;
         
@@ -202,8 +204,6 @@ class SmartPortMap extends HTMLElement {
         }
         this.map.setView(coord, 12);
 
-        
-
         document.body.setAttribute('harbor-selected', zone)
         document.getElementById('layer__loader').classList.remove('not-loaded');
     
@@ -212,10 +212,10 @@ class SmartPortMap extends HTMLElement {
          else 
             await this.generateWind(this.moment(date).format('YYYYMMDD'), this.moment(date).format('HH'));
 
-        if(this.boat) 
-            this.map.removeLayer(this.boat);
+        // if(this.boat) 
+        //     this.map.removeLayer(this.boat);
 
-        await this.generateBoats(`${this.moment(date).format('YYYYMMDD')} ${this.moment(date).format('HH')}`);
+        // await this.generateBoats(`${this.moment(date).format('YYYYMMDD')} ${this.moment(date).format('HH')}`);
     
         if(this.showStations) 
             this.map.removeLayer(this.showStations);
@@ -237,8 +237,6 @@ class SmartPortMap extends HTMLElement {
      * @param {string} hours 
      */
     async generateWind(date, hours) {
-        console.log('date vent : '+date+' '+hours)
-
         let response = await fetch(`uploads/wind/vent_json/${date}/wind_field_${hours}.json`, {cache: 'no-store'});
             
         let data = await response.json();
@@ -248,11 +246,12 @@ class SmartPortMap extends HTMLElement {
             displayOptions: {
                 velocityType: 'Global Wind',
                 position: 'topright',
-                angleConvention: "CW",
+                angleConvention: "bearingCCW",
                 speedUnit: 'k/h'
             },
             
             data: data,
+            velocityScale: 0.001
         }).addTo(this.map);
     }
 
@@ -262,9 +261,6 @@ class SmartPortMap extends HTMLElement {
      * @param {string} hours 
      */
     async refreshWind(date, hours) {
-
-            console.log('date refresh vent : '+date+' '+hours)
-
             let response = await fetch(`uploads/wind/vent_json/${date}/wind_field_${hours}.json`, {
                 cache: "no-store"
             });
@@ -366,6 +362,7 @@ class SmartPortMap extends HTMLElement {
             onEachFeature: async (feature, layer) => {
                 let templateHtml = '';
                 let polluantTemplateHtml = '';
+                let pollEnabled = [];
 
                 for (let poll of [5, 8, 7]) {
                      let data = await this.getMesuresHoraireJour(poll, feature.properties.code_station, `${this.moment(date).format('YYYY-MM-DD HH:mm')}`);
@@ -373,13 +370,16 @@ class SmartPortMap extends HTMLElement {
                      if(lastValue !== undefined) {
                         templateHtml += `<td style="text-align: center;" class="${colorValue(lastValue, poll)}">${lastValue}</td>`;
 
-                        if(poll == 5)
+                        if(poll == 5) {
                             polluantTemplateHtml += `<th style="text-align: center;" scope="col">PM10</th>`;
-                        else if(poll == 7)
+                            pollEnabled.push('PM10');
+                        } else if(poll == 7) {
                             polluantTemplateHtml += `<th style="text-align: center;" scope="col">O<sub>3</sub></th>`;
-
-                        else if(poll == 8)
+                            pollEnabled.push('O3');
+                        } else if(poll == 8) {
                             polluantTemplateHtml += `<th style="text-align: center;" scope="col">NO<sub>2</sub></th>`;
+                            pollEnabled.push('NO2');
+                        }   
                      }
                 }
 
@@ -406,8 +406,17 @@ class SmartPortMap extends HTMLElement {
 
                 popup.on('add', () => {
                     document.getElementById(feature.properties.code_station).addEventListener('click', async () => {
-                        document.body.setAttribute('station-selected', feature.properties.code_station)
-                        await this.drawChart(feature.properties.code_station, 5, date);  
+                        document.getElementById('PM10__graph').style.setProperty('display', 'none');
+                        document.getElementById('NO2__graph').style.setProperty('display', 'none');
+                        document.getElementById('O3__graph').style.setProperty('display', 'none');
+                        document.body.setAttribute('station-selected', feature.properties.code_station);
+                        for(let poll of pollEnabled) {
+                            document.getElementById(poll+'__graph').style.setProperty('display', 'block');
+                        }
+
+                        document.getElementById(pollEnabled[0]+'__graph').classList.toggle('active');
+                        
+                        document.getElementById(pollEnabled[0]+'__graph').click();
                     });         
                 });
 
@@ -416,17 +425,29 @@ class SmartPortMap extends HTMLElement {
             } 
         }).addTo(this.map);
 
-        
+ 
         document.getElementById('NO2__graph').addEventListener('click', async () => {
             await this.drawChart(document.body.getAttribute('station-selected'), 8, date);
+            for(let elm of document.querySelectorAll('.nav-graph')) {
+                elm.classList.remove('active');
+            }
+            document.getElementById('NO2__graph').classList.toggle('active');
         });
 
         document.getElementById('O3__graph').addEventListener('click', async () => {
             await this.drawChart(document.body.getAttribute('station-selected'), 7, date);
+            for(let elm of document.querySelectorAll('.nav-graph')) {
+                elm.classList.remove('active');
+            }
+            document.getElementById('O3__graph').classList.toggle('active');
         });
 
         document.getElementById('PM10__graph').addEventListener('click', async () => {
             await this.drawChart(document.body.getAttribute('station-selected'), 5, date);
+            for(let elm of document.querySelectorAll('.nav-graph')) {
+                elm.classList.remove('active');
+            }
+            document.getElementById('PM10__graph').classList.toggle('active');
         });  
     }
 
@@ -567,15 +588,9 @@ class SmartPortMap extends HTMLElement {
                 break;
         }
 
-        for(let element of document.querySelectorAll('.nav-graph')) {
-            if(element.classList.contains('active')) element.classList.remove('active');
-        }
-
-        document.getElementById(pollName+'__graph').classList.toggle('active');
-
         let data = await this.getMesuresHoraireGlissantes(polluant, codeStation, `${this.moment(date).format('YYYY-MM-DD HH:mm')}`);
 
-        document.getElementById('graph__title').textContent = `${this.moment(date).format('YYYY-MM-DD HH:mm')}`;
+        document.getElementById('graph__title').textContent = `${this.moment(date).format('YYYY-MM-DD HH:mm')}, ${codeStation}`;
 
         new chartDrawing(pollName, canvas).drawMesureHoraire(data, `${this.moment(date).format('HH')}`);
     }

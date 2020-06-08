@@ -5,154 +5,97 @@
 {{ encore_entry_link_tags('home') }}
 {% endblock %}
 
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
 {% block body %}
-
-<h1 style="width:100%;text-align:center;padding-top: 75px;color:#fff">Contact</h1>
-
-
-<div class="container">
+<div class="container" style="padding-top:75px">
     <div class="row">
-        <div class="col-md-6 col-xl-6 col-lg-6 col-sm-12">
-            <div id="block-views-offices-list-block" class="block block-views">
-    
-                <h2>Les établissements</h2>
-    
-                <div class="content">
-                    <div
-                        class="view view-offices-list view-id-offices_list view-display-id-block view-dom-id-1f73d4612e9a51b447a3b27d505a17d2">
-    
-    
-    
-                        <div class="view-content">
-                            <div class="views-row views-row-1 views-row-odd views-row-first">
-                                <h3>Siège social</h3>
-                                <div class="contact-address">
-                                    <div
-                                        class="field field-name-field-office-address field-type-text-long field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even">
-                                                <p>146&nbsp;rue Paradis&nbsp;<br>
-                                                    Bât.&nbsp;"Le Noilly Paradis"<br>
-                                                    13294 Marseille<br>
-                                                    Cedex 06</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="contact-phone-access">
-                                    <div class="field field-name-field-office-phone field-type-text field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even">+33 4 91 32 38 00</div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="field field-name-field-office-access field-type-link-field field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even"><a
-                                                    href="https://www.google.fr/maps/place/Air+PACA/@43.286482,5.379642,17z/data=!4m2!3m1!1s0x12c9c0b114de0843:0xcc2d79de3b33a743?hl=fr"
-                                                    target="_blank" class="ext" rel="noopener noreferrer">Plan d'accès<span
-                                                        class="ext" aria-label="(le lien est externe)"></span></a></div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="field field-name-field-how-to-come field-type-link-field field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even"><a
-                                                    href="https://www.atmosud.org/publications/venir-atmosud-marseille">Comment
-                                                    venir</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="views-row views-row-2 views-row-even">
-                                <h3>Etablissement de Martigues</h3>
-                                <div class="contact-address">
-                                    <div
-                                        class="field field-name-field-office-address field-type-text-long field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even">
-                                                <p>Route de la Vierge<br>
-                                                    13500 Martigues</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="contact-phone-access">
-                                    <div class="field field-name-field-office-phone field-type-text field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even">+33 4 91 32 38 00</div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="field field-name-field-office-access field-type-link-field field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even"><a
-                                                    href="https://www.google.fr/maps/place/Air+PACA/@43.416971,5.043678,17z/data=!3m1!4b1!4m2!3m1!1s0x12b61e36b74a5261:0x635c3bc6599244c3?hl=fr"
-                                                    target="_blank" class="ext" rel="noopener noreferrer">Plan d'accès<span
-                                                        class="ext" aria-label="(le lien est externe)"></span></a></div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="field field-name-field-how-to-come field-type-link-field field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even"><a
-                                                    href="https://www.atmosud.org/sites/paca/files/atoms/files/venir_atmosud_martigues.pdf">Comment
-                                                    venir</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="views-row views-row-3 views-row-odd views-row-last">
-                                <h3> Etablissement de Nice</h3>
-                                <div class="contact-address">
-                                    <div
-                                        class="field field-name-field-office-address field-type-text-long field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even">
-                                                <p>37&nbsp;bis avenue Henri Matisse<br>
-                                                    06200 Nice</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="contact-phone-access">
-                                    <div class="field field-name-field-office-phone field-type-text field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even">+33 4 91 32 38 00 </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="field field-name-field-office-access field-type-link-field field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even"><a
-                                                    href="https://www.google.fr/maps/place/Air+PACA/@43.675234,7.228353,17z/data=!3m1!4b1!4m2!3m1!1s0x12cdd056479d8757:0x6e97ecbceae990f8?hl=fr"
-                                                    target="_blank" class="ext" rel="noopener noreferrer">Plan d'accès<span
-                                                        class="ext" aria-label="(le lien est externe)"></span></a></div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="field field-name-field-how-to-come field-type-link-field field-label-hidden">
-                                        <div class="field-items">
-                                            <div class="field-item even"><a
-                                                    href="https://www.atmosud.org/sites/paca/files/atoms/files/venir_atmosud_nice.pdf">Comment
-                                                    venir</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-    
-    
-    
-    
-    
-    
+        <div class="col-md-6 col-xl-6 col-lg-6 col-sm-12 border-right etablissement-container">
+            <div class="w-100">
+                <div class="etablissement p-2 border-bottom w-100 d-flex justify-content-center align-items-center">
+                    <h1>Les établissements</h1>
+                </div>
+                <div class="etablissement p-2 border-bottom w-100 d-flex justify-content-center align-items-center">
+                    <div class="w-50 d-flex flex-column justify-content-start align-items-center">
+                        <div class="w-100"><b>Siège Social</b></div>
+                        <div class="w-100">146 rue Paradis</div> 
+                        <div class="w-100">Bât. "Le Noilly Paradis"</div>
+                        <div class="w-100">13294 Marseille</div>
+                        <div class="w-100">Cedex 06</div>
+                    </div>
+                    <div style="text-align:end" class="w-50 d-flex flex-column justify-content-end align-items-center">
+                        <div class="w-100">+33 4 91 32 38 00<i class="fas fa-phone ml-2"></i></div>
+                        <a style="text-align:end" href="https://www.google.fr/maps/place/Air+PACA/@43.286482,5.379642,17z/data=!4m2!3m1!1s0x12c9c0b114de0843:0xcc2d79de3b33a743?hl=fr" 
+                        class="w-100">Plan d'accès<i style="color:#fff" class="fas fa-map-marker-alt ml-2"></i></a> 
+                        <a style="text-align:end" href="https://www.atmosud.org/publications/venir-atmosud-marseille" 
+                        class="w-100">Comment venir<i style="color:#fff" class="fas fa-bus ml-2"></i></a>
+                    </div>
+                </div>
+
+                <div class="etablissement p-2 border-bottom w-100 d-flex justify-content-center align-items-center">
+                    <div class="w-50 d-flex flex-column justify-content-start align-items-center">
+                        <div class="w-100"><b>Etablissement De Martigues</b></div>
+                        <div class="w-100">Route de la Vierge</div> 
+                        <div class="w-100">13500 Martigues</div>
+                    </div>
+                    <div style="text-align:end" class="w-50 d-flex flex-column justify-content-end align-items-center">
+                        <div class="w-100">+33 4 91 32 38 00<i class="fas fa-phone ml-2"></i></div>
+                        <a style="text-align:end" href="https://www.google.fr/maps/place/Air+PACA/@43.416971,5.043678,17z/data=!3m1!4b1!4m2!3m1!1s0x12b61e36b74a5261:0x635c3bc6599244c3?hl=fr" 
+                        class="w-100">Plan d'accès<i style="color:#fff" class="fas fa-map-marker-alt ml-2"></i></a> 
+                        <a style="text-align:end" href="https://www.atmosud.org/sites/paca/files/atoms/files/venir_atmosud_martigues.pdf" 
+                        class="w-100">Comment venir<i style="color:#fff" class="fas fa-bus ml-2"></i></a>
+                    </div>
+                </div>
+
+                <div class="etablissement p-2 border-bottom w-100 d-flex justify-content-center align-items-center">
+                    <div class="w-50 d-flex flex-column justify-content-start align-items-center">
+                        <div class="w-100"><b>Etablissement De Nice</b></div>
+                        <div class="w-100">37 bis avenue Henri</div> 
+                        <div class="w-100">Matisse</div>
+                        <div class="w-100">06200 Nice</div>
+                    </div>
+                    <div style="text-align:end" class="w-50 d-flex flex-column justify-content-end align-items-center">
+                        <div class="w-100">+33 4 91 32 38 00<i class="fas fa-phone ml-2"></i></div>
+                        <a style="text-align:end" href="https://www.google.fr/maps/place/AtmoSud/@43.6603573,7.1624367,12.25z/data=!4m5!3m4!1s0x12cdd056479d8757:0x6e97ecbceae990f8!8m2!3d43.6747567!4d7.2153084?hl=fr" 
+                        class="w-100">Plan d'accès<i style="color:#fff" class="fas fa-map-marker-alt ml-2"></i></a> 
+                        <a style="text-align:end" href="https://www.atmosud.org/sites/paca/files/atoms/files/venir_atmosud_nice.pdf" 
+                        class="w-100">Comment venir<i style="color:#fff" class="fas fa-bus ml-2"></i></a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-xl-6 col-lg-6 col-sm-12">
-    
+        <div class="col-md-6 col-xl-6 col-lg-6 col-sm-12 contact-container">
+                <div class="etablissement p-2 border-bottom w-100 d-flex justify-content-center align-items-center">
+                    <h1>Nous contacter</h1>
+                </div>
+
+                <div class="etablissement p-2 w-100 d-flex justify-content-center align-items-center">
+                    {{ form_start(form, { 'attr': {'class': 'w-100'} }) }}
+                        {% for message in app.flashes('contact_success') %}
+                        <div class="alert alert-success alert-dismissible fade show w-100" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                        <div class="my-custom-class-for-errors">
+                            {{ form_errors(form) }}
+                        </div>
+
+                        <div class="d-flex flex-column align-items-center justify-content-center">
+                            
+                                {{ form_row(form.email) }}
+                           
+                           
+                                {{ form_row(form.message) }}
+                        
+                               
+                                {{ form_row(form.envoyer) }}
+                        
+                        </div>
+                    {{ form_end(form) }}
+                </div>
         </div>
     </div>
 </div>
@@ -160,6 +103,10 @@
     body {
         background-image: linear-gradient(to bottom, #6bba62, #52ae6b, #3ea272, #2f9576, #2a8776, #248078, #247979, #287177, #266e7b, #296b7e, #306780, #386380);
         color: #fff;
+    }
+
+    .form-group {
+        width: 100%;
     }
 </style>
 

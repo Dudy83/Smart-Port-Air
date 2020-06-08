@@ -1,6 +1,5 @@
 header {
     background-image: linear-gradient(to bottom, #6bba62, #52ae6b, #3ea272, #2f9576, #2a8776, #248078, #247979, #287177, #266e7b, #296b7e, #306780, #386380);
-    padding: 5rem;
     color:#fff;
     clip-path: polygon(30% 0%, 70% 0%, 100% 0, 100% 84%, 70% 100%, 30% 100%, 0 84%, 0 0);
     
@@ -41,14 +40,14 @@ header {
             border-bottom-left-radius: 0.25rem;
             border-top-left-radius: 0.25rem;
     
-            h3 {
+            h5 {
                 color:white;
                 padding-bottom:1rem;
                 width:100%;
                 border-bottom:1px solid white;
             }
     
-            h5 {
+            p {
                 color:white; 
                 margin-right: 2rem;
                 width: 80%;
@@ -77,14 +76,14 @@ header {
             border-bottom-left-radius: 0.25rem;
             border-top-left-radius: 0.25rem;
     
-            h3 {
+            h5 {
                 color:white;
                 padding-bottom:1rem;
                 width:100%;
                 border-bottom:1px solid white;
             }
     
-            h5 {
+            p {
                 color:white; 
                 margin-right: 2rem;
                 width: 80%;
@@ -124,9 +123,19 @@ footer {
 }
 
 @media (max-width: 1600px) {
+
+    #cards-container #cards-right-container #cards-right p,
+    #cards-container #cards-left-container #cards-left p {
+        margin: 0;
+        width: 100%;
+    }
+
     #cards-left-container, #cards-right-container {
         flex-direction: column-reverse;
         height: inherit !important;
+        width: 100%!important;
+        margin: 0 !important;
+        margin-bottom: 2rem !important;
     } 
  
     #cards-left-container div:last-child, #cards-right-container div:last-child {
@@ -193,18 +202,17 @@ footer {
     margin-left: 5%;
     margin-top: 2.5%;
   }
+
+  .etablissement-container {
+      border-right: none !important;
+  }
+
+  .contact-container {
+      margin-top: 2rem;
+  }
 }
 
 @media (max-width: 767px) {
-    header img {
-        width: 256px;
-    }
-    
-    #atmosudLogo {
-        align-items: center !important;
-        justify-content: start !important;
-    }
-
     .cards-images-isometric {
         width: 256px;
     }

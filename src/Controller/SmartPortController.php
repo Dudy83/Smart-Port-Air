@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
-
 use App\Entity\UserMesures;
 use App\Form\UserMesuresType;
+use App\Form\ContactType;
 use Doctrine\DBAL\Driver\Connection;
 use App\Repository\UserMesuresRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,119 +29,40 @@ class SmartPortController extends AbstractController
     /**
     *@Route("/contact", name="contact")
     */
-    public function contact()
+    public function contact(Request $request, \Swift_Mailer $mailer)
     {
-        return $this->render('smart_port/contact.html.twig');
+        $form = $this->createForm(ContactType::class);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $email = $form->get('email')->getData();
+            $message = $form->get('message')->getData();
+
+            $message = (new \Swift_Message('Contact Smartport'))
+            ->setFrom($email)
+            ->setTo('guillaume.zehren@atmosud.org')
+            ->setBody($message);
+    
+            $mailer->send($message);
+
+            $this->addFlash(
+                'contact_success',
+                'Votre message à bien été envoyé !'
+            );
+        }
+        
+        return $this->render('smart_port/contact.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
     /**
     *@Route("/map", name="map")
     */
-    public function map(Request $request, ObjectManager $manager)
+    public function map()
     {
-        $mesures = new UserMesures;
-
-        $form = $this->createForm(UserMesuresType::class, $mesures);
-        
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()) {
-        
-            $manager->persist($mesures);
-            $manager->flush();
-
-            return $this->redirectToRoute('map');
-        }
-
-        return $this->render('smart_port/map.html.twig', [
-            'form' => $form->createView()
-        ]);
-    }
-
-    
-    /**
-    *@Route("/api/map/users/mesures", name="get_mesures_api")
-    */
-    public function mapUsersMesuresApi(UserMesuresRepository $repo) 
-    {
-        $mesures = $repo->findAll();
-
-        if($mesures) {
-            foreach($mesures as $mesure) {
-                $results[] = array($mesure->getLon(), $mesure->getLat(), $mesure->getPolluant(), $mesure->getUsername(), $mesure->getDate()); 
-            }
-
-            return $this->json(['results' => json_encode($results)]);
-        }
-
-        return $this->json(['code' => 500]);
-    }
-
-    /**
-    *@Route("/api/add/mesures", name="add_mesures_api")
-    */
-    public function addMesuresApi(Request $request, ObjectManager $manager, UserMesuresRepository $userMesRepo) 
-    {
-        if($request->isXmlHttpRequest()) {
-
-            $mesures = new UserMesures();
-
-            $form = $this->createForm(UserMesuresType::class, $mesures);
-            $form->handleRequest($request);
-
-            if($form->isValid()) {
-                $mesures->getPolluant();
-                $mesures->getDate();
-                $lon = $mesures->getLon();
-                $lat = $mesures->getLat();
-                $mesures->setUsername($this->getUser()->getUsername());
-
-                if(!$this->validateLatLong($lat, $lon)) {
-                  return new JsonResponse(['status' => 300]);
-                }
-               
-                try {
-                  $file = $_FILES['file'];
-  
-                  $file = new UploadedFile($file['tmp_name'], $file['name'], $file['type']);
-      
-                  $filename = $this->getUser()->getUsername() . '_mesures' .'.' . 'json';
-
-                  if($userMesRepo->findOneBy(['file_adress' => $filename])) {
-                      return $this->json(['status' => 450]);
-                  }
-
-                  $file->move(
-                      $this->getParameter('mesures_directory'),
-                      $filename
-                  );
-  
-                  $mesures->setFileAdress($filename);
-  
-                  $manager->persist($mesures);
-  
-                  $manager->flush();
-        
-                } catch(FileException $e) {
-                    $e->getMessage();
-                }
-
-                return $this->json([
-                  'status' => 200,
-                  'lon' => $mesures->getLon(),
-                  'lat' => $mesures->getLat(),
-                  'file_address' => $mesures->getFileAdress(),
-                  'user' => $this->getUser()->getUsername(),
-                  'polluant' => $mesures->getPolluant(),
-                  'date' => $mesures->getDate()
-                ]);
-            }
-
-            return $this->json([
-              'status' => 500,
-              'error' => $this->getErrorMessages($form)
-            ]);
-        }
+        return $this->render('smart_port/map.html.twig');
     }
 
     /**

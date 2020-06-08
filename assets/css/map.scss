@@ -43,7 +43,7 @@ main {
     bottom: 57px;
     left: 40px;
     right: 80px;
-    width: 200%;
+    width: 500%;
     z-index: 9999;
 }
 
@@ -62,17 +62,16 @@ main {
     background-color: #666;
 }
 
-
-.slider-translate-1 {
-    transform: translateX(-95vw);
-    transition-property: transform;
-    transition-duration: 0.6s;
-}
-
-.slider-translate-2 {
-    transform: translateX(-107vw);
-    transition-property: transform;
-    transition-duration: 0.6s;
+#wind-echelle {
+    position: absolute;
+    padding: .25rem;
+    bottom: 125px;
+    transform: rotate(180deg);
+    border-radius: .25rem;
+    background-color: #fff;
+    left: 10px;
+    z-index: 99999;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
 }
 
 .noUi-value-sub {
@@ -438,6 +437,10 @@ text-anchor: middle;
 
 .leaflet-popup {
     margin-bottom: 10px !important;
+}
+
+td {
+    padding: 0 !important;
 }
 
 #indice_air_quality {
