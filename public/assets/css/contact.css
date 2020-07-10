@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css?family=Chivo&display=swap');
+
+body {
+    font-family: 'Chivo';
+    background-image: linear-gradient(to bottom, #6bba62, #52ae6b, #3ea272, #2f9576, #2a8776, #248078, #247979, #287177, #266e7b, #296b7e, #306780, #386380);
+    color: #fff;
+    min-height: 100vh;
+}
+
+/* navbar */
+#navbar {
+    position: fixed;
+    top: 0;
+    z-index: 4000;
+    background: transparent;
+    padding: 1rem;
+    height: 50px;
+    width: 100vw;
+}
+
+#navbar div {
+    height: 50px;
+    margin-right: 1rem !important;
+}
+
+#navbar div a {
+    color: #fff;
+    font-size: 110%;
+    height: 30px;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#navbar div a:hover {
+    color: #363636;
+    opacity: 0.7;
+    text-decoration: none;
+}
+
+.form-group {
+    width: 100%;
+}
+
+@media (max-width: 992px) {
+    .etablissement-container {
+        border-right: none !important;
+    }
+  
+    .contact-container {
+        margin-top: 2rem;
+    }
+}

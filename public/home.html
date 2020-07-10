@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="description" content="Smart Port App, application sur la pollution de l'air">
+    <meta name="author" content="AtmoSud">
+    <meta property="og:title" content="Smart Port App, application sur la pollution de l'air">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.10/plyr.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.11.0/css/mdb.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/logo/favicon.png" />
+    <link rel="stylesheet" href="./assets/css/home.css">
+    <title>SmartPort</title>
+</head>
+
+<body>
+    <nav id="navbar" class="d-flex justify-content-start align-items-center">
+        <img src="./images/logo/logo-removebg-preview.png" title="navbar smartport logo" alt="navbar smartport logo" width="128px">
+
+        <div id="list-container" class="d-flex justify-content-around align-items-center mx-auto float-right">
+
+            <a class="navbar-links" href="./home.html"><i class="fas fa-home mr-2"></i>
+                <p class="navbar-links-content" style="margin:0">Accueil</p>
+            </a>
+
+            <a class="navbar-links" href="./map.html"><i class="fas fa-anchor mr-2"></i>
+                <p class="navbar-links-content" style="margin:0">Carte</p>
+            </a>
+
+            <a class="navbar-links" href="./contact.html"><i class="fas fa-address-book mr-2"></i>
+                <p class="navbar-links-content" style="margin:0">Contact</p>
+            </a>
+
+        </div>
+    </nav>
+    <header id="diams-port-container" class="d-flex justify-content-center align-items-stretch" style="height:75vh">
+
+        <div class="row w-100" id="header-container">
+            <div
+                class="col-md-12 col-xl-12 col-lg-12 col-sm-12 d-flex flex-wrap align-items-center justify-content-center">
+                <img id="logo-header" src="images/logo/logo_transparent.png" class="mt-4" title="logo" alt="logo"
+                    width="15%">
+                <a href="http://www.airpaca.org/" class="d-flex align-items-center justify-content-center mt-4">
+                    <img id="logo-atmosud-header" src="images/logo/atmosud.png" width="50%" title="logo atmosud"
+                        alt="logo atmosud">
+                </a>
+                <img id="logo-europe-header" src="./images/BANDEAU_UIA_EUROPE_AMP_AGENDA_COLOR.PNG"
+                    title="partenaire diams logo" alt="partenaire diams logo" class="mt-4" width="35%">
+                <img id="logo-diams-header" src="images/diams.png" title="diams logo" width="15%" alt="diams logo">
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <section>
+
+        <div id="cards-container" class="w-100 d-flex flex-column align-items-center justify-content-center">
+
+            <div id="cards-info-container" class="w-100 p-5">
+
+                <div class="cards-left-container w-50 d-flex">
+                    <div class="cards-left w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
+                        <h5><i class="fas fa-anchor"></i> Position des navires</h5>
+                        <p><br>Smart Port affiche sur sa carte,<br> le positionnement en temps réel des bateaux
+                            navigants
+                            autour des trois zones portuaires de la région Sud : le port de Marseille, le port de Nice
+                            et le
+                            port de Toulon.</p>
+                        <button data-toggle="modal" data-target="#mod-info-boat" class="btn btn-warning mt-3"
+                            style="margin-top: auto !important; color: #fff; align-self: baseline; font-size: 100%;"><i
+                                class="far fa-play-circle mr-2"></i>Démo</button>
+                    </div>
+
+                    <div class="w-50 d-flex justify-content-start align-items-center">
+                        <img class="cards-images-isometric" src="images/cardBoat.png" title="cards image boat"
+                            alt="cards image boat" width="300px">
+                    </div>
+                </div>
+
+
+
+                <div class="cards-right-container w-50 d-flex">
+                    <div class="cards-right w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
+                        <h5><i class="fas fa-wind"></i> Prévision du vent</h5>
+                        <p><br>Le vent joue de multiples rôles. Il intervient tant par sa direction, pour orienter les
+                            panaches de fumées, que par sa vitesse pour déplacer les polluants.<br>
+                            Plus la vitesse du vent est faible et plus les polluants risquent de s’accumuler. Cependant,
+                            un
+                            vent fort et de direction clairement définie peut diriger un panache vers une zone
+                            spécifique et
+                            y concentrer ainsi la pollution. C’est le cas des panaches issus du trafic maritime,
+                            parfois.
+                        </p>
+                        <button data-toggle="modal" data-target="#mod-info-wind" class="btn btn-warning mt-3"
+                            style="margin-top: auto !important; color: #fff; align-self: baseline; font-size: 100%;"><i
+                                class="far fa-play-circle mr-2"></i>Démo</button>
+                    </div>
+
+                    <div class="w-50 d-flex justify-content-start align-items-center">
+                        <img class="cards-images-isometric" src="images/wind_isometric.png" title="cards image wind"
+                            alt="cards image wind" width="300px">
+                    </div>
+                </div>
+
+                <div class="w-100 mt-5 mb-5" style="height: 500px">
+                    <video poster="images/logo/logo_transparent.png" id="player" playsinline controls>
+                        <source src="images/seq_emission_port.mp4" type="video/mp4" />
+                    </video>
+                </div>
+
+                <div id="full-width-card" class="cards-left-container w-100 d-flex ml-0">
+                    <div class="cards-left w-75 d-flex flex-column justify-content-stretch align-items-center p-5">
+                        <h5><i class="fas fa-smog"></i> Les stations de mesures et les polluants </h5>
+                        <p><br>AtmoSud possède 70 stations sur toute l’ensemble de la région Sud, dont 3 stations
+                            situées
+                            aux abords de ses grands ports: Toulon/Claret, Nice/Port et Marseille/Place Verneuil.<br>
+
+                            Les oxydes d’azote Nox (NO et NO2) sont des composés formés par l’oxydation de l’azote
+                            atmosphérique (N2) lors des combustions (essentiellement à haute température) de carburants
+                            et
+                            de combustibles fossiles. Ils sont en grande partie dus à la circulation routière, mais
+                            aussi
+                            aux autres transports (dont le transport maritime) et à l’industrie.<br>
+
+                            Le dioxyde d’azote (NO2) se forme dans l’atmosphère à partir du monoxyde d’azote (NO) qui se
+                            dégage essentiellement lors de la combustion de combustibles fossiles, dans la circulation
+                            routière par exemple mais aussi dans le transport, tel que le transport maritime.<br>
+
+                            Les particules fines PM 2.5 proviennent en majorité de la combustion à des fins énergétiques
+                            de
+                            différents matériaux (bois, charbon, pétrole), du transport (routier, maritime). Leur
+                            diamètre
+                            est inférieur à 2.5 µm.
+                        </p>
+                        <button data-toggle="modal" data-target="#mod-info-poll" class="btn btn-warning mt-3"
+                            style="margin-top: auto !important; color: #fff; align-self: baseline; font-size: 100%;"><i
+                                class="far fa-play-circle mr-2"></i>Démo</button>
+                    </div>
+
+                    <div class="w-50 d-flex justify-content-start align-items-center">
+                        <img class="cards-images-isometric" src="images/maps.png" title="cards image pollution"
+                            alt="cards image pollution" width="300px">
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </section>
+
+    <div class="modal fade" id="mod-info-boat" tabindex="-1" role="dialog" style="z-index: 99999;" aria-hidden="true">
+        <div class="modal-dialog modal-side modal-top-right" role="document"
+            style="width: 992px !important; max-width: 992px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="text-align: center; width: 100%">Démo position des navires</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="./images/boat-demo.png" alt="bateaux carte démo" title="bateaux carte démo" width="100%"
+                        class="shadow-lg rounded" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i
+                            class="far fa-times-circle mr-2"></i>Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mod-info-wind" tabindex="-1" role="dialog" style="z-index: 99999;" aria-hidden="true">
+        <div class="modal-dialog modal-side modal-top-right" role="document"
+            style="width: 992px !important; max-width: 992px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="text-align: center; width: 100%">Démo prévision du vent</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="/images/wind-demo.png" alt="vent carte démo" title="vent carte démo" width="100%"
+                        class="shadow-lg rounded" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i
+                            class="far fa-times-circle mr-2"></i>Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mod-info-poll" tabindex="-1" role="dialog" style="z-index: 99999;" aria-hidden="true">
+        <div class="modal-dialog modal-side modal-top-right" role="document"
+            style="width: 992px !important; max-width: 992px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="text-align: center; width: 100%">Démo pollution</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="/images/poll-demo.png" alt="pollution carte démo" title="pollution carte démo"
+                        width="100%" class="shadow-lg rounded" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i
+                            class="far fa-times-circle mr-2"></i>Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mod-info-stations" tabindex="-1" role="dialog" style="z-index: 99999;"
+        aria-hidden="true">
+        <div class="modal-dialog modal-side modal-top-right" role="document"
+            style="width: 992px !important; max-width: 992px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="text-align: center; width: 100%">Démo positions des stations de
+                        mesures
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="/images/demo-stations.png" alt="stations carte démo" title="stations carte démo"
+                        width="100%" class="shadow-lg rounded" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i
+                            class="far fa-times-circle mr-2"></i>Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mod-info-mesures" tabindex="-1" role="dialog" style="z-index: 99999;"
+        aria-hidden="true">
+        <div class="modal-dialog modal-side modal-top-right" role="document"
+            style="width: 992px !important; max-width: 992px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="text-align: center; width: 100%">Démo graphiques des mesures</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="/images/demo-mesures.png" alt="mesures carte démo" title="mesures carte démo" width="100%"
+                        class="shadow-lg rounded" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i
+                            class="far fa-times-circle mr-2"></i>Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="d-flex flex-wrap justify-content-around align-items-center">
+        <div class="w-100 pb-2 d-flex flex-wrap justify-content-around align-items-center">
+
+            <img src="images/logo/logo_transparent.png" title="footer smartport logo" alt="footer smartport logo"
+                width="256px">
+
+            <div class="w-100 d-flex justify-content-center align-items-center">
+                <a href="https://www.facebook.com/AtmoSud" class="m-3"><img src="images/reseaux/facebook.png"
+                        title="footer atmosud facebook link" alt="footer atmosud facebook link" width="48px"></a>
+
+                <a href="https://www.linkedin.com/company/atmosud/" class="m-3"><img src="images/reseaux/linkedin.png"
+                        title="footer atmosud linkedin link" alt="footer atmosud linkedin link" width="48px"></a>
+
+                <a href="https://twitter.com/AtmoSud" class="m-3"><img src="images/reseaux/twitter.png"
+                        title="footer atmosud twitter link" alt="footer atmosud twitter link" width="48px"></a>
+
+                <a href="https://www.youtube.com/c/AtmoSud" class="m-3"><img src="images/reseaux/youtube.png"
+                        title="footer atmosud youtube link" alt="footer atmosud youtube link" width="48px"></a>
+            </div>
+        </div>
+        <p style="text-align:center;align-self:start;color:#fff;border-top:1px solid #fff" class="m-2 p-2 w-100">2020
+            &copy;
+            SmartPort | Tous droits réservés.</p>
+    </footer>
+</body>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.11.0/js/mdb.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.10/plyr.min.js"></script>
+<script>
+    new Plyr('#player', {
+        controls: [
+            'play',
+            'progress',
+            'mute',
+            'volume',
+            'play-large',
+            'current-time',
+            'fullscreen',
+        ]
+    });
+</script>
+<script src="./assets/js/navbar.js"></script>
+
+</html>

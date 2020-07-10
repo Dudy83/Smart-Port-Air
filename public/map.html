@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="description" content="Smart Port App, application sur la pollution de l'air">
+    <meta name="author" content="AtmoSud">
+    <meta property="og:title" content="Smart Port App, application sur la pollution de l'air">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.11.0/css/mdb.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin="" />
+    <link href="cdn/css/leaflet-velocity.css" rel="stylesheet">
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet'>
+    <link rel="stylesheet" href="./cdn/css/nouislider.min.css">
+    <link rel="stylesheet" href="./assets/css/map.css">
+    <link rel="icon" type="image/png" href="images/logo/favicon.png" />
+    <title>SmartPort | Map</title>
+</head>
+<body>
+    <div id="slider__next__hours" class="d-flex justify-content-center align-items-center">
+        -1
+    </div>
+    <div id="slider__previous__hours" class="d-flex justify-content-center align-items-center">
+        +1
+    </div>
+    
+    <div id="slider__next" class="d-flex justify-content-center align-items-center">
+        <img src="./images/next.png" alt="Next" width="16px">
+    </div>
+    <div id="slider__back" class="d-flex justify-content-center align-items-center hidden">
+        <img src="./images/next.png" alt="Next" width="16px">
+    </div>
+    <div id="slider__date"></div>
+    <div class="slider__container"></div>
+    <div id="error__data"></div>
+    
+    <div id="map"></div>
+    
+    <div id="modals-container">
+        <div style="z-index: 9997;" class="modal fade right" id="modal-chart" tabindex="-1" role="dialog"
+            aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-full-height modal-right modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header d-flex flex-column justify-content-center align-items-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body modal-chart-container">
+                        <ul class="nav nav-tabs w-100 mb-3">
+                            <li class="nav-item">
+                                <a id="PM25__graph" class="nav-link nav-graph">PM25</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="NO2__graph" class="nav-link nav-graph">NO<sub>2</sub></a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="O3__graph" class="nav-link nav-graph">O<sub>3</sub></a>
+                            </li>
+                        </ul>
+                         <h5 id="graph__title" class="w-100" style="text-align:center;margin:0"></h5>
+                         <div id="modal-canvas" class="d-flex justify-content-around align-items-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modals-boats-container"></div>
+    
+    <div class="popup-wind hidden init">
+        <div class="wind-value-container">
+            <div class="arrow-wind"></div>
+            <div class="value-wind"></div>
+        </div>
+        <div class="center-popup-wind"></div>
+    </div>
+    
+    
+    <div id="map__loader" class="d-flex flex-column align-items-center justify-content-start">
+        <img src="images/logo/logo_transparent.png" title="form logo smartport" alt="form logo smartport" width="35%">
+        <div class="lds-roller mt-4">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+        <h5 style="text-align:center; color: #7d7d7d" class="mt-3">Chargement en cours...</h5>
+    
+    </div>
+    
+    <div id="indice-echelle" class="d-flex flex-column align-items-center justify-content-center hidden">
+        Indice
+        <div style="width: 24px; height: 24px; background-color: rgb(90,0,170)">
+        Exécrable
+        </div>
+        <div style="width: 24px; height: 24px; background-color: rgb(150,0,50)">
+        Très Mauvais
+        </div>
+        <div style="width: 24px; height: 24px; background-color: rgb(255,80,80)">
+        Mauvais
+        </div>
+        <div style="width: 24px; height: 24px; background-color: rgb(240,230,65)">
+        Dégradé
+        </div>
+        <div style="width: 24px; height: 24px; background-color: rgb(80,204,170)">
+        Moyen
+        </div>
+        <div style="width: 24px; height: 24px; background-color: rgb(80,240,230)">
+        Bon
+        </div>
+    </div>
+    <div id="layer__loader" class="not-loaded d-flex flex-column align-items-center justify-content-center">
+        <div class="lds-roller mt-4">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+        <h5 style="text-align:center; color: #7d7d7d" class="mt-3">Chargement en cours...</h5>
+    </div>
+</body>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.11.0/js/mdb.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js"></script> 
+        
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+    <script type="text/javascript" src="cdn/js/leaflet-velocity.js"></script>
+    <script type="text/javascript" src="./cdn/js/nouislider.min.js"></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    <script type="module" src="./assets/js/map.js"></script>
+</html>
