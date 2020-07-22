@@ -275,10 +275,10 @@ async function selectPort(zone, date) {
      else 
         await generateWind(moment(date).format('YYYYMMDD'), moment(date).format('HH'));
 
-    // if(boat) 
-    //     map.removeLayer(this.boat);
+    if(boat) 
+        map.removeLayer(boat);
 
-    // await generateBoats(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
+    await generateBoats(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
 
     if(showStations) 
         await refreshStations(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
@@ -289,7 +289,7 @@ async function selectPort(zone, date) {
 }
 
 async function generateWind(date, hours) {
-    let response = await fetch(`uploads/wind/vent_json/${date}/wind_field_${hours}.json`, { cache: 'no-store' });
+    let response = await fetch(`/Smart-Port-Air/uploads/wind/${date}/wind_field_${hours}.json`, { cache: 'no-store' });
 
     if(!response.ok) {
         document.getElementById('error__data').innerHTML = ``;
@@ -324,7 +324,7 @@ async function generateWind(date, hours) {
  * @param {datetime} hours 
  */
 async function refreshWind(date, hours) {
-    let response = await fetch(`uploads/wind/vent_json/${date}/wind_field_${hours}.json`, { cache: 'no-store' });
+    let response = await fetch(`/Smart-Port-Air/uploads/wind/${date}/wind_field_${hours}.json`, { cache: 'no-store' });
 
     if(!response.ok) {
         document.getElementById('error__data').innerHTML = ``;
@@ -708,7 +708,7 @@ async function generateBoats(date) {
         return alert('Date invalide pour les données maritimes');
     }
 
-    let response = await fetch('/smartport/api.ihs.php', {
+    let response = await fetch('/Smart-Port-Air/api.ihs.php', {
         method: 'POST',
         mode: "same-origin",
         credentials: "same-origin",
@@ -733,13 +733,11 @@ async function generateBoats(date) {
 
     let boatData = await response.json();
 
-    if(boatData.code == 400) throw new Error('An error occured during the request');
+    if(!response.ok) throw new Error('An error occured during the request');
 
-    for(let data of JSON.parse(boatData.results)) {
-    
-        const [name, lon, lat, vesselType, destination, status, heading, width] = data;
+    for(let data of boatData) {
 
-        switch (vesselType) {
+        switch (data.VesselType) {
             
             case 'Cargo':
             color = 'lightgreen';
@@ -778,14 +776,14 @@ async function generateBoats(date) {
             break;
         }
         
-        let marker =  L.marker([lat, lon], {
+        let marker =  L.marker([data.Lat, data.Lon], {
             icon: BoatIcon(color),
-            rotationAngle: heading
+            rotationAngle: data.Heading
         })
             .bindPopup(`<div class="d-flex flex-column justify-content-center align-items-center">
-                <p style="margin:0">Nom : ${name}</p><br><p style="margin:0">Type : ${vesselType}</p><br>
+                <p style="margin:0">Nom : ${data.Name}</p><br><p style="margin:0">Type : ${data.VesselType}</p><br>
                 <p style="margin:0;
-                ">Destination : ${destination}</p><br><p style="margin:0">Status : ${status}</p>
+                ">Destination : ${data.Destination}</p><br><p style="margin:0">Status : ${data.Status}</p>
             </div>`, {
                 className: 'boat-popup'
             })

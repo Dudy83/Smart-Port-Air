@@ -22,7 +22,7 @@ if($contentType === "application/json") {
 
     $data = $db->getRows($sql);
 
-    echo json_decode($data);
+    echo json_encode($data);
 
     $db->close();
 }
