@@ -18,6 +18,9 @@ let sliderDate = document.getElementById('slider__date');
 let stationsArray = [];
 let stationFilter = [];
 let map;
+let mapLayer;
+let layerLabels;
+let chart;
 let portMarseille = L.rectangle([[43.36796747943005,5.277392744628937],[43.269552680310994,5.451457380859406]], {color: "#ff7800", weight: 1});
 let portFos = L.rectangle([[43.44578690866529,4.8413728471679995],[43.350993565930644,5.042216658203156]], {color: "#ff7800", weight: 1});
 let portToulon = L.rectangle([[43.15294771593063,5.8301423784179995],[43.07525442169086,6.017939924804718]], {color: "#ff7800", weight: 1});
@@ -48,29 +51,24 @@ function initMap () {
     if(window.screen.width < 992) iniZoom -= 2
     if(window.screen.width < 1200) iniZoom -= 1;
 
-    let mapLayer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy;<a href="http://www.atmosud.org/"> ATMOSUD - 2020 </a>| &copy; OpenStreetMap',
-    });
-
     map = L.map('map', {
-        layers: [mapLayer],
         fullscreenControl: true
-    });
+    }).setView([43.7284, 5.9367], iniZoom);
 
-    map.setView([43.7284, 5.9367], iniZoom);
+    mapLayer = L.esri.basemapLayer('Topographic').addTo(map);
 
     portMarseille.addTo(map);
-    portFos.addTo(map)
-    portToulon.addTo(map)
-    portNice.addTo(map)
+    portFos.addTo(map);
+    portToulon.addTo(map);
+    portNice.addTo(map);
 
     document.getElementById('NO2__graph').addEventListener('click', async () => {
         for(let elm of document.querySelectorAll('.nav-graph')) {
             elm.classList.remove('active');
         }
         document.getElementById('NO2__graph').classList.toggle('active');
-        await drawChart(document.body.getAttribute('station-selected'), 8, sliderDate.noUiSlider.get());
+        if(!chart) await drawChart(document.body.getAttribute('station-selected'), 8);
+        else await refreshChart(document.body.getAttribute('station-selected'), 8);
     });
 
     document.getElementById('O3__graph').addEventListener('click', async () => {
@@ -78,7 +76,8 @@ function initMap () {
             elm.classList.remove('active');
         }
         document.getElementById('O3__graph').classList.toggle('active');
-        await drawChart(document.body.getAttribute('station-selected'), 7, sliderDate.noUiSlider.get());
+        if(!chart) await drawChart(document.body.getAttribute('station-selected'), 7);
+        else await refreshChart(document.body.getAttribute('station-selected'), 7);
     });
 
     document.getElementById('PM25__graph').addEventListener('click', async () => {
@@ -86,9 +85,45 @@ function initMap () {
             elm.classList.remove('active');
         }
         document.getElementById('PM25__graph').classList.toggle('active');
-        await drawChart(document.body.getAttribute('station-selected'), 6001, sliderDate.noUiSlider.get());
+        if(!chart) await drawChart(document.body.getAttribute('station-selected'), 6001);
+        else await refreshChart(document.body.getAttribute('station-selected'), 6001);
     }); 
+
+    document
+    .querySelector('#maplayers')
+    .addEventListener('change', function (e) {
+      let basemap = e.target.value;
+      setBasemap(basemap);
+    });
 }
+
+function setBasemap (basemap) {
+    if (mapLayer) {
+      map.removeLayer(mapLayer);
+    }
+
+    mapLayer = L.esri.basemapLayer(basemap);
+
+    map.addLayer(mapLayer);
+
+    if (layerLabels) {
+      map.removeLayer(layerLabels);
+    }
+
+    if (
+      basemap === 'ShadedRelief' ||
+      basemap === 'Oceans' ||
+      basemap === 'Gray' ||
+      basemap === 'DarkGray' ||
+      basemap === 'Terrain'
+    ) {
+      layerLabels = L.esri.basemapLayer(basemap + 'Labels');
+      map.addLayer(layerLabels);
+    } else if (basemap.includes('Imagery')) {
+      layerLabels = L.esri.basemapLayer('ImageryLabels');
+      map.addLayer(layerLabels);
+    }
+  }
 
 /**
  * Génère les dates sur la zone de slide et bind les events listeners du sliders.
@@ -275,10 +310,10 @@ async function selectPort(zone, date) {
      else 
         await generateWind(moment(date).format('YYYYMMDD'), moment(date).format('HH'));
 
-    if(boat) 
-        map.removeLayer(boat);
+    // if(boat) 
+    //     map.removeLayer(boat);
 
-    await generateBoats(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
+    // await generateBoats(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
 
     if(showStations) 
         await refreshStations(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
@@ -834,9 +869,178 @@ async function drawChart(codeStation, polluant) {
 
     if(data.length < 24) {
         data = await getMesuresHoraireJour(polluant, codeStation, `${moment(`${year}${month}${day} ${heureLocal}`).format('YYYY-MM-DD HH:mm')}`);
-        new chartDrawing(pollName, canvas).drawMesureHoraire(data, `${moment(`${year}${month}${day} ${hours}`).format('HH')}`);
+        chart = new chartDrawing(pollName, canvas).drawMesureHoraire(data, `${moment(`${year}${month}${day} ${hours}`).format('HH')}`);
     } else {
-        new chartDrawing(pollName, canvas).drawMesureHoraireGlissante(data, `${moment(`${year}${month}${day} ${hours}`).format('HH')}`);
+        chart = new chartDrawing(pollName, canvas).drawMesureHoraireGlissante(data, `${moment(`${year}${month}${day} ${hours}`).format('HH')}`);
+    }
+
+    if(!data || data.length <= 0) {
+        return document.getElementById('graph__title').innerHTML = `
+        <div class="alert alert-warning w-100" role="alert" style="font-size: 1rem">
+        <i class="fas fa-exclamation-triangle mr-2"></i>Pas de données pour la date du ${moment(`${year}${month}${day} ${hours}`).format('YYYY-MM-DD HH:mm')}
+        </div>`;
+    }
+
+    if(document.getElementById(codeStation)) {
+        document.getElementById('graph__title').innerHTML = `
+        ${codeStation} | ${document.getElementById(codeStation).getAttribute('nomStation')}
+        <br>
+        ${moment(`${year}${month}${day} ${hours}`).format('YYYY-MM-DD HH:mm')}`;
+    }
+}
+
+
+/**
+ * Cette fonction trâce une courbes des 24h dernières heures ou des 24h glissantes si la date sélectionnée est inférieure à maintenant - 12 heures
+ * @package Chart.js
+ * @param {string} codeStation 
+ * @param {integer} polluant 
+ */
+async function refreshChart(codeStation, polluant) {   
+        
+    let pollName;
+    let vLimite;
+    let maxPoint;
+    let labels = [];
+
+    switch (polluant) {
+        case 6001:
+            pollName = 'PM25';
+            break;
+        
+        case 7:
+            pollName = 'O3';
+            break;
+
+        case 8: 
+            pollName = 'NO2';
+            break;
+    }
+
+    if(window.screen.width >= 992) {
+        document.getElementById('legend__graph').src = `./images/legend_${pollName}.png`;
+    }
+
+    let data = await getMesuresHoraireGlissantes(polluant, codeStation, `${moment(`${year}${month}${day} ${heureLocal}`).format('YYYY-MM-DD HH:mm')}`);
+
+    if(pollName == "O3") {
+        vLimite = new Array(25).fill(180);
+        maxPoint = 360; 
+    } else if(pollName == "NO2"){
+        vLimite = new Array(25).fill(200);
+        maxPoint = 400; 
+    } else {
+        vLimite = new Array(25).fill(50);
+        maxPoint = 100; 
+    }
+
+    if(data.length < 24) {
+        data = await getMesuresHoraireJour(polluant, codeStation, `${moment(`${year}${month}${day} ${heureLocal}`).format('YYYY-MM-DD HH:mm')}`);
+        
+        for (let i in data) {
+            labels.push(moment(new Date().setHours(hours)).add(i, 'hours').format('HH')+':00')
+        }
+
+        chart.data.datasets[0].data = data;
+        chart.data.datasets[1].data = vLimite;
+        // chart.options.scales.yAxes[0].ticks.max = maxPoint;
+        chart.data.labels = labels;
+
+        chart.options = {
+            responsive: true,
+            title: {
+                fontSize: 20,
+                display: true,
+                text: 'Evolution des max horaires journaliers en ' + pollName + ' (µg/m³)'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMax: maxPoint
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: "rgba(0, 0, 0, 0)",
+                    }
+                }]
+            },
+            legend: {
+                position: 'bottom',
+                display: true, 
+                labels: {
+                    fontSize: 10,
+                    boxHeight: 2
+                },                
+            },
+        }
+
+        chart.update();
+        
+    } else {
+
+        let _hours = moment(new Date().setHours(hours)).subtract(12, 'hours').format('HH'); 
+
+        for (let i in data) {
+            labels.push(moment(new Date().setHours(_hours)).add(i, 'hours').format('HH')+':00')
+        }
+
+        let today = labels[12];
+
+        chart.data.datasets[0].data = data;
+        chart.data.datasets[1].data = vLimite;
+        chart.data.labels = labels;
+
+        chart.options = {
+            annotation: {
+                annotations: [
+                    {
+                        drawTime: "afterDatasetsDraw",
+                        type: "line",
+                        mode: "vertical",
+                        scaleID: "x-axis-0",
+                        value: today,
+                        borderWidth: 2,
+                        borderColor: "red",
+                        label: {
+                          content: today,
+                          enabled: true,
+                          position: "top"
+                        }
+                    }
+                ]
+              },
+            responsive: true,
+            title: {
+                fontSize: 20,
+                display: true,
+                text: 'Evolution des max horaires journaliers en ' + pollName + ' (µg/m³)'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMax: maxPoint
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        color: "rgba(0, 0, 0, 0)",
+                    }
+                }]
+            },
+            legend: {
+                position: 'bottom',
+                display: true, 
+                labels: {
+                    fontSize: 10,
+                    boxHeight: 2
+                },                
+            },
+        }
+
+        chart.update()
     }
 
     if(!data || data.length <= 0) {
@@ -865,8 +1069,6 @@ function getMesuresHoraireJour(polluantId, codeStation, date) {
     return new Promise((resolve, reject) => {
         
         const createRequests = () => {
-
-            console.log(heureLocal)
             
             const results = []; 
 
@@ -952,7 +1154,7 @@ function getLastMesuresHours(polluantId, codeStation, date) {
             const dateDebut = moment(`${year}${month}${day} ${heureLocal}`).format('YYYY/MM/DD HH');
             const dateFin = moment(`${year}${month}${day} ${heureLocal}`).format('YYYY/MM/DD HH');
             let url = "https://geoservices.atmosud.org/geoserver/mes_sudpaca_horaire_poll_princ/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=mes_sudpaca_horaire_poll_princ:mes_sudpaca_horaire&outputFormat=application%2Fjson&CQL_FILTER=date_debut>=%27" + dateDebut + ":00" + "%27%20AND%20id_poll_ue%20=%20"+polluantId+"%20AND%20code_station%20=%20%27"+codeStation+"%27%20AND%20date_fin<=%27"+ dateFin +":59" + "%27";
-            console.log(codeStation, polluantId, url);
+
             const request = axios.get(url);
             results.push(request); 
 

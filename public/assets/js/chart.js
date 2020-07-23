@@ -17,6 +17,22 @@ export default class chartDrawing {
         this.maxPoint;
     }
 
+    static addData(chart, label, data) {
+        chart.data.labels.push(label);
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+        });
+        chart.update();
+    }
+    
+    static removeData(chart) {
+        chart.data.labels.pop();
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.pop();
+        });
+        chart.update();
+    }
+
     /**
      * 
      * @param {array} data la data est récupérée et retournée sous forme de tableau via la @function getMesuresHoraireJour() dans le fichier map.js
@@ -49,7 +65,7 @@ export default class chartDrawing {
             today = `${moment(new Date().setHours(hours)).subtract(12, 'hours').format('HH')}:00`;
         }
 
-        new Chart(this.canvas, {
+        return new Chart(this.canvas, {
             type: 'line',
             data: {
                 labels: this.days,
@@ -68,6 +84,7 @@ export default class chartDrawing {
                         data: this.vLimite,
                         pointRadius: 0,
                         borderDash: [10,5],
+                        borderWidth: 2,
                     },
                 ]
             },
@@ -142,7 +159,7 @@ export default class chartDrawing {
             this.days.push(moment(new Date().setHours(hours)).add(i, 'hours').format('HH')+':00')
         }
 
-        new Chart(this.canvas, {
+        return new Chart(this.canvas, {
             type: 'line',
             data: {
                 labels: this.days,
@@ -161,6 +178,7 @@ export default class chartDrawing {
                         data: this.vLimite,
                         pointRadius: 0,
                         borderDash: [10,5],
+                        borderWidth: 2,
                     },
                     
                 ]
