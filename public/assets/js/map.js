@@ -310,10 +310,10 @@ async function selectPort(zone, date) {
      else 
         await generateWind(moment(date).format('YYYYMMDD'), moment(date).format('HH'));
 
-    // if(boat) 
-    //     map.removeLayer(boat);
+    if(boat) 
+        map.removeLayer(boat);
 
-    // await generateBoats(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
+    await generateBoats(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
 
     if(showStations) 
         await refreshStations(`${moment(date).format('YYYYMMDD')} ${moment(date).format('HH')}`);
@@ -771,6 +771,8 @@ async function generateBoats(date) {
     if(!response.ok) throw new Error('An error occured during the request');
 
     for(let data of boatData) {
+
+        console.log(data)
 
         switch (data.VesselType) {
             
