@@ -743,16 +743,8 @@ async function generateBoats(date) {
         return alert('Date invalide pour les données maritimes');
     }
 
-    let response = await fetch('/Smart-Port-Air/api.ihs.php', {
-        method: 'POST',
-        mode: "same-origin",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            dateIhs: moment(date).format('YYYY-MM-DD HH:mm:ss')
-        })
+    let response = await fetch(`/Smart-Port-Air/uploads/ihs/${moment(date).format('YYYYMMDD_HH')}.json`, {
+        cache: 'no-store'
     });
 
     if(!response.ok) {
@@ -771,8 +763,6 @@ async function generateBoats(date) {
     if(!response.ok) throw new Error('An error occured during the request');
 
     for(let data of boatData) {
-
-        console.log(data)
 
         switch (data.VesselType) {
             
