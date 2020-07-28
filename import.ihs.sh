@@ -15,7 +15,11 @@ select array_to_json(array_agg(row_to_json (r))) FROM (
        , f.\"Name\"
        , f.\"IMO\"
        , f.\"MMSI\"
-       , f.\"VesselType\" 
+       , f.\"VesselType\"
+       , f.\"Lon\"
+       , f.\"Lat\"
+       , f.\"Destination\"
+       , f.\"Status\" 
        , st_setsrid(st_makepoint(f.\"Lon\"::double precision, f.\"Lat\"::double precision), 4326) as geom 
     from loc.horaire as f
     left join (
